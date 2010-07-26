@@ -1,0 +1,547 @@
+" vim: set ft=vimperator:
+mapclear
+cmapclear
+imapclear
+
+"-- 
+" 基本設定
+
+" ブラウザタイトルの変更
+set titlestring=Vimfox
+
+" メニュー/ツール/リンクを表示
+set guioptions=
+set go-=D
+set defsearch=google
+
+" タブの非表示
+set showtabline=0
+
+" リンクのURIをコマンドラインに表示
+set showstatuslinks=2
+
+" 全てのタイプをタブで開く
+set newtab=all
+
+" コマンド入力時にコマンド名を自動補完
+set wildoptions=auto
+
+" URLのオートコンプリート
+set complete=
+autocmd VimperatorEnter ".*" :set complete+=DlS
+set history=300
+
+" テキストボックスに勝手にフォーカスしない
+set focuscontent
+
+" ページ全体で検索語を強調表示
+set hlsearch
+
+" ビープ音を鳴らさずビジュアルベルを使用
+set visualbell
+
+" テキストボックスにエディタを利用する
+set editor="gvim -f -c ':set fenc=utf8'"
+
+" コマンドラインへの移行時にIMEを指定の状態に切り替える
+style -name commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
+
+"-- 
+" 視覚に関する設定
+
+" ヒントモードの文字を見やすく
+hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9;
+hi HintActive background-color: greenyellow; border: 0.5px oldlace dotted; -moz-border-radius: 3px; padding: 0.1em; font-weight: bold;
+
+" ヒントモードに使う文字の指定
+set hintchars=;asdfghjkl
+
+" コマンドラインを見やすく
+hi Title                color: Black;
+hi CompTitle            color: Black;
+hi GradientLeft                            background-color: mintcream;
+hi GradientRight                           background-color: #111;
+hi CompGroup            color: White;
+hi CompItem[selected]   color: DodgerBlue; background-color: mintcream;
+hi CompDesc             color: LightGray;
+hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 8pt; font-weight: normal;
+hi Normal               color: White;      background: rgba(51,51,51,0.7); font-size: 10pt;
+hi ModeMsg              color: White;      background: rgba(51,51,51,0.7); font-size: 8pt;
+style -name parsonas chrome://* <<EOM
+#main-window { background-repeat: repeat-y !important;}
+#browser-bottombox { background-image: none !important; }
+#liberator-multiline-output, #liberator-completions { background: transparent !important; }
+#content tabpanels { background-color: transparent !important; }
+EOM
+autocmd LocationChange .* js getBrowser().mCurrentBrowser.collapsed = buffer.URL == "about:blank" ? true : false
+
+" コマンドラインの高さがおかしくなる現象を修正
+command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=e.parentNode){e.removeAttribute("width");e.removeAttribute("height");p.appendChild(p.removeChild(e));}
+
+" 補完のURLが長すぎて、切れてしまう問題の対処
+hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
+hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
+
+"-- 
+" 操作に関する設定
+" Insertモードでキーバインドが効かない問題にたいするHack
+javascript <<EOM
+window.addEventListener(
+  'keypress',
+  function (event) {
+    if (liberator.mode === modes.INSERT && modes.extended === modes.MENU) {
+      let map = mappings.get(modes.INSERT, events.toString(event));
+      if (map) {
+        event.preventDefault();
+        event.stopPropagation();
+        map.execute();
+      }
+    }
+  },
+  false
+);
+EOM
+
+" Insertモードで<C-h>、<C-j>、<C-k>、<C-l>をカーソルキー代わりにする
+inoremap <C-h> <Left>
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+inoremap <C-l> <Right>
+
+" eでecho表示
+map e :echo 
+
+" <A-p>/<A-n>で現在のタブの位置変更
+map <A-p> :tabmove! -1<CR>
+map <A-n> :tabmove! +1<CR>
+
+" <C-r>で履歴を表示
+cmap <C-r> <Up>
+
+" undo一覧から開く
+noremap U :undo<Space>
+
+"-- 
+" 検索用ブックマーク
+silent bmark -title="Google US Search" -tags=keyword -keyword=gs https://www.google.com/search?q=%s
+silent bmark -title="Twitter Search" -tags=keyword -keyword=ts http://search.twitter.com/search?q=%s
+silent bmark -title="Wolfram|Alpha" -tags=keyword -keyword=wa http://www.wolframalpha.com/input/?i=%s
+silent bmark -title="Delicious Search" -tags=keyword -keyword=ds http://delicious.com/search?p=%s
+silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evernote.com/search?q=%s
+silent bmark -title="Wikipedia(ja)" -tags=keyword -keyword=wk http://ja.wikipedia.org/wiki/Special:Search?search=%s
+silent bmark -title="NewYorkTimes" -tags=keyword -keyword=nt http://query.nytimes.com/search/sitesearch?query=%s
+
+" Delicious bookmark用
+command! Delicious open javascript:(function(){f='http://delicious.com/save?url='+encodeURIComponent(window.location.href)+'&title='+encodeURIComponent(document.title)+'&v=5&';a=function(){if(!window.open(f+'noui=1&jump=doclose','deliciousuiv5','location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))location.href=f+'jump=yes'};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})()
+
+" Evernote用
+command! Evernote open javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);}})()
+
+" Tumblr用
+command! Tumblr open javascript:var d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),f='http://www.tumblr.com/share',l=d.location,e=encodeURIComponent,p='?v=3&u='+e(l.href) +'&t='+e(d.title) +'&s='+e(s),u=f+p;try{if(!/^(.*\.)?tumblr[^.]*$/.test(l.host))throw(0);tstbklt();}catch(z){a =function(){if(!w.open(u,'t','toolbar=0,resizable=0,status=1,width=450,height=430'))l.href=u;};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else a();}void(0)
+
+"-- 
+" プラグインに関する設定
+
+" multi_requester.js
+noremap ma :mr<Space>alc<Space>
+noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
+noremap mg :mr<Space>goo<Space>
+noremap me :mr<Space>answers<Space>
+" noremap mw :mr<Space>weather-yahoo<Space><CR>
+
+" Readability plugin
+map ,r js Readability.enableREADABILITY({target: {id: 'readability-statusbar-icon'}})<CR>
+
+" AutoPagerize plugin
+javascript <<EOM
+let evaluateXPath = util.evaluateXPath || buffer.evaluateXPath;
+mappings.addUserMap(
+    [modes.NORMAL],
+    ['a'],
+    'Toggle AutoPagerize',
+    function (motion, count, arg) {
+        buffer.followLink(
+            evaluateXPath('id("autopagerize_help")/div/a[@class="autopagerize_link"]').snapshotItem(0)
+        );
+    },
+    {}
+);
+EOM
+
+"-- 
+" JavaScriptに関する設定
+
+" カレンダーを見るコマンド
+command! cal js liberator.echo(<datepicker type="grid" xmlns={XUL}/>)
+
+" 戻るを拡張
+javascript <<EOM
+let (
+    back = mappings.getDefault(modes.NORMAL, 'H').action,
+    remove = mappings.getDefault(modes.NORMAL, 'd').action
+)
+mappings.addUserMap(
+    [modes.NORMAL],
+    ['H'],
+    'exteded back',
+    function () (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
+);
+EOM
+
+" マウスオーバーするヒントモード
+javascript <<EOM
+hints.addMode(
+    'm',
+    'mouse over',
+    function (elem, count) {
+        let evt = elem.ownerDocument.createEvent('MouseEvents');
+        evt.initMouseEvent(
+            'mouseover',
+            true, true,
+            elem.ownerDocument.defaultView,
+            0, 0, 0, 0, 0,
+            false, false, false, false, 0, null
+        );
+        elem.dispatchEvent(evt);
+    },
+    function () options.get('hinttags').get()
+);
+EOM
+
+" コマンドラインでbangをトグル
+javascript <<EOM
+mappings.addUserMap(
+  [modes.COMMAND_LINE],
+  ['<C-x>'],
+  'toggle bang',
+  function() {
+    let [,cmd,bang,args] = commands.parseCommand(commandline.command);
+    bang = bang ? '' : '!';
+    commandline.command = cmd + bang + ' ' + args;
+  });
+EOM
+
+" 選択範囲のリンクを開くコマンド
+command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if (content.window.getSelection().containsNode(a, true))]
+
+" INSERTモード時、<C-Space>で日本語入力をonにする
+javascript <<EOM
+(function () {
+    function activateIME(mode) {
+        var cur = content.document.activeElement;
+        var ps = content.document.createElement('input');
+        ps.setAttribute('style','border:none;width:0px;position:fixed;');
+        ps.style.imeMode = mode ? 'active' : 'inactive';
+        content.document.body.appendChild(ps);
+        ps.focus();
+        setTimeout(function(){
+            content.document.body.removeChild(ps);
+            cur.focus();
+        },10);
+    }
+    mappings.addUserMap([modes.INSERT], ['<C-Space>'],
+        'Activate Windows IME', function () activateIME(true));
+})();
+EOM
+
+" C-1, ..., C-9, C-n, C-p, C-t in the INSERT mode
+javascript <<EOM
+{for(let i = 0; i < 10; i++){
+    mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT', function(){
+        mappings.get(1, i + 'gt').execute();
+    });
+}
+[
+    ['t', 'tabopen'],
+    ['n', 'tabnext'],
+    ['p', 'tabprevious']
+].forEach(function([c, cmd]){
+    mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT', function(){
+        liberator.execute(cmd);
+    });
+});
+}
+EOM
+
+" j,kキーでスムーススクロールする
+javascript <<EOM
+(function(){
+    var scrollAmount = 200;
+    // direction : positive (down) / negative (up)
+    function smoothScroll(amount, direction) {
+        var half = Math.floor(amount / 2);
+        window.content.window.wrappedJSObject.scrollBy(0, half * direction);
+        if (half >= 1) 
+            setTimeout(function(){smoothScroll(half, direction)}, 10);
+    }
+    mappings.addUserMap([modes.NORMAL], ["j"], "", function(){ smoothScroll(scrollAmount,  1)},{rhs:"down"}); 
+    mappings.addUserMap([modes.NORMAL], ["k"], "", function(){ smoothScroll(scrollAmount, -1)},{rhs:"up"}); 
+})();
+EOM
+
+" コマンドラインを外部エディタで編集
+javascript <<EOM
+mappings.addUserMap(
+    [modes.COMMAND_LINE],
+    ['<C-i>'],
+    'Edit commandline by external editor',
+    function () {
+        io.withTempFiles(
+            function (file) {
+                file.write(commandline.command);
+                editor.editFileExternally(file.path);
+                commandline.open(":", file.read(), modes.EX);
+                return true;
+            }
+        );
+    }
+);
+EOM
+
+" RichTextEditorのコンテンツを外部エディタで編集するプラグイン
+javascript <<EOM
+let nsIR = Ci.nsIInterfaceRequestor;
+
+let OUTPUT_SELECTION_ONLY = 1,
+    OUTPUT_FORMATTED = 2,
+    OUTPUT_RAW = 4,
+    OUTPUT_BODYONLY = 8;
+
+mappings.add([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA],
+    ["<C-S-I>"], "edit window with externall editor",
+    function () {
+        if (config.isComposeWindow)
+            editWindowExternally(GetCurrentEditorElement().contentWindow, true);
+        else
+            editWindowExternally();
+    }, {});
+function getEditingSession(win) {
+    if (!win)
+        win = document.commandDispatcher.focusedWindow;
+    if (win instanceof Window) {
+        return es = win.QueryInterface(nsIR)
+            .getInterface(Ci.nsIWebNavigation)
+                .QueryInterface(nsIR)
+                .getInterface(Ci.nsIEditingSession);
+    }
+    return null;
+}
+
+function getEditorForWindow(win) {
+    if (!(win instanceof Window))
+        return null;
+    let es = getEditingSession(win);
+    if (es && es.windowIsEditable(win) &&
+        util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write")
+        return es.getEditorForWindow(win);
+
+    return null;
+}
+
+function editWindowExternally (win, forceText) {
+    if (!options["editor"])
+        return;
+    if (!win)
+        win = document.commandDispatcher.focusedWindow;
+    let editor = getEditorForWindow(win);
+    if (!editor) {
+        commandline.echo("the window is not editable", commandline.HL_ERRORMSG, commandline.APPEND_TO_MESSAGES | commandline.DISALLOW_MULTILINE);
+        return;
+    }
+    editor instanceof Ci.nsIPlaintextEditor;
+    editor instanceof Ci.nsIHTMLEditor;
+
+    let text = forceText ?
+               editor.outputToString("text/plain", OUTPUT_FORMATTED) :
+               editor.outputToString("text/html", OUTPUT_BODYONLY);
+    try {
+        let res = io.withTempFiles (function (tmpFile) {
+            if (!tmpFile.write(text))
+                throw Error("Input contains characters not valid in the current file encoding");
+
+            modules.editor.editFileExternally(tmpFile.path);
+
+            let val = tmpFile.read();
+
+            editor.selectAll();
+            editor.selection.deleteFromDocument();
+            if (forceText) {
+                editor.insertText(val);
+            } else {
+                let doc = editor.document;
+                let htmlFragment = doc.implementation.createDocument(null, 'html', null);
+                let range = doc.createRange();
+                range.setStartAfter(doc.body);
+                doc.body.appendChild(range.createContextualFragment(val));
+            }
+        }, this);
+        if (res == false)
+            throw Error("Couldn't create temporary file");
+    } catch (e) {
+        liberator.echoerr(e);
+    }
+}
+EOM
+
+" feed-buttonをstatusbarに表示する
+javascript <<EOM
+(function() {
+    var p = document.createElement('statusbarpanel');
+    var b = document.getElementById('page-proxy-favicon');
+    p.setAttribute('id','page-proxy-favicon-clone');
+    p.appendChild(b.cloneNode(true));
+    b.parentNode.removeChild(b);
+    document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+})();
+EOM
+
+" statusbarのiconの間隔を狭める
+style -name statusbar chrome://* <<EOM
+#status-bar statusbarpanel {
+    padding: 1px !important;
+}
+statusbarpanel > * {
+    margin: 0 !important;
+    padding:0 !important;
+}
+EOM
+
+" /vimperator/stylesの中の.cssファイルを読み込む
+javascript <<EOM
+(function(){
+    let filter = new RegExp('^.*\.css$');
+    let dir = io.File('~/vimperator/styles')
+    if (dir.exists() && dir.isDirectory() && dir.isReadable()) {
+        let files = dir.readDirectory(true);
+        files.forEach(function (file) {
+            if (filter.test(file.path)) {
+                io.source(file.path, false);
+            }
+        });
+    }
+})();
+EOM
+
+" personas用の設定
+javascript <<EOM
+Cu.import("resource://gre/modules/LightweightThemeManager.jsm");
+ 
+let prefs = Cc["@mozilla.org/preferences-service;1"]
+              .getService(Ci.nsIPrefService)
+              .getBranch("lightweightThemes.");
+let observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+ 
+function createLWTheme(obj){
+  let buf = {
+    id: null,
+    name: null,
+    accentcolor: "-moz-diag",
+    textcolor: "-moz-diagtext",
+    description: "custom personas",
+    author: "",
+    headerURL: "",
+    footerURL: "",
+    previewURL: "",
+    iconURL: "",
+  };
+  for (let key in obj){
+    switch(key){
+      case "headerURL":
+      case "footerURL":
+      case "previewURL":
+      case "iconURL":
+        let path = obj[key];
+        if (path.charAt(0) == "~")
+          path = io.File("~").path + path.substr(1);
+        let uri = util.createURI(path);
+        buf[key] = uri.spec;
+        break;
+      default:
+        buf[key] = obj[key];
+    }
+  }
+  if (!buf.name)
+    buf.name = buf.id;
+ 
+  return buf;
+}
+ 
+function appendThemes(aThemes){
+  if (!aThemes)
+    aThemes = liberator.globalVariables.lwt;
+  if (!(aThemes instanceof Array))
+    aThemes = [aThemes];
+  let currentThemes = LightweightThemeManager.usedThemes;
+  aThemes.forEach(function(theme){
+    let t = createLWTheme(theme);
+    if (t && t.id){
+      for (let i=0, len = currentThemes.length; i<len; i++){
+        if (currentThemes[i].id == t.id){
+          currentThemes.splice(i, 1);
+          break;
+        }
+      }
+      currentThemes.push(t);
+    }
+  });
+  prefs.setCharPref("usedThemes", JSON.stringify(currentThemes));
+  observerService.notifyObservers(null, "lightweight-theme-list-changed", null);
+}
+ 
+if (liberator.globalVariables.lwt instanceof Array){
+  appendThemes(liberator.globalVariables.lwt);
+}
+ 
+function fileCompleter(c){
+  return completion.runCompleter("file", c.filter).map(function(f) [f.path, f.leafName]);
+}
+let options = [
+  ["textcolor", ["-c", "-color"], commands.OPTION_STRING],
+  ["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
+  ["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
+  ["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
+];
+commands.addUserCommand(['personas'], "Personas Theme",
+  function(args){
+    let id = args[0];
+    if (args.bang){
+      LightweightThemeManager.forgetUsedTheme(id);
+      return;
+    }
+    let registeredThemer = LightweightThemeManager.getUsedTheme(id);
+    if (registeredThemer) {
+      LightweightThemeManager.currentTheme = registeredThemer;
+    } else {
+      let buf = {id: id};
+      options.forEach(function(opt){
+        if (args[opt[1][0]])
+          buf[opt[0]] = args[opt[1][0]];
+      });
+      let t = createLWTheme(buf);
+      if (t)
+        LightweightThemeManager.currentTheme = t;
+    }
+  }, {
+    argCount: "1",
+    bang: true,
+    options: options.map(function(opt) opt.slice(1)),
+    completer: function(context, args){
+      context.format = {
+        title: ["Name","Description"],
+        keys: { text: "id", description: "name", icon: "iconURL" },
+        process: [
+          function name(item, text) <span sltyle="vertial-align: center">
+            <img src={item.icon}/><span>{item.item.id}</span>
+          </span>,
+          function desc(item, text) <>
+            <img src={item.item.previewURL} align="left" style="height:3em;"/>
+            <span>{item.item.name}<br/>{item.item.description}</span>
+          </>,
+        ]
+      }
+      context.completions = LightweightThemeManager.usedThemes;
+    }
+  }, true);
+EOM
+

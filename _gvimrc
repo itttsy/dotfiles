@@ -1,0 +1,61 @@
+" vim:set ts=8 sts=2 sw=2 tw=0: (この行に関しては:help modelineを参照)
+" :ReloadVimrcコマンドの追加
+command! ReloadGVimrc  source $MYVIMRC
+
+"初期設定
+autocmd!
+
+" カラー設定:
+colorscheme lucius
+syntax on
+
+" フォント設定:
+set guifont=VL_Gothic:h10:cSHIFTJIS
+set linespace=1
+" 文字の大きさをトグルする
+function! ZoomToggle()
+    let normal_font = 'VL_Gothic:h10'
+    let zoom_font = 'VL_Gothic:h25'
+        if &guifont == normal_font
+        let font = zoom_font
+        let columns = 78
+        let lines = 22
+    else
+        let font = normal_font
+        let columns = 120
+        let lines = 32
+    endif
+    execute 'set guifont=' . font
+    execute 'set columns=' . columns
+    execute 'set lines=' . lines
+endfunction
+nnoremap <Space>z :<C-u>call ZoomToggle()<CR>
+
+" IME切り替えの為の設定
+if has('multi_byte_ime')
+    highlight CursorIM guibg=Purple guifg=NONE
+    set iminsert=0 imsearch=0
+    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
+endif
+
+" ウインドウに関する設定:
+set columns=120
+set lines=32
+
+" マウスに関する設定:
+set nomousefocus
+set mousehide
+
+" メニューに関する設定:
+set guioptions=r
+
+" 検索文字列をハイライトしない(_vimrcではなく_gvimrcで設定する必要がある)
+set nohlsearch
+
+" 印刷に関する設定:
+" 参考:
+"   :hardcopy
+"   :help 'printfont'
+"   :help printing
+set printfont=MS_Mincho:h12:cSHIFTJIS
+
