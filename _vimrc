@@ -19,19 +19,15 @@ if has('win32') || has('win64')
     set shellslash
 endif
 call altercmd#load()
-" Plug-inのためにキーマップを開放する
-nnoremap ; <NOP>
-xnoremap ; <NOP>
-nnoremap m <NOP>
-xnoremap m <NOP>
-nnoremap , <NOP>
-xnoremap , <NOP>
 " }}}
 
 "-- 
 " 日本語用エンコード設定{{{
-set encoding=Japan
+set encoding=utf-8
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+source $VIMRUNTIME/delmenu.vim
+set langmenu=menu_ja_jp.utf-8.vim
+source $VIMRUNTIME/menu.vim
 
 " modeline内にfencを指定されている場合の対応 {{{
 let s:oldlang=v:lang
@@ -715,6 +711,7 @@ let g:vimshell_prompt = $USERNAME.">"
 let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
 let g:vimshell_smart_case = 1
+let g:vimshell_interactive_encodings = {'telnet':'cp932'}
 let g:vimshell_execute_file_list = {}
 call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
 let g:vimshell_execute_file_list['pl'] = 'perl'
