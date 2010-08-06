@@ -4,7 +4,7 @@ cmapclear
 imapclear
 
 "-- 
-" 基本設定
+" 基本設定 {{{
 
 " ブラウザタイトルの変更
 set titlestring=Vimfox
@@ -45,9 +45,10 @@ set editor="gvim -f -c ':set fenc=utf8'"
 
 " コマンドラインへの移行時にIMEを指定の状態に切り替える
 style -name commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
+" }}}
 
 "-- 
-" 視覚に関する設定
+" 視覚に関する設定 {{{
 
 " ヒントモードの文字を見やすく
 hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9;
@@ -81,32 +82,32 @@ command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=
 " 補完のURLが長すぎて、切れてしまう問題の対処
 hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
 hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
+" }}}
 
 "-- 
-" 操作に関する設定
-" Insertモードでキーバインドが効かない問題にたいするHack
+" 操作に関する設定 {{{
+" Insertモードでキーバインドが効くようにする {{{
 javascript <<EOM
 window.addEventListener(
-  'keypress',
-  function (event) {
-    if (liberator.mode === modes.INSERT && modes.extended === modes.MENU) {
-      let map = mappings.get(modes.INSERT, events.toString(event));
-      if (map) {
-        event.preventDefault();
-        event.stopPropagation();
-        map.execute();
-      }
-    }
-  },
-  false
+    'keypress',
+    function (event) {
+        if (liberator.mode === modes.INSERT && modes.extended === modes.MENU) {
+            let map = mappings.get(modes.INSERT, events.toString(event));
+            if (map) {
+                event.preventDefault();
+                event.stopPropagation();
+                map.execute();
+            }
+        }
+    },
+    false
 );
 EOM
+" }}}
 
-" Insertモードで<C-h>、<C-j>、<C-k>、<C-l>をカーソルキー代わりにする
-inoremap <C-h> <Left>
-inoremap <C-j> <Down>
-inoremap <C-k> <Up>
-inoremap <C-l> <Right>
+" Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
+inoremap <C-n> <Down>
+inoremap <C-p> <Up>
 
 " eでecho表示
 map e :echo 
@@ -120,9 +121,10 @@ cmap <C-r> <Up>
 
 " undo一覧から開く
 noremap U :undo<Space>
+" }}}
 
 "-- 
-" 検索用ブックマーク
+" 検索用ブックマーク {{{
 silent bmark -title="Google US Search" -tags=keyword -keyword=gs https://www.google.com/search?q=%s
 silent bmark -title="Twitter Search" -tags=keyword -keyword=ts http://search.twitter.com/search?q=%s
 silent bmark -title="Wolfram|Alpha" -tags=keyword -keyword=wa http://www.wolframalpha.com/input/?i=%s
@@ -131,6 +133,7 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 silent bmark -title="Wikipedia(ja)" -tags=keyword -keyword=wk http://ja.wikipedia.org/wiki/Special:Search?search=%s
 silent bmark -title="NewYorkTimes" -tags=keyword -keyword=nt http://query.nytimes.com/search/sitesearch?query=%s
 
+" Javascript用ブックマーク {{{
 " Delicious bookmark用
 command! Delicious open javascript:(function(){f='http://delicious.com/save?url='+encodeURIComponent(window.location.href)+'&title='+encodeURIComponent(document.title)+'&v=5&';a=function(){if(!window.open(f+'noui=1&jump=doclose','deliciousuiv5','location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))location.href=f+'jump=yes'};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})()
 
@@ -139,43 +142,29 @@ command! Evernote open javascript:(function(){EN_CLIP_HOST='http://www.evernote.
 
 " Tumblr用
 command! Tumblr open javascript:var d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),f='http://www.tumblr.com/share',l=d.location,e=encodeURIComponent,p='?v=3&u='+e(l.href) +'&t='+e(d.title) +'&s='+e(s),u=f+p;try{if(!/^(.*\.)?tumblr[^.]*$/.test(l.host))throw(0);tstbklt();}catch(z){a =function(){if(!w.open(u,'t','toolbar=0,resizable=0,status=1,width=450,height=430'))l.href=u;};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else a();}void(0)
+" }}}
+
+" Readability用
+command! Readability open javascript:(function(){readConvertLinksToFootnotes=false;readStyle='style-ebook';readSize='size-medium';readMargin='margin-narrow';_readability_script=document.createElement('script');_readability_script.type='text/javascript';_readability_script.src='http://lab.arc90.com/experiments/readability/js/readability.js?x='+(Math.random());document.documentElement.appendChild(_readability_script);_readability_css=document.createElement('link');_readability_css.rel='stylesheet';_readability_css.href='http://lab.arc90.com/experiments/readability/css/readability.css';_readability_css.type='text/css';_readability_css.media='all';document.documentElement.appendChild(_readability_css);_readability_print_css=document.createElement('link');_readability_print_css.rel='stylesheet';_readability_print_css.href='http://lab.arc90.com/experiments/readability/css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);})();
+" }}}
 
 "-- 
-" プラグインに関する設定
-
+" プラグインに関する設定 {{{
 " multi_requester.js
 noremap ma :mr<Space>alc<Space>
 noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
 noremap mg :mr<Space>goo<Space>
 noremap me :mr<Space>answers<Space>
-" noremap mw :mr<Space>weather-yahoo<Space><CR>
-
-" Readability plugin
-map ,r js Readability.enableREADABILITY({target: {id: 'readability-statusbar-icon'}})<CR>
-
-" AutoPagerize plugin
-javascript <<EOM
-let evaluateXPath = util.evaluateXPath || buffer.evaluateXPath;
-mappings.addUserMap(
-    [modes.NORMAL],
-    ['a'],
-    'Toggle AutoPagerize',
-    function (motion, count, arg) {
-        buffer.followLink(
-            evaluateXPath('id("autopagerize_help")/div/a[@class="autopagerize_link"]').snapshotItem(0)
-        );
-    },
-    {}
-);
-EOM
+noremap mw :mr<Space>weather-yahoo<Space>
+" }}}
 
 "-- 
-" JavaScriptに関する設定
-
-" カレンダーを見るコマンド
+" JavaScriptに関する設定 {{{
+" カレンダーを見るコマンド {{{
 command! cal js liberator.echo(<datepicker type="grid" xmlns={XUL}/>)
+" }}}
 
-" 戻るを拡張
+" 戻るを拡張 {{{
 javascript <<EOM
 let (
     back = mappings.getDefault(modes.NORMAL, 'H').action,
@@ -188,8 +177,9 @@ mappings.addUserMap(
     function () (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
 );
 EOM
+" }}}
 
-" マウスオーバーするヒントモード
+" マウスオーバーするヒントモード {{{
 javascript <<EOM
 hints.addMode(
     'm',
@@ -208,8 +198,9 @@ hints.addMode(
     function () options.get('hinttags').get()
 );
 EOM
+" }}}
 
-" コマンドラインでbangをトグル
+" コマンドラインでbangをトグル {{{
 javascript <<EOM
 mappings.addUserMap(
   [modes.COMMAND_LINE],
@@ -221,11 +212,13 @@ mappings.addUserMap(
     commandline.command = cmd + bang + ' ' + args;
   });
 EOM
+" }}}
 
-" 選択範囲のリンクを開くコマンド
+" 選択範囲のリンクを開くコマンド {{{
 command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if (content.window.getSelection().containsNode(a, true))]
+" }}}
 
-" INSERTモード時、<C-Space>で日本語入力をonにする
+" INSERTモード時、<C-Space>で日本語入力をonにする {{{
 javascript <<EOM
 (function () {
     function activateIME(mode) {
@@ -242,10 +235,13 @@ javascript <<EOM
     }
     mappings.addUserMap([modes.INSERT], ['<C-Space>'],
         'Activate Windows IME', function () activateIME(true));
+    mappings.addUserMap([modes.INSERT], ['<C-q>'],
+        'Activate Windows IME', function () activateIME(false));
 })();
 EOM
+" }}}
 
-" C-1, ..., C-9, C-n, C-p, C-t in the INSERT mode
+" Insertモード時、C-1, ..., C-9,C-tが使えるようにする {{{
 javascript <<EOM
 {for(let i = 0; i < 10; i++){
     mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT', function(){
@@ -254,8 +250,6 @@ javascript <<EOM
 }
 [
     ['t', 'tabopen'],
-    ['n', 'tabnext'],
-    ['p', 'tabprevious']
 ].forEach(function([c, cmd]){
     mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT', function(){
         liberator.execute(cmd);
@@ -263,8 +257,9 @@ javascript <<EOM
 });
 }
 EOM
+" }}}
 
-" j,kキーでスムーススクロールする
+" j,kキーでスムーススクロールする {{{
 javascript <<EOM
 (function(){
     var scrollAmount = 200;
@@ -279,8 +274,9 @@ javascript <<EOM
     mappings.addUserMap([modes.NORMAL], ["k"], "", function(){ smoothScroll(scrollAmount, -1)},{rhs:"up"}); 
 })();
 EOM
+" }}}
 
-" コマンドラインを外部エディタで編集
+" コマンドラインを外部エディタで編集 {{{
 javascript <<EOM
 mappings.addUserMap(
     [modes.COMMAND_LINE],
@@ -298,8 +294,9 @@ mappings.addUserMap(
     }
 );
 EOM
+" }}}
 
-" RichTextEditorのコンテンツを外部エディタで編集するプラグイン
+" RichTextEditorのコンテンツを外部エディタで編集するプラグイン {{{
 javascript <<EOM
 let nsIR = Ci.nsIInterfaceRequestor;
 
@@ -383,8 +380,9 @@ function editWindowExternally (win, forceText) {
     }
 }
 EOM
+" }}}
 
-" feed-buttonをstatusbarに表示する
+" feed-buttonをstatusbarに表示する {{{
 javascript <<EOM
 (function() {
     var p = document.createElement('statusbarpanel');
@@ -395,8 +393,9 @@ javascript <<EOM
     document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
 })();
 EOM
+" }}}
 
-" statusbarのiconの間隔を狭める
+" statusbarのiconの間隔を狭める {{{
 style -name statusbar chrome://* <<EOM
 #status-bar statusbarpanel {
     padding: 1px !important;
@@ -406,8 +405,9 @@ statusbarpanel > * {
     padding:0 !important;
 }
 EOM
+" }}}j
 
-" /vimperator/stylesの中の.cssファイルを読み込む
+" /vimperator/stylesの中の.cssファイルを読み込む {{{
 javascript <<EOM
 (function(){
     let filter = new RegExp('^.*\.css$');
@@ -422,8 +422,9 @@ javascript <<EOM
     }
 })();
 EOM
+" }}}
 
-" personas用の設定
+" personas用の設定 {{{
 javascript <<EOM
 Cu.import("resource://gre/modules/LightweightThemeManager.jsm");
  
@@ -544,4 +545,6 @@ commands.addUserCommand(['personas'], "Personas Theme",
     }
   }, true);
 EOM
+" }}}
+" }}}
 

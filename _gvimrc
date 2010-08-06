@@ -6,7 +6,7 @@ command! ReloadGVimrc  source $MYVIMRC
 autocmd!
 
 " カラー設定:
-colorscheme lucius
+colorscheme fu
 syntax on
 
 " フォント設定:
