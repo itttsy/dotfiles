@@ -21,6 +21,7 @@ set showtabline=0
 set showstatuslinks=2
 
 " 全てのタイプをタブで開く
+set popups=tab,resized
 set newtab=all
 
 " コマンド入力時にコマンド名を自動補完
@@ -262,16 +263,29 @@ EOM
 " j,kキーでスムーススクロールする {{{
 javascript <<EOM
 (function(){
-    var scrollAmount = 200;
-    // direction : positive (down) / negative (up)
-    function smoothScroll(amount, direction) {
-        var half = Math.floor(amount / 2);
-        window.content.window.wrappedJSObject.scrollBy(0, half * direction);
-        if (half >= 1) 
-            setTimeout(function(){smoothScroll(half, direction)}, 10);
+    mappings.addUserMap(
+        [modes.NORMAL],["j"],"Smooth scroll down",
+        function(count){this.smoothScrollBy(400 * (count || 1));}, {count: true}
+    );
+    mappings.addUserMap(
+        [modes.NORMAL],["k"],"Smooth scroll up",
+        function(count){this.smoothScrollBy(400 * -(count || 1));},{count: true}
+    );
+
+    function smoothScroll(moment) {
+        if (moment > 0)
+            moment = Math.floor(moment / 2);
+        else
+            moment = Math.ceil(moment / 2);
+        window.scrollBy(0, moment);
+
+        if (Math.abs(moment) < 1) {
+            setTimeout(makeScrollTo(window.scrollX, window.scrollY + moment), 10);
+            return;
+        }
     }
-    mappings.addUserMap([modes.NORMAL], ["j"], "", function(){ smoothScroll(scrollAmount,  1)},{rhs:"down"}); 
-    mappings.addUserMap([modes.NORMAL], ["k"], "", function(){ smoothScroll(scrollAmount, -1)},{rhs:"up"}); 
+
+    function makeScrollTo(x, y) function() window.scrollTo(x, y);
 })();
 EOM
 " }}}
