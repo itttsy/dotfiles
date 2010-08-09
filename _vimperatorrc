@@ -262,30 +262,45 @@ EOM
 
 " j,kキーでスムーススクロールする {{{
 javascript <<EOM
-(function(){
+let self = liberator.plugins.smooziee = (function(){
     mappings.addUserMap(
         [modes.NORMAL],["j"],"Smooth scroll down",
-        function(count){this.smoothScrollBy(400 * (count || 1));}, {count: true}
+        function(count){self.smoothScrollBy(300 * (count || 1));}, {count: true}
     );
     mappings.addUserMap(
         [modes.NORMAL],["k"],"Smooth scroll up",
-        function(count){this.smoothScrollBy(400 * -(count || 1));},{count: true}
+        function(count){self.smoothScrollBy(300 * -(count || 1));},{count: true}
     );
+
+    var PUBLICS = {
+        smoothScrollBy: function(moment) {
+            win = Buffer.findScrollableWindow();
+            destY = win.scrollY + moment;
+            clearTimeout(next);
+            smoothScroll(moment);
+        }
+    }
+
+    var next;
+    var destY;
+    var win;
 
     function smoothScroll(moment) {
         if (moment > 0)
             moment = Math.floor(moment / 2);
         else
             moment = Math.ceil(moment / 2);
-        window.scrollBy(0, moment);
-
+        win.scrollBy(0, moment);
         if (Math.abs(moment) < 1) {
-            setTimeout(makeScrollTo(window.scrollX, window.scrollY + moment), 10);
+            setTimeout(makeScrollTo(win.scrollX, destY), 20);
+            destY = null;
             return;
         }
-    }
+        next = setTimeout(function() smoothScroll(moment), 20);
+        }
 
-    function makeScrollTo(x, y) function() window.scrollTo(x, y);
+    function makeScrollTo(x, y) function() win.scrollTo(x, y);
+    return PUBLICS;
 })();
 EOM
 " }}}
