@@ -194,6 +194,7 @@ set shiftwidth=4
 " }}}
 
 " completion {{{
+autocmd FileType pl :set dictionary+=~/vimfiles/dict/perl.dict
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
@@ -265,6 +266,7 @@ nnoremap <silent> F :set iminsert=0<CR>F
 
 "-- 
 " Change Directoryに関する設定 {{{
+set autochdir
 command! -nargs=? -complete=dir -bang CD  call s:ChangeCurrentDir('<args>', '<bang>') 
 function! s:ChangeCurrentDir(directory, bang)
     if a:directory == ''
@@ -276,8 +278,6 @@ function! s:ChangeCurrentDir(directory, bang)
         pwd
     endif
 endfunction
-" カレントディレクトリをファイルと同じディレクトリに移動する
-AlterCommand cd CD
 
 " }}}
 
@@ -489,11 +489,44 @@ nnoremap <silent> [Tabbed]l :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 
 nnoremap <silent> [Tabbed]h :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
 nnoremap <C-n> :<C-u>tabnext<CR>
 nnoremap <C-p> :<C-u>tabprevious<CR>
-" GNU screen風にタブを移動
+" GNU screen風にタブを移動 {{{
 for i in range(10)
   execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i+1).'gt')
 endfor
 unlet i
+" }}}
+" 現在編集中のバッファをタブに切り出す {{{
+function! s:move_window_into_tab_page(target_tabpagenr)
+    if a:target_tabpagenr < 0
+        return
+    endif
+    let original_tabnr = tabpagenr()
+    let target_bufnr = bufnr('')
+    let window_view = winsaveview()
+    if a:target_tabpagenr == 0
+        tabnew
+        tabmove
+        execute target_bufnr 'buffer'
+        let target_tabpagenr = tabpagenr()
+    else
+        execute a:target_tabpagenr 'tabnext'
+        let target_tabpagenr = a:target_tabpagenr
+        topleft new
+        execute target_bufnr 'buffer'
+    endif
+    call winrestview(window_view)
+    execute original_tabnr 'tabnext'
+    if 1 < winnr('$')
+        close
+    else
+        enew
+    endif
+    execute target_tabpagenr 'tabnext'
+endfunction
+" }}}
+" <space>ao move current buffer into a new tab.
+nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
+
 " }}}
 
 " Debug関係 {{{
