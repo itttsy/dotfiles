@@ -20,7 +20,7 @@ set showtabline=0
 " リンクのURIをコマンドラインに表示
 set showstatuslinks=2
 
-" 全てのタイプをタブで開く
+" ポップアップは別Windowで開く
 set popups=tab,resized
 set newtab=all
 
@@ -49,6 +49,29 @@ style -name commandline-ime chrome://* #liberator-commandline-command input {ime
 " }}}
 
 "-- 
+" Firefoxに関する設定 {{{
+" アクセスキーを無効にする
+set! ui.key.generalAccessKey=0
+
+" Caretモードを見やすくする
+set! ui.caretWidth=1
+set! ui.caretBlinkTime=1000
+
+" 最後のWindowを閉じてもFirefoxを終了しない
+set! browser.tabs.closeWindowWithLastTab=false
+
+" その他
+set! config.trim_on_minimize=true
+set! browser.history_expire_days=30
+set! browser.history_expire_days_min=7
+set! browser.history_expire_sites=1000
+set! browser.cache.memory.capacity=32768
+set! browser.sessionstore.max_tabs_undo=5
+set! browser.sessionhistory.max_total_viewers=5
+
+" }}}
+
+"-- 
 " 視覚に関する設定 {{{
 
 " ヒントモードの文字を見やすく
@@ -59,16 +82,16 @@ hi HintActive background-color: greenyellow; border: 0.5px oldlace dotted; -moz-
 set hintchars=;asdfghjkl
 
 " コマンドラインを見やすく
-hi Title                color: Black;
-hi CompTitle            color: Black;
-hi GradientLeft                            background-color: mintcream;
+hi Title                color: MintCream;
+hi CompTitle            color: MintCream;
+hi GradientLeft                            background-color: MintCream;
 hi GradientRight                           background-color: #111;
 hi CompGroup            color: White;
-hi CompItem[selected]   color: DodgerBlue; background-color: mintcream;
+hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
 hi CompDesc             color: LightGray;
 hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 8pt; font-weight: normal;
-hi Normal               color: White;      background: rgba(51,51,51,0.7); font-size: 10pt;
-hi ModeMsg              color: White;      background: rgba(51,51,51,0.7); font-size: 8pt;
+hi Normal               color: White;      background: rgba(128,128,128,0.7); font-size: 10pt;
+hi ModeMsg              color: White;      background: rgba(128,128,128,0.7); font-size: 8pt;
 style -name parsonas chrome://* <<EOM
 #main-window { background-repeat: repeat-y !important;}
 #browser-bottombox { background-image: none !important; }
@@ -106,19 +129,22 @@ window.addEventListener(
 EOM
 " }}}
 
+" <C-h>で履歴を表示しないようにする
+noremap <C-h> <Nop>
+
 " Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
 inoremap <C-n> <Down>
 inoremap <C-p> <Up>
 
 " eでecho表示
-map e :echo 
+noremap e :echo 
 
 " <A-p>/<A-n>で現在のタブの位置変更
-map <A-p> :tabmove! -1<CR>
-map <A-n> :tabmove! +1<CR>
+noremap <A-p> :tabmove! -1<CR>
+noremap <A-n> :tabmove! +1<CR>
 
 " <C-r>で履歴を表示
-cmap <C-r> <Up>
+cnoremap <C-r> <Up>
 
 " undo一覧から開く
 noremap U :undo<Space>
@@ -157,6 +183,7 @@ noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
 noremap mg :mr<Space>goo<Space>
 noremap me :mr<Space>answers<Space>
 noremap mw :mr<Space>weather-yahoo<Space>
+
 " }}}
 
 "-- 
@@ -197,6 +224,20 @@ hints.addMode(
         elem.dispatchEvent(evt);
     },
     function () options.get('hinttags').get()
+);
+EOM
+" }}}
+
+" flash blockにヒントモード追加 {{{
+javascript <<EOM
+hints.addMode('z', 'Enable a Flash object',
+    function(elem){
+        elem.focus();
+        var e = content.document.createEvent('MouseEvents');
+        e.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+        elem.dispatchEvent( e );
+    },
+    function() '//xhtml:div[@title]'
 );
 EOM
 " }}}
@@ -262,7 +303,7 @@ EOM
 
 " j,kキーでスムーススクロールする {{{
 javascript <<EOM
-let self = liberator.plugins.smooziee = (function(){
+let self = (function(){
     mappings.addUserMap(
         [modes.NORMAL],["j"],"Smooth scroll down",
         function(count){self.smoothScrollBy(300 * (count || 1));}, {count: true}
@@ -411,15 +452,25 @@ function editWindowExternally (win, forceText) {
 EOM
 " }}}
 
-" feed-buttonをstatusbarに表示する {{{
+" faviconをstatusbarに表示する {{{
 javascript <<EOM
 (function() {
-    var p = document.createElement('statusbarpanel');
+  var setFavicon = function(){
+    var p = document.getElementById('page-proxy-favicon-clone');
     var b = document.getElementById('page-proxy-favicon');
-    p.setAttribute('id','page-proxy-favicon-clone');
-    p.appendChild(b.cloneNode(true));
-    b.parentNode.removeChild(b);
-    document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+    if (!p) {
+      p = document.createElement('statusbarpanel');
+      p.setAttribute('id','page-proxy-favicon-clone');
+      p.appendChild(b.cloneNode(true));
+      document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+    }
+    if (p.childNodes.length > 0) {
+      var node = p.childNodes.item(0);
+      node.setAttribute('src', b.getAttribute('src'));
+    }
+  }
+  getBrowser().addEventListener("load", function() setFavicon() , true);
+  getBrowser().addEventListener("TabSelect", function() setFavicon() , true);
 })();
 EOM
 " }}}
