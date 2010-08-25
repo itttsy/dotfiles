@@ -69,6 +69,10 @@ set! browser.cache.memory.capacity=32768
 set! browser.sessionstore.max_tabs_undo=5
 set! browser.sessionhistory.max_total_viewers=5
 
+" Localeを切り替える
+command! locja set! general.useragent.locale=ja-JP
+command! locen set! general.useragent.locale=en-US
+
 " }}}
 
 "-- 
