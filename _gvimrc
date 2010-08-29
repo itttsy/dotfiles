@@ -5,14 +5,46 @@ command! ReloadGVimrc  source $MYVIMRC
 "初期設定
 autocmd!
 
-" カラー設定:
+" カラー設定 {{{
 colorscheme fu
 syntax on
+" Insertモード時にステータスラインの色を変更 {{{
+let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkblue gui=none ctermfg=blue ctermbg=white cterm=none'
 
-" フォント設定:
-set guifont=VL_Gothic:h10:cSHIFTJIS
+if has('syntax')
+    augroup InsertHook
+        autocmd!
+        autocmd InsertEnter * call s:StatusLine('Enter')
+        autocmd InsertLeave * call s:StatusLine('Leave')
+    augroup END
+endif
+let s:slhlcmd = ''
+
+function! s:StatusLine(mode)
+    if a:mode == 'Enter'
+        silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+        silent exec g:hi_insert
+    else
+        highlight clear StatusLine
+        silent exec s:slhlcmd
+    endif
+endfunction
+
+function! s:GetHighlight(hi)
+    redir => hl
+    exec 'highlight '.a:hi
+    redir END
+    let hl = substitute(hl, '[\r\n]', '', 'g')
+    let hl = substitute(hl, 'xxx', '', '')
+    return hl
+endfunction
+" }}}
+" }}}
+
+" フォント設定 {{{
+set guifont=VL_Gothic:h10:cDEFAULT
 set linespace=1
-" 文字の大きさをトグルする
+" 文字の大きさをトグルする {{{
 function! ZoomToggle()
     let normal_font = 'VL_Gothic:h10'
     let zoom_font = 'VL_Gothic:h25'
@@ -30,32 +62,36 @@ function! ZoomToggle()
     execute 'set lines=' . lines
 endfunction
 nnoremap <Space>z :<C-u>call ZoomToggle()<CR>
+" }}}
+" }}}
 
-" IME切り替えの為の設定
+" IME切り替えの為の設定 {{{
 if has('multi_byte_ime')
     highlight CursorIM guibg=Purple guifg=NONE
     set iminsert=0 imsearch=0
     inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
 endif
+" }}}
 
-" ウインドウに関する設定:
+" ウインドウに関する設定 {{{
 set columns=120
 set lines=32
+" }}}
 
-" マウスに関する設定:
+" マウスに関する設定 {{{
 set nomousefocus
 set mousehide
+" }}}
 
-" メニューに関する設定:
+" メニューに関する設定 {{{
 set guioptions=r
+" }}}
 
-" 検索文字列をハイライトしない(_vimrcではなく_gvimrcで設定する必要がある)
+" 検索文字列をハイライトしない {{{
 set nohlsearch
+" }}}
 
-" 印刷に関する設定:
-" 参考:
-"   :hardcopy
-"   :help 'printfont'
-"   :help printing
-set printfont=MS_Mincho:h12:cSHIFTJIS
+" 印刷に関する設定 {{{
+set printfont=VL_Gothic:h12:cDEFAULT
+" }}}
 

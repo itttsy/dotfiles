@@ -170,6 +170,7 @@ nnoremap z<Space>   :call <SID>fold_current_expand()<CR>
 " }}}
 
 " misc {{{
+set ambiwidth=double
 set diffopt=filler,vertical
 set helplang=ja,en
 set nojoinspaces
@@ -178,7 +179,9 @@ set nojoinspaces
 
 "-- 
 " マウスに関する設定 {{{
-set mouse=a
+if has('mouse')
+    set mouse=a
+endif
 " }}}
 
 "-- 
@@ -216,6 +219,11 @@ set backup
 set backupdir=~/vimfiles/backup
 " }}}
 
+" persistent undo {{{
+set undofile
+set undodir=~/vimfiles/undo/
+" }}}
+
 " misc {{{
 set hidden
 set formatoptions& formatoptions+=mM
@@ -223,14 +231,20 @@ set nrformats& nrformats-=octal
 set virtualedit+=block
 set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
-set isfname& isfname+=32
 nnoremap Y y$
-inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 augroup DictFile
     autocmd!
     autocmd FileType *  execute printf("setlocal dict=~/vimfiles/dict/%s.dict", &filetype)
 augroup END
+" ]で補完が可能になる
+inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
+" 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
+" 縦に連番を入力する {{{
+nnoremap <silent> co :ContinuousNumber <C-a><CR>
+vnoremap <silent> co :ContinuousNumber <C-a><CR>
+command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
+" }}}
 " }}}
 
 " 内容が空の.txtファイルを保存したら自動で削除する {{{
@@ -429,43 +443,6 @@ nmap [Buffer]<C-n>  [Buffer]n
 nmap [Buffer]<C-p>  [Buffer]p
 nmap [Buffer]<C-d>  [Buffer]k
 nmap [Buffer]<C-g>  [Buffer]g
-
-" 編集中バッファを別の単独タブに切り出す {{{
-function! s:move_window_into_tab_page(target_tabpagenr)
-    " Move the current window into a:target_tabpagenr.
-    " If a:target_tabpagenr is 0, move into new tab page.
-    if a:target_tabpagenr < 0  " ignore invalid number.
-        return
-    endif
-    let original_tabnr = tabpagenr()
-    let target_bufnr = bufnr('')
-    let window_view = winsaveview()
-
-    if a:target_tabpagenr == 0
-        tabnew
-        tabmove  " Move new tabpage at the last.
-        execute target_bufnr 'buffer'
-        let target_tabpagenr = tabpagenr()
-    else
-        execute a:target_tabpagenr 'tabnext'
-        let target_tabpagenr = a:target_tabpagenr
-        topleft new
-        execute target_bufnr 'buffer'
-    endif
-    call winrestview(window_view)
-
-    execute original_tabnr 'tabnext'
-    if 1 < winnr('$')
-        close
-    else
-        enew
-    endif
-
-    execute target_tabpagenr 'tabnext'
-endfunction
-" <space>ao move current buffer into a new tab
-nnoremap <silent> [Buffer]c :<C-u>call <SID>move_window_into_tab_page(0)<CR>
-" }}}
 " }}}
 
 " Tab関係 {{{
@@ -728,10 +705,10 @@ let g:skk_egg_like_newline = 1
 let g:skk_marker_white = "'"
 let g:skk_marker_black = "\""
 let g:skk_use_color_cursor = 1
-let g:skk_cursor_hira_color = "purple"
-let g:skk_cursor_kata_color = "purple"
-let g:skk_cursor_zenei_color = "purple"
-let g:skk_cursor_ascii_color = "purple"
+let g:skk_cursor_hira_color = "Purple"
+let g:skk_cursor_kata_color = "Purple"
+let g:skk_cursor_zenei_color = "Purple"
+let g:skk_cursor_ascii_color = "Purple"
 let g:skk_sticky_key = ';'
 let g:skk_auto_save_jisyo = 1
 " }}}
