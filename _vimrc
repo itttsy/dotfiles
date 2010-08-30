@@ -727,6 +727,22 @@ call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
 let g:vimshell_execute_file_list['pl'] = 'perl'
 call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
 " }}}
+
+" vimfiler.vim用設定 {{{
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_split_command = 'Split'
+let g:vimfiler_edit_command = 'edit'
+let g:vimfiler_change_vim_cwd = 0
+
+augroup Vimfier
+    autocmd!
+    autocmd Filetype vimfiler call s:vimfiler_settings()
+augroup END
+function! s:vimfiler_settings()
+    noremap -buffer L <Plug>(vimfiler_move_to_history_forward)
+    noremap -buffer H <Plug>(vimfiler_move_to_history_back)
+endfunction
+" }}}
 " }}}
 
 
