@@ -68,6 +68,7 @@ set! browser.history_expire_sites=1000
 set! browser.cache.memory.capacity=32768
 set! browser.sessionstore.max_tabs_undo=5
 set! browser.sessionhistory.max_total_viewers=5
+set! browser.tabs.loadInBackground=false
 
 " }}}
 
