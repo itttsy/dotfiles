@@ -317,26 +317,39 @@ command! -nargs=? -complete=file Diff if '<args>'=='' | browse vertical diffspli
 
 "-- 
 " Sticky Shiftを実現する {{{
+let g:sticky_us_keyboard = 0
 inoremap <expr> ;  <SID>sticky_func()
 cnoremap <expr> ;  <SID>sticky_func()
 snoremap <expr> ;  <SID>sticky_func()
 
 function! s:sticky_func()
     let l:sticky_table = {
-        \',' : '<', '.' : '>', '/' : '?', '\' : '_',
-        \'1' : '!', '2' : '"', '3' : '#', '4' : '$', '5' : '%',
-        \'6' : '&', '7' : "'", '8' : '(', '9' : ')', '0' : '|', '-' : '=', '^' : '~',
-        \':' : '*', ';' : '+', '[' : '{', ']' : '}', '@' : '`',
+        \'0' : {
+            \'1' : '!', '2' : '"', '3' : '#', '4' : '$', '5' : '%',
+            \'6' : '&', '7' : "'", '8' : '(', '9' : ')', '0' : '|',
+            \'-' : '=', '^' : '~',
+            \'@' : '`', '[' : '{',
+            \';' : '+', ':' : '*', ']' : '}',
+            \',' : '<', '.' : '>', '/' : '?', '\' : '_',
+        \},
+        \'1' : {
+            \'1' : '!', '2' : '@', '3' : '#', '4' : '$', '5' : '%',
+            \'6' : '^', '7' : "&", '8' : '*', '9' : '(', '0' : ')',
+            \'`' : '~', '-' : '_', '=' : '+',
+            \'[' : '{', ']' : '}', '\' : '|',
+            \';' : ':', "'" : '"',
+            \',' : '<', '.' : '>', '/' : '?',
         \}
+    \}
     let l:special_table = {
         \"\<ESC>" : "\<ESC>", "\<Space>" : ';', "\<CR>" : ";\<CR>"
-        \}
+    \}
 
     let l:key = getchar()
     if nr2char(l:key) =~ '\l'
         return toupper(nr2char(l:key))
-    elseif has_key(l:sticky_table, nr2char(l:key))
-        return l:sticky_table[nr2char(l:key)]
+    elseif has_key(get(l:sticky_table, g:sticky_us_keyboard), nr2char(l:key))
+        return get(l:sticky_table, g:sticky_us_keyboard)[nr2char(l:key)]
     elseif has_key(l:special_table, nr2char(l:key))
         return l:special_table[nr2char(l:key)]
     else
@@ -670,7 +683,13 @@ augroup END
 " }}}
 
 " quickrun.vim用設定 {{{
+nnoremap qr  :<C-u>QuickRun<Space>
 AlterCommand qr QuickRun
+" }}}
+
+" quickdun.vim用設定 {{{
+nnoremap qd  :<C-u>QuickDan<Space>
+AlterCommand qd QuickDan
 " }}}
 
 " operator-replace用設定 {{{
