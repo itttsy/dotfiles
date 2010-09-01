@@ -197,7 +197,7 @@ set shiftwidth=4
 " }}}
 
 " completion {{{
-autocmd FileType pl :set dictionary+=~/vimfiles/dict/perl.dict
+autocmd FileType pl :set dictionary+=$DOTVIM/dict/perl.dict
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
@@ -216,12 +216,12 @@ endif
 
 " backup {{{
 set backup
-set backupdir=~/vimfiles/backup
+set backupdir=$DOTVIM/backup
 " }}}
 
 " persistent undo {{{
 set undofile
-set undodir=~/vimfiles/undo/
+set undodir=$DOTVIM/undo/
 " }}}
 
 " misc {{{
@@ -234,7 +234,7 @@ set clipboard& clipboard+=unnamed,autoselect
 nnoremap Y y$
 augroup DictFile
     autocmd!
-    autocmd FileType *  execute printf("setlocal dict=~/vimfiles/dict/%s.dict", &filetype)
+    autocmd FileType *  execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
 augroup END
 " ]で補完が可能になる
 inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
