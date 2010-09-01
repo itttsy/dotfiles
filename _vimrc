@@ -57,7 +57,7 @@ augroup END
 " プラットフォーム依存の問題の為の設定 {{{
 " Windows/Linuxにおいて、.vimと$VIM/vimfilesの違いを吸収する {{{
 if has('win32') || has('win64')
-    let $DOTVIM = $VIM."/vimfiles"
+    let $DOTVIM = $HOME."/vimfiles"
 else
     let $DOTVIM = $HOME."/.vim"
 endif
@@ -705,7 +705,7 @@ let g:neocomplcache_disable_auto_complete = 1
 let g:neocomplcache_manual_completion_start_length = 0
 let g:NeoComplCache_MinSyntaxLength = 3
 let g:neocomplcache_enable_quick_match = 1
-let g:neocomplcache_temporary_dir = $HOME.'/vimfiles/tmp/.neocon'
+let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/.neocon'
 if !exists('g:neocomplcache_keyword_patterns')
     let g:neocomplcache_keyword_patterns = {}
 endif
@@ -717,8 +717,8 @@ inoremap <expr><C-l> neocomplcache#complete_common_string()
 " }}}
 
 " skk.vim用設定 {{{
-let g:skk_jisyo = $HOME.'/vimfiles/dict/_skk-jisyo'
-let g:skk_large_jisyo = $HOME.'/vimfiles/dict/SKK-JISYO.L'
+let g:skk_jisyo = $DOTVIM.'/dict/_skk-jisyo'
+let g:skk_large_jisyo = $DOTVIM.'/dict/SKK-JISYO.L'
 let g:skk_select_cand_keys = "ASDFGHJKL"
 let g:skk_egg_like_newline = 1
 let g:skk_marker_white = "'"
@@ -735,7 +735,7 @@ let g:skk_auto_save_jisyo = 1
 " vimshell.vim用設定 {{{
 AlterCommand vsh VimShell
 AlterCommand vshp VimShellPop
-let g:vimshell_temporary_directory = $HOME."/vimfiles"
+let g:vimshell_temporary_directory = $DOTVIM
 let g:vimshell_prompt = $USERNAME.">"
 let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
