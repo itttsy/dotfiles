@@ -727,10 +727,10 @@ AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
 let g:ref_alc_use_cache = 1
 let g:ref_alc_encoding = "euc-jp"
-nnoremap <silent> <C-m>k :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
-vnoremap <silent> <C-m>k :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
-nnoremap <C-m><C-k> :<C-u>Ref alc<Space>
-nnoremap <C-m><C-h> :<C-u>Ref <C-r>=ref#detect()<CR><Space>
+nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
+vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
+AlterCommand ma :<C-u>Ref alc
+AlterCommand mp :<C-u>Ref perldoc
 " }}}
 
 " operator-replace用設定 {{{
