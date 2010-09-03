@@ -197,7 +197,7 @@ set shiftwidth=4
 " }}}
 
 " completion {{{
-autocmd FileType pl :set dictionary+=$DOTVIM/dict/perl.dict
+autocmd FileType pl :set dictionary+=$DOTVIM'/dict/perl.dict'
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
@@ -221,7 +221,7 @@ set backupdir=$DOTVIM/backup
 
 " persistent undo {{{
 set undofile
-set undodir=$DOTVIM/undo/
+set undodir=$DOTVIM/tmp/undo
 " }}}
 
 " misc {{{
@@ -267,7 +267,7 @@ endfunction
 
 "-- 
 " 検索の挙動に関する設定 {{{
-set hlsearch
+set nohlsearch
 set incsearch
 set ignorecase
 set smartcase
@@ -468,7 +468,7 @@ nnoremap <silent> [Tabbed]p  :<C-u>tabprevious<CR>
 nnoremap <silent> [Tabbed]c  :<C-u>tabnew<CR>
 nnoremap <silent> [Tabbed]k  :<C-u>tabclose<CR>
 nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
-nnoremap <silent> [Tabbed]r :<C-u>TabRecent<Space>
+nnoremap <silent> [Tabbed]r  :<C-u>TabRecent<Space>
 nmap [Tabbed]<C-s>  [Tabbed]s
 nmap [Tabbed]<C-n>  [Tabbed]n
 nmap [Tabbed]<C-p>  [Tabbed]p
@@ -682,40 +682,6 @@ augroup NetrwCommand
 augroup END
 " }}}
 
-" quickrun.vim用設定 {{{
-nnoremap qr  :<C-u>QuickRun<Space>
-AlterCommand qr QuickRun
-" }}}
-
-" quickdun.vim用設定 {{{
-nnoremap qd  :<C-u>QuickDan<Space>
-AlterCommand qd QuickDan
-" }}}
-
-" operator-replace用設定 {{{
-map R <Plug>(operator-replace)
-" }}}
-
-" neocomplcache.vim用設定 {{{
-let g:neocomplcache_enable_at_startup = 1
-let g:NeoComplCache_SmartCase = 1
-let g:NeoComplCache_EnableCamelCaseCompletion = 1
-let g:NeoComplCache_EnableUnderbarCompletion = 1
-let g:neocomplcache_disable_auto_complete = 1
-let g:neocomplcache_manual_completion_start_length = 0
-let g:NeoComplCache_MinSyntaxLength = 3
-let g:neocomplcache_enable_quick_match = 1
-let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/.neocon'
-if !exists('g:neocomplcache_keyword_patterns')
-    let g:neocomplcache_keyword_patterns = {}
-endif
-let g:neocomplcache_keyword_patterns['default'] = '\h\w*' 
-imap <C-k> <Plug>(neocomplcache_snippets_expand)
-smap <C-k> <Plug>(neocomplcache_snippets_expand)
-inoremap <expr><C-g> neocomplcache#undo_completion()
-inoremap <expr><C-l> neocomplcache#complete_common_string() 
-" }}}
-
 " skk.vim用設定 {{{
 let g:skk_jisyo = $DOTVIM.'/dict/_skk-jisyo'
 let g:skk_large_jisyo = $DOTVIM.'/dict/SKK-JISYO.L'
@@ -730,6 +696,26 @@ let g:skk_cursor_zenei_color = "Purple"
 let g:skk_cursor_ascii_color = "Purple"
 let g:skk_sticky_key = ';'
 let g:skk_auto_save_jisyo = 1
+" }}}
+
+" neocomplcache.vim用設定 {{{
+let g:neocomplcache_enable_at_startup = 1
+let g:NeoComplCache_SmartCase = 1
+let g:NeoComplCache_EnableCamelCaseCompletion = 1
+let g:NeoComplCache_EnableUnderbarCompletion = 1
+let g:neocomplcache_disable_auto_complete = 1
+let g:neocomplcache_manual_completion_start_length = 0
+let g:NeoComplCache_MinSyntaxLength = 3
+let g:neocomplcache_enable_quick_match = 1
+let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/neocon'
+if !exists('g:neocomplcache_keyword_patterns')
+    let g:neocomplcache_keyword_patterns = {}
+endif
+let g:neocomplcache_keyword_patterns['default'] = '\h\w*' 
+imap <C-k> <Plug>(neocomplcache_snippets_expand)
+smap <C-k> <Plug>(neocomplcache_snippets_expand)
+inoremap <expr><C-g> neocomplcache#undo_completion()
+inoremap <expr><C-l> neocomplcache#complete_common_string() 
 " }}}
 
 " vimshell.vim用設定 {{{
@@ -761,6 +747,31 @@ function! s:vimfiler_settings()
     noremap -buffer L <Plug>(vimfiler_move_to_history_forward)
     noremap -buffer H <Plug>(vimfiler_move_to_history_back)
 endfunction
+" }}}
+
+" ref.vim用設定  {{{
+AlterCommand ref Ref
+let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
+let g:ref_alc_use_cache = 1
+let g:ref_alc_encoding = "euc-jp"
+nnoremap <silent> <C-m>k :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
+vnoremap <silent> <C-m>k :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
+nnoremap <C-m><C-k> :<C-u>Ref alc<Space>
+nnoremap <C-m><C-h> :<C-u>Ref <C-r>=ref#detect()<CR><Space>
+" }}}
+
+" operator-replace用設定 {{{
+map R <Plug>(operator-replace)
+" }}}
+
+" quickrun.vim用設定 {{{
+nnoremap qr  :<C-u>QuickRun<Space>
+AlterCommand qr QuickRun
+" }}}
+
+" quickdun.vim用設定 {{{
+nnoremap qd  :<C-u>QuickDan<Space>
+AlterCommand qd QuickDan
 " }}}
 " }}}
 
