@@ -19,7 +19,6 @@ if has('win32') || has('win64')
     set shellslash
 endif
 call altercmd#load()
-call arpeggio#load()
 " }}}
 
 "-- 
@@ -353,12 +352,6 @@ endfunction
 
 "-- 
 " マップ定義 {{{
-" Arpeggioで<ESC>を実現する {{{
-Arpeggioinoremap fj <ESC>
-Arpeggiocnoremap fj <ESC>
-Arpeggiovnoremap fj <ESC>
-" }}}
-
 " Normalモード {{{
 nnoremap M m
 
@@ -367,11 +360,11 @@ set splitbelow
 set splitright
 "デフォルトの最小 window 高さを0に
 set winminheight=0
-" wj/wk/wh/wl で上下左右のWindowへ移動
-Arpeggionnoremap wj <C-W>j<C-W>_
-Arpeggionnoremap wk <C-W>k<C-W>_
-Arpeggionnoremap wh <C-W>h<C-W>_
-Arpeggionnoremap wl <C-W>l<C-W>_
+" <C-j>/<C-k/<C-h/<C-l> で上下左右のWindowへ移動
+nnoremap <C-j> <C-W>j<C-W>_
+nnoremap <C-k> <C-W>k<C-W>_
+nnoremap <C-h> <C-W>h<C-W>_
+nnoremap <C-l> <C-W>l<C-W>_
 
 " 画面分割用のキーマップ
 nmap spj <SID>(split-to-j)
@@ -386,12 +379,6 @@ nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:cou
 " }}}
 
 " Move window position {{{
-Arpeggionnoremap sn <Space><C-n>
-Arpeggionnoremap sp <Space><C-p>
-Arpeggionnoremap sj <Space><C-j>
-Arpeggionnoremap sk <Space><C-k>
-Arpeggionnoremap sh <Space><C-h>
-Arpeggionnoremap sl <Space><C-l>
 nmap <Space><C-n> <SID>swap_window_next
 nmap <Space><C-p> <SID>swap_window_prev
 nmap <Space><C-j> <SID>swap_window_j
@@ -476,10 +463,6 @@ nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
 nnoremap <silent> [Tabbed]r  :<C-u>TabRecent<Space>
 nnoremap <silent> [Tabbed]l :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
 nnoremap <silent> [Tabbed]h :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
-Arpeggionmap tl   [Tabbed]s
-Arpeggionmap tn   [Tabbed]n
-Arpeggionmap tp   [Tabbed]p
-Arpeggionmap tc   [Tabbed]c
 nnoremap <C-n> :<C-u>tabnext<CR>
 nnoremap <C-p> :<C-u>tabprevious<CR>
 " GNU screen風にタブを移動 {{{
@@ -686,10 +669,6 @@ let g:skk_cursor_zenei_color = "Purple"
 let g:skk_cursor_ascii_color = "Purple"
 let g:skk_sticky_key = ';'
 let g:skk_auto_save_jisyo = 1
-" }}}
-
-" arpeggio.vim用設定 {{{
-let g:arpeggio_timeoutlens = {'a':50, 'c':100, 'n':100, 'p':100}
 " }}}
 
 " neocomplcache.vim用設定 {{{
