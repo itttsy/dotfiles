@@ -231,6 +231,7 @@ set nrformats& nrformats-=octal
 set virtualedit+=block
 set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
+set autochdir
 nnoremap Y y$
 augroup DictFile
     autocmd!
@@ -276,23 +277,6 @@ nmap n nzz
 nmap N Nzz
 nnoremap <silent> f :set iminsert=0<CR>f
 nnoremap <silent> F :set iminsert=0<CR>F
-" }}}
-
-"-- 
-" Change Directoryに関する設定 {{{
-set autochdir
-command! -nargs=? -complete=dir -bang CD  call s:ChangeCurrentDir('<args>', '<bang>') 
-function! s:ChangeCurrentDir(directory, bang)
-    if a:directory == ''
-        lcd %:p:h
-    else
-        execute 'lcd' . a:directory
-    endif
-    if a:bang == ''
-        pwd
-    endif
-endfunction
-
 " }}}
 
 "-- 
