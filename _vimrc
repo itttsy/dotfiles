@@ -367,11 +367,11 @@ set splitbelow
 set splitright
 "デフォルトの最小 window 高さを0に
 set winminheight=0
-" aj/ak/ah/al で上下左右のWindowへ移動
-Arpeggionnoremap aj <C-W>j<C-W>_
-Arpeggionnoremap ak <C-W>k<C-W>_
-Arpeggionnoremap ah <C-W>h<C-W>_
-Arpeggionnoremap al <C-W>l<C-W>_
+" wj/wk/wh/wl で上下左右のWindowへ移動
+Arpeggionnoremap wj <C-W>j<C-W>_
+Arpeggionnoremap wk <C-W>k<C-W>_
+Arpeggionnoremap wh <C-W>h<C-W>_
+Arpeggionnoremap wl <C-W>l<C-W>_
 
 " 画面分割用のキーマップ
 nmap spj <SID>(split-to-j)
@@ -386,12 +386,12 @@ nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:cou
 " }}}
 
 " Move window position {{{
-Arpeggionnoremap wn <Space><C-n>
-Arpeggionnoremap wp <Space><C-p>
-Arpeggionnoremap wj <Space><C-j>
-Arpeggionnoremap wk <Space><C-k>
-Arpeggionnoremap wh <Space><C-h>
-Arpeggionnoremap wl <Space><C-l>
+Arpeggionnoremap sn <Space><C-n>
+Arpeggionnoremap sp <Space><C-p>
+Arpeggionnoremap sj <Space><C-j>
+Arpeggionnoremap sk <Space><C-k>
+Arpeggionnoremap sh <Space><C-h>
+Arpeggionnoremap sl <Space><C-l>
 nmap <Space><C-n> <SID>swap_window_next
 nmap <Space><C-p> <SID>swap_window_prev
 nmap <Space><C-j> <SID>swap_window_j
