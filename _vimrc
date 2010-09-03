@@ -19,6 +19,7 @@ if has('win32') || has('win64')
     set shellslash
 endif
 call altercmd#load()
+call arpeggio#load()
 " }}}
 
 "-- 
@@ -175,6 +176,16 @@ set diffopt=filler,vertical
 set helplang=ja,en
 set nojoinspaces
 " }}}
+
+" カレントウィンドウにのみ罫線を引く {{{
+augroup cch
+  autocmd! cch
+  autocmd WinLeave * set nocursorline
+  autocmd WinEnter,BufRead * set cursorline
+augroup END
+
+highlight CursorLine ctermbg=black guibg=black
+" }}}
 " }}}
 
 "-- 
@@ -273,8 +284,6 @@ set incsearch
 set ignorecase
 set smartcase
 set wrapscan
-nmap n nzz
-nmap N Nzz
 nnoremap <silent> f :set iminsert=0<CR>f
 nnoremap <silent> F :set iminsert=0<CR>F
 " }}}
@@ -344,6 +353,12 @@ endfunction
 
 "-- 
 " マップ定義 {{{
+" Arpeggioで<ESC>を実現する {{{
+Arpeggioinoremap fj <ESC>
+Arpeggiocnoremap fj <ESC>
+Arpeggiovnoremap fj <ESC>
+" }}}
+
 " Normalモード {{{
 nnoremap M m
 
@@ -352,11 +367,11 @@ set splitbelow
 set splitright
 "デフォルトの最小 window 高さを0に
 set winminheight=0
-" Ctrl-j/k/h/l で上下左右のWindowへ移動
-nmap <C-j> <C-W>j<C-W>_
-nmap <C-k> <C-W>k<C-W>_
-nmap <C-h> <C-W>h<C-W>_
-nmap <C-l> <C-W>l<C-W>_
+" aj/ak/ah/al で上下左右のWindowへ移動
+Arpeggionnoremap aj <C-W>j<C-W>_
+Arpeggionnoremap ak <C-W>k<C-W>_
+Arpeggionnoremap ah <C-W>h<C-W>_
+Arpeggionnoremap al <C-W>l<C-W>_
 
 " 画面分割用のキーマップ
 nmap spj <SID>(split-to-j)
@@ -371,6 +386,12 @@ nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:cou
 " }}}
 
 " Move window position {{{
+Arpeggionnoremap wn <Space><C-n>
+Arpeggionnoremap wp <Space><C-p>
+Arpeggionnoremap wj <Space><C-j>
+Arpeggionnoremap wk <Space><C-k>
+Arpeggionnoremap wh <Space><C-h>
+Arpeggionnoremap wl <Space><C-l>
 nmap <Space><C-n> <SID>swap_window_next
 nmap <Space><C-p> <SID>swap_window_prev
 nmap <Space><C-j> <SID>swap_window_j
@@ -453,14 +474,12 @@ nnoremap <silent> [Tabbed]c  :<C-u>tabnew<CR>
 nnoremap <silent> [Tabbed]k  :<C-u>tabclose<CR>
 nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
 nnoremap <silent> [Tabbed]r  :<C-u>TabRecent<Space>
-nmap [Tabbed]<C-s>  [Tabbed]s
-nmap [Tabbed]<C-n>  [Tabbed]n
-nmap [Tabbed]<C-p>  [Tabbed]p
-nmap [Tabbed]<C-c>  [Tabbed]c
-nmap [Tabbed]<C-o>  [Tabbed]o
-nmap [Tabbed]<C-i>  [Tabbed]i
 nnoremap <silent> [Tabbed]l :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
 nnoremap <silent> [Tabbed]h :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
+Arpeggionmap tl   [Tabbed]s
+Arpeggionmap tn   [Tabbed]n
+Arpeggionmap tp   [Tabbed]p
+Arpeggionmap tc   [Tabbed]c
 nnoremap <C-n> :<C-u>tabnext<CR>
 nnoremap <C-p> :<C-u>tabprevious<CR>
 " GNU screen風にタブを移動 {{{
@@ -500,32 +519,19 @@ endfunction
 " }}}
 " <space>ao move current buffer into a new tab.
 nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
-
 " }}}
 
-" Debug関係 {{{
-nnoremap [Argument]   <Nop>
-nmap    <C-g>  [Argument]
-
-nnoremap [Argument]<Space>  :<C-u>args<Space>
-nnoremap <silent> [Argument]s  :<C-u>args<CR>
-nnoremap <silent> [Argument]n  :<C-u>next<CR>
-nnoremap <silent> [Argument]p  :<C-u>previous<CR>
-nnoremap <silent> [Argument]P  :<C-u>first<CR>
-nnoremap <silent> [Argument]N  :<C-u>last<CR>
-nnoremap <silent> [Argument]wp :<C-u>wnext<CR>
-nnoremap <silent> [Argument]wn :<C-u>wprevious<CR>
-" }}}
-
-" Smart <C-f>, <C-b>.
+" Smart <C-f>, <C-b> {{{
 nnoremap <silent> <C-f> z<CR><C-f>z.
 nnoremap <silent> <C-b> z-<C-b>z.
+" }}}
 
-" help関係
+" help関係 {{{
 " Execute help by cursor keyword.
 nnoremap <silent> g<C-h>  :<C-u>help<Space><C-r><C-w><CR>
 " Grep in help.
 nnoremap grh  :<C-u>Hg<Space>
+" }}}
 " }}}
 
 " Visualモード {{{
@@ -680,6 +686,10 @@ let g:skk_cursor_zenei_color = "Purple"
 let g:skk_cursor_ascii_color = "Purple"
 let g:skk_sticky_key = ';'
 let g:skk_auto_save_jisyo = 1
+" }}}
+
+" arpeggio.vim用設定 {{{
+let g:arpeggio_timeoutlens = {'a':50, 'c':100, 'n':100, 'p':100}
 " }}}
 
 " neocomplcache.vim用設定 {{{
