@@ -247,8 +247,6 @@ augroup DictFile
     autocmd!
     autocmd FileType *  execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
 augroup END
-" ]で補完が可能になる
-inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
 " 縦に連番を入力する {{{
@@ -367,6 +365,9 @@ nnoremap <C-h> <C-W>h<C-W>_
 nnoremap <C-l> <C-W>l<C-W>_
 
 " 画面分割用のキーマップ
+nnoremap [Window]   <Nop>
+nmap    <C-s>  [Window]
+
 nmap spj <SID>(split-to-j)
 nmap spk <SID>(split-to-k)
 nmap sph <SID>(split-to-h)
@@ -379,12 +380,12 @@ nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:cou
 " }}}
 
 " Move window position {{{
-nmap <Space><C-n> <SID>swap_window_next
-nmap <Space><C-p> <SID>swap_window_prev
-nmap <Space><C-j> <SID>swap_window_j
-nmap <Space><C-k> <SID>swap_window_k
-nmap <Space><C-h> <SID>swap_window_h
-nmap <Space><C-l> <SID>swap_window_l
+nmap [Window]<C-n> <SID>swap_window_next
+nmap [Window]<C-p> <SID>swap_window_prev
+nmap [Window]<C-j> <SID>swap_window_j
+nmap [Window]<C-k> <SID>swap_window_k
+nmap [Window]<C-h> <SID>swap_window_h
+nmap [Window]<C-l> <SID>swap_window_l
 
 nnoremap <silent> <SID>swap_window_next :<C-u>call <SID>swap_window_count(v:count1)<CR>
 nnoremap <silent> <SID>swap_window_prev :<C-u>call <SID>swap_window_count(-v:count1)<CR>
@@ -434,20 +435,8 @@ endfunction
 nnoremap H :<C-u>bp<CR>
 " Lで次のバッファを表示
 nnoremap L :<C-u>bn<CR>
-
-nnoremap [Buffer]   <Nop>
-nmap    <C-s>  [Buffer]
-
-nnoremap <silent> [Buffer]s  :<C-u>buffers<CR>
-nnoremap <silent> [Buffer]n  :<C-u>bnext<CR>
-nnoremap <silent> [Buffer]p  :<C-u>bprevious<CR>
-nnoremap <silent> [Buffer]k  :<C-u>bdelete<CR>
-nnoremap <silent> [Buffer]g  :<C-u>buffer<Space>
-nmap [Buffer]<C-s>  [Buffer]s
-nmap [Buffer]<C-n>  [Buffer]n
-nmap [Buffer]<C-p>  [Buffer]p
-nmap [Buffer]<C-d>  [Buffer]k
-nmap [Buffer]<C-g>  [Buffer]g
+" <Space>llで現在のバッファを表示
+nnoremap <Space>ll :<C-u>buffers<CR>
 " }}}
 
 " Tab関係 {{{
@@ -515,6 +504,13 @@ nnoremap <silent> g<C-h>  :<C-u>help<Space><C-r><C-w><CR>
 " Grep in help.
 nnoremap grh  :<C-u>Hg<Space>
 " }}}
+
+" misc {{{
+" スペルミスを指摘する
+nnoremap <silent> <Space>sp :<C-u>setlocal spell! spelllang=en_us<CR>:setlocal spell?<CR>
+" Vimでクリップボードとやりとりをする
+nnoremap <C-r><C-u>  <C-r><C-o>+
+" }}}
 " }}}
 
 " Visualモード {{{
@@ -540,9 +536,9 @@ inoremap <silent><C-e> <C-o>$
 " <C-f>, <C-b>でページを移動する
 inoremap <expr><C-f>  pumvisible() ? "\<PageDown>" : "\<Right>"
 inoremap <expr><C-b>  pumvisible() ? "\<PageUp>"   : "\<Left>"
-" <A-h>で前に移動する
+" <A-h>で前文字に移動する
 inoremap <A-h>  <Left>
-" <A-l>で次に移動する
+" <A-l>で次文字に移動する
 inoremap <A-l>  <Right>
 " <A-k>で前行に移動する
 inoremap <A-k>  <Up>
@@ -550,10 +546,14 @@ inoremap <A-k>  <Up>
 inoremap <A-j>  <Down>
 " <C-u>でundoする
 inoremap <C-u>  <C-g>u<C-u>
+" <C-g><C-u>で直下の単語を大文字に変換する
+inoremap <C-g><C-u> <ESC>gUiw`]a
 " <C-h>, <BS>, <Space>でポップアップも消す
 inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
+" ]で補完が可能になる
+inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " 括弧を入力した時にカーソルを真ん中へ
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
