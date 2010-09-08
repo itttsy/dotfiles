@@ -13,6 +13,7 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 command! ReloadVimrc  source $MYVIMRC
 
 " 初期設定 {{{
+set iminsert=0
 set nocompatible
 filetype plugin indent on
 if has('win32') || has('win64')
@@ -548,12 +549,14 @@ inoremap <A-j>  <Down>
 inoremap <C-u>  <C-g>u<C-u>
 " <C-g><C-u>で直下の単語を大文字に変換する
 inoremap <C-g><C-u> <ESC>gUiw`]a
+" <C-y>でペースト
+inoremap <C-y> <C-r>*
 " <C-h>, <BS>, <Space>でポップアップも消す
 inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
 " ]で補完が可能になる
-inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
+imap <expr>] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " 括弧を入力した時にカーソルを真ん中へ
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
@@ -678,13 +681,17 @@ let g:NeoComplCache_EnableCamelCaseCompletion = 1
 let g:NeoComplCache_EnableUnderbarCompletion = 1
 let g:neocomplcache_disable_auto_complete = 1
 let g:neocomplcache_manual_completion_start_length = 0
+let g:neocomplcache_max_filename_width = 30
 let g:NeoComplCache_MinSyntaxLength = 3
+let g:neocomplcache_enable_smart_case = 1
 let g:neocomplcache_enable_quick_match = 1
+let g:neocomplcache_enable_auto_select = 1
 let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/neocon'
 if !exists('g:neocomplcache_keyword_patterns')
     let g:neocomplcache_keyword_patterns = {}
 endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*' 
+inoremap <expr><C-n> neocomplcache#manual_keyword_complete()
 imap <C-k> <Plug>(neocomplcache_snippets_expand)
 smap <C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
