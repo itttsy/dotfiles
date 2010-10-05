@@ -99,6 +99,7 @@ endif
 
 "-- 
 " GUI固有ではない画面表示の設定 {{{
+colorscheme less
 set wrap
 set showmode
 set showmatch
@@ -167,7 +168,7 @@ func! s:fold_current_expand()
     silent! %foldclose!
     normal! zvzz
 endfunc
-nnoremap z<Space>   :call <SID>fold_current_expand()<CR>
+nnoremap z<Space>   :<C-u>call <SID>fold_current_expand()<CR>
 " }}}
 
 " misc {{{
@@ -208,12 +209,14 @@ set shiftwidth=4
 " }}}
 
 " completion {{{
-autocmd FileType pl :set dictionary+=$DOTVIM'/dict/perl.dict'
+autocmd FileType pl :<C-u>set dictionary+=$DOTVIM'/dict/perl.dict'
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
 set wildignore=*.o,*.obj,*.la,*.a,*.exe,*.com,*.tds
 set pumheight=20
+" ]で補完が可能になる
+imap <expr>] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " }}}
 
 " swap {{{
@@ -251,8 +254,8 @@ augroup END
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
 " 縦に連番を入力する {{{
-nnoremap <silent> co :ContinuousNumber <C-a><CR>
-vnoremap <silent> co :ContinuousNumber <C-a><CR>
+nnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
+vnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
 command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
 " }}}
 " }}}
@@ -282,8 +285,8 @@ set incsearch
 set ignorecase
 set smartcase
 set wrapscan
-nnoremap <silent> f :set iminsert=0<CR>f
-nnoremap <silent> F :set iminsert=0<CR>F
+nnoremap <silent> f :<C-u>set iminsert=0<CR>f
+nnoremap <silent> F :<C-u>set iminsert=0<CR>F
 " }}}
 
 "-- 
@@ -351,6 +354,12 @@ endfunction
 
 "-- 
 " マップ定義 {{{
+" 全般 {{{
+" 'と`を入れ替える
+noremap '  `
+noremap `  '
+" }}}
+
 " Normalモード {{{
 nnoremap M m
 
@@ -444,13 +453,13 @@ nnoremap <Space>ll :<C-u>buffers<CR>
 nnoremap [Tabbed]   <Nop>
 nmap    <C-t>  [Tabbed]
 
-nnoremap <silent> [Tabbed]s  :<C-u>tabs<CR>
-nnoremap <silent> [Tabbed]n  :<C-u>tabnext<CR>
-nnoremap <silent> [Tabbed]p  :<C-u>tabprevious<CR>
-nnoremap <silent> [Tabbed]c  :<C-u>tabnew<CR>
-nnoremap <silent> [Tabbed]k  :<C-u>tabclose<CR>
-nnoremap <silent> [Tabbed]o  :<C-u>tabonly<CR>
-nnoremap <silent> [Tabbed]r  :<C-u>TabRecent<Space>
+nnoremap <silent> [Tabbed]s :<C-u>tabs<CR>
+nnoremap <silent> [Tabbed]n :<C-u>tabnext<CR>
+nnoremap <silent> [Tabbed]p :<C-u>tabprevious<CR>
+nnoremap <silent> [Tabbed]c :<C-u>tabnew<CR>
+nnoremap <silent> [Tabbed]k :<C-u>tabclose<CR>
+nnoremap <silent> [Tabbed]o :<C-u>tabonly<CR>
+nnoremap <silent> [Tabbed]r :<C-u>TabRecent<Space>
 nnoremap <silent> [Tabbed]l :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
 nnoremap <silent> [Tabbed]h :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
 nnoremap <C-n> :<C-u>tabnext<CR>
@@ -547,6 +556,7 @@ inoremap <A-k>  <Up>
 inoremap <A-j>  <Down>
 " <C-u>でundoする
 inoremap <C-u>  <C-g>u<C-u>
+inoremap <C-w>  <C-g>u<C-w>
 " <C-g><C-u>で直下の単語を大文字に変換する
 inoremap <C-g><C-u> <ESC>gUiw`]a
 " <C-y>でペースト
@@ -555,8 +565,6 @@ inoremap <C-y> <C-r>*
 inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
-" ]で補完が可能になる
-imap <expr>] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " 括弧を入力した時にカーソルを真ん中へ
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
@@ -584,6 +592,18 @@ cnoremap <C-l> <C-d>
 cnoremap <A-h>  <S-Left>
 " <A-l>で次の言葉に移動する
 cnoremap <A-l>  <S-Right>
+" }}}
+
+" テキストオブジェクト用キーマップ {{{
+onoremap aa  a>
+vnoremap aa  a>
+onoremap ia  i>
+vnoremap ia  i>
+
+onoremap ar  a]
+vnoremap ar  a]
+onoremap ir  i]
+vnoremap ir  i]
 " }}}
 
 " レジスタ用キーマップ {{{
@@ -691,7 +711,7 @@ if !exists('g:neocomplcache_keyword_patterns')
     let g:neocomplcache_keyword_patterns = {}
 endif
 let g:neocomplcache_keyword_patterns['default'] = '\h\w*' 
-inoremap <expr><C-n> neocomplcache#manual_keyword_complete()
+inoremap <C-n> <C-x><C-u>
 imap <C-k> <Plug>(neocomplcache_snippets_expand)
 smap <C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
@@ -706,6 +726,7 @@ let g:vimshell_prompt = $USERNAME.">"
 let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
 let g:vimshell_smart_case = 1
+let g:vimshell_interactive_cygwin_path = $HOME.'/cygwin'
 let g:vimshell_interactive_encodings = {'telnet':'cp932'}
 let g:vimshell_execute_file_list = {}
 call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
@@ -729,11 +750,33 @@ function! s:vimfiler_settings()
 endfunction
 " }}}
 
+" unite.vim用設定 {{{
+AlterCommand unite Unite
+let g:unite_data_directory = $DOTVIM.'/unite'
+let g:unite_enable_start_insert = 1
+" The prefix key.
+nnoremap    [unite]   <Nop>
+nmap    <C-u> [unite]
+
+nnoremap [unite]u  :<C-u>Unite<Space>
+nnoremap <silent> [unite]c  :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
+nnoremap <silent> [unite]b  :<C-u>UniteWithBufferDir buffer file_mru file<CR>
+autocmd FileType unite call s:unite_my_settings()
+function! s:unite_my_settings()
+    imap <buffer> jj      <Plug>(unite_insert_leave)
+    nnoremap <buffer> t G
+endfunction
+" }}}
+
 " ref.vim用設定  {{{
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
+let g:ref_use_vimproc = 1
 let g:ref_alc_use_cache = 1
 let g:ref_alc_encoding = "euc-jp"
+if has('win32') || has('win64')
+    let g:ref_perldoc_cmd = 'C:/strawberry/perl/bin/perldoc.bat'
+endif
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
 vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
 AlterCommand ma :<C-u>Ref alc
@@ -749,10 +792,6 @@ nnoremap qr  :<C-u>QuickRun<Space>
 AlterCommand qr QuickRun
 " }}}
 
-" quickdun.vim用設定 {{{
-nnoremap qd  :<C-u>QuickDan<Space>
-AlterCommand qd QuickDan
-" }}}
 " }}}
 
 
