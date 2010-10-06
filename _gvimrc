@@ -83,7 +83,7 @@ set mousehide
 " }}}
 
 " メニューに関する設定 {{{
-set guioptions=r
+set guioptions=
 " }}}
 
 " 検索文字列をハイライトしない {{{
