@@ -561,10 +561,6 @@ inoremap <C-w>  <C-g>u<C-w>
 inoremap <C-g><C-u> <ESC>gUiw`]a
 " <C-y>でペースト
 inoremap <C-y> <C-r>*
-" <C-h>, <BS>, <Space>でポップアップも消す
-inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
-inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
-inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
 " 括弧を入力した時にカーソルを真ん中へ
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
@@ -699,30 +695,31 @@ let g:neocomplcache_enable_at_startup = 1
 let g:NeoComplCache_SmartCase = 1
 let g:NeoComplCache_EnableCamelCaseCompletion = 1
 let g:NeoComplCache_EnableUnderbarCompletion = 1
-let g:neocomplcache_disable_auto_complete = 1
+let g:neocomplcache_disable_auto_complete = 0
 let g:neocomplcache_manual_completion_start_length = 0
+let g:neocomplcache_enable_auto_delimiter = 1
 let g:neocomplcache_max_filename_width = 30
 let g:NeoComplCache_MinSyntaxLength = 3
 let g:neocomplcache_enable_smart_case = 1
 let g:neocomplcache_enable_quick_match = 1
-let g:neocomplcache_enable_auto_select = 1
+let g:neocomplcache_enable_auto_select = 0
 let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/neocon'
-if !exists('g:neocomplcache_keyword_patterns')
-    let g:neocomplcache_keyword_patterns = {}
-endif
-let g:neocomplcache_keyword_patterns['default'] = '\h\w*' 
-inoremap <C-n> <C-x><C-u>
-imap <C-k> <Plug>(neocomplcache_snippets_expand)
-smap <C-k> <Plug>(neocomplcache_snippets_expand)
+inoremap <expr><C-n>  pumvisible() ? "\<C-n>" : neocomplcache#manual_keyword_complete()
+imap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
+smap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-l> neocomplcache#complete_common_string() 
+" <C-h>, <BS>, <Space>でポップアップも消す
+inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
+inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
+inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
 " }}}
 
 " vimshell.vim用設定 {{{
 AlterCommand vsh VimShell
 AlterCommand vshp VimShellPop
 let g:vimshell_temporary_directory = $DOTVIM
-let g:vimshell_prompt = $USERNAME.">"
+let g:vimshell_prompt = $USERNAME."> "
 let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
 let g:vimshell_smart_case = 1
