@@ -7,6 +7,7 @@ endif
 let mapleader = 'm'
 let g:mapleader = 'm'
 let g:maplocalleader = ','
+nnoremap M m
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 " :ReloadVimrcコマンドの追加
@@ -90,9 +91,9 @@ endif
 
 " helptagsの生成 {{{
 if has('mac')
-    helptags ~/.vim/doc/
+    helptags ~/.vim/doc
 elseif has('win32')
-    helptags ~/vimfiles/doc/
+    helptags ~/vimfiles/doc
 endif
 " }}}
 " }}}
@@ -361,8 +362,6 @@ noremap `  '
 " }}}
 
 " Normalモード {{{
-nnoremap M m
-
 " Window関係 {{{
 set splitbelow
 set splitright
@@ -704,7 +703,6 @@ let g:neocomplcache_enable_smart_case = 1
 let g:neocomplcache_enable_quick_match = 1
 let g:neocomplcache_enable_auto_select = 0
 let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/neocon'
-inoremap <expr><C-n>  pumvisible() ? "\<C-n>" : neocomplcache#manual_keyword_complete()
 imap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
 smap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
@@ -735,7 +733,7 @@ call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_split_command = 'Split'
 let g:vimfiler_edit_command = 'edit'
-let g:vimfiler_change_vim_cwd = 0
+let g:vimfiler_trashbox_directory = $HOME.'/tmp/vimfiler_trash'
 
 augroup Vimfier
     autocmd!
@@ -787,6 +785,10 @@ map R <Plug>(operator-replace)
 " quickrun.vim用設定 {{{
 nnoremap qr  :<C-u>QuickRun<Space>
 AlterCommand qr QuickRun
+" }}}
+
+" git-vim用設定 {{{
+" call GitBranch()
 " }}}
 
 " }}}
