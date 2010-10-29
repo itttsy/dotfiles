@@ -11,7 +11,7 @@ nnoremap M m
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 " :ReloadVimrcコマンドの追加
-command! ReloadVimrc  source $MYVIMRC
+command! ReloadVimrc source $MYVIMRC
 
 " 初期設定 {{{
 set iminsert=0
@@ -91,9 +91,9 @@ endif
 
 " helptagsの生成 {{{
 if has('mac')
-    helptags ~/.vim/doc
+"    helptags ~/.vim/doc
 elseif has('win32')
-    helptags ~/vimfiles/doc
+"    helptags ~/vimfiles/doc
 endif
 " }}}
 " }}}
@@ -169,7 +169,7 @@ func! s:fold_current_expand()
     silent! %foldclose!
     normal! zvzz
 endfunc
-nnoremap z<Space>   :<C-u>call <SID>fold_current_expand()<CR>
+nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 " }}}
 
 " misc {{{
@@ -181,9 +181,9 @@ set nojoinspaces
 
 " カレントウィンドウにのみ罫線を引く {{{
 augroup cch
-  autocmd! cch
-  autocmd WinLeave * set nocursorline
-  autocmd WinEnter,BufRead * set cursorline
+    autocmd! cch
+    autocmd WinLeave * set nocursorline
+    autocmd WinEnter,BufRead * set cursorline
 augroup END
 
 highlight CursorLine ctermbg=black guibg=black
@@ -250,7 +250,7 @@ set autochdir
 nnoremap Y y$
 augroup DictFile
     autocmd!
-    autocmd FileType *  execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
+    autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
 augroup END
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
@@ -294,10 +294,10 @@ nnoremap <silent> F :<C-u>set iminsert=0<CR>F
 " バイナリの編集に関する設定 {{{
 augroup BinaryXXD
     autocmd!
-    autocmd BufReadPre  *.bin let &binary =1
-    autocmd BufReadPost * if &binary | silent %!xxd -g 1
-    autocmd BufReadPost * set ft=xxd | endif
-    autocmd BufWritePre * if &binary | %!xxd -r | endif
+    autocmd BufReadPre   *.bin let &binary =1
+    autocmd BufReadPost  * if &binary | silent %!xxd -g 1
+    autocmd BufReadPost  * set ft=xxd | endif
+    autocmd BufWritePre  * if &binary | %!xxd -r | endif
     autocmd BufWritePost * if &binary | silent %!xxd -g 1
     autocmd BufWritePost * set nomod | endif
 augroup END
@@ -313,9 +313,9 @@ command! -nargs=? -complete=file Diff if '<args>'=='' | browse vertical diffspli
 "-- 
 " Sticky Shiftを実現する {{{
 let g:sticky_us_keyboard = 0
-inoremap <expr> ;  <SID>sticky_func()
-cnoremap <expr> ;  <SID>sticky_func()
-snoremap <expr> ;  <SID>sticky_func()
+inoremap <expr> ; <SID>sticky_func()
+cnoremap <expr> ; <SID>sticky_func()
+snoremap <expr> ; <SID>sticky_func()
 
 function! s:sticky_func()
     let l:sticky_table = {
@@ -357,8 +357,8 @@ endfunction
 " マップ定義 {{{
 " 全般 {{{
 " 'と`を入れ替える
-noremap '  `
-noremap `  '
+noremap ' `
+noremap ` '
 " }}}
 
 " Normalモード {{{
@@ -374,8 +374,8 @@ nnoremap <C-h> <C-W>h<C-W>_
 nnoremap <C-l> <C-W>l<C-W>_
 
 " 画面分割用のキーマップ
-nnoremap [Window]   <Nop>
-nmap    <C-s>  [Window]
+nnoremap [Window] <Nop>
+nmap <C-s> [Window]
 
 nmap spj <SID>(split-to-j)
 nmap spk <SID>(split-to-k)
@@ -408,34 +408,34 @@ nnoremap <silent> <SID>swap_window_b :<C-u>call <SID>swap_window_dir(v:count1, '
 
 " function {{{
 function! s:modulo(n, m)
-  let d = a:n * a:m < 0 ? 1 : 0
-  return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
+    let d = a:n * a:m < 0 ? 1 : 0
+    return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
 endfunction
 
 function! s:swap_window_count(n)
-  let curwin = winnr()
-  let target = s:modulo(curwin + a:n - 1, winnr('$')) + 1
-  call s:swap_window(curwin, target)
+    let curwin = winnr()
+    let target = s:modulo(curwin + a:n - 1, winnr('$')) + 1
+    call s:swap_window(curwin, target)
 endfunction
 
 function! s:swap_window_dir(n, dir)
-  let curwin = winnr()
-  execute a:n 'wincmd' a:dir
-  let targetwin = winnr()
-  wincmd p
-  call s:swap_window(curwin, targetwin)
+    let curwin = winnr()
+    execute a:n 'wincmd' a:dir
+    let targetwin = winnr()
+    wincmd p
+    call s:swap_window(curwin, targetwin)
 endfunction
 
 function! s:swap_window(curwin, targetwin)
-  let curbuf = winbufnr(a:curwin)
-  let targetbuf = winbufnr(a:targetwin)
+    let curbuf = winbufnr(a:curwin)
+    let targetbuf = winbufnr(a:targetwin)
 
-  if curbuf == targetbuf
-  else
-    execute 'hide' targetbuf . 'buffer'
-    execute a:targetwin 'wincmd w'
-    execute curbuf 'buffer'
-  endif
+    if curbuf == targetbuf
+    else
+        execute 'hide' targetbuf . 'buffer'
+        execute a:targetwin 'wincmd w'
+        execute curbuf 'buffer'
+    endif
 endfunction
 " }}}
 
@@ -449,8 +449,8 @@ nnoremap <Space>ll :<C-u>buffers<CR>
 " }}}
 
 " Tab関係 {{{
-nnoremap [Tabbed]   <Nop>
-nmap    <C-t>  [Tabbed]
+nnoremap [Tabbed] <Nop>
+nmap <C-t> [Tabbed]
 
 nnoremap <silent> [Tabbed]s :<C-u>tabs<CR>
 nnoremap <silent> [Tabbed]n :<C-u>tabnext<CR>
@@ -465,7 +465,7 @@ nnoremap <C-n> :<C-u>tabnext<CR>
 nnoremap <C-p> :<C-u>tabprevious<CR>
 " GNU screen風にタブを移動 {{{
 for i in range(10)
-  execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i+1).'gt')
+    execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i+1).'gt')
 endfor
 unlet i
 " }}}
@@ -509,16 +509,16 @@ nnoremap <silent> <C-b> z-<C-b>z.
 
 " help関係 {{{
 " Execute help by cursor keyword.
-nnoremap <silent> g<C-h>  :<C-u>help<Space><C-r><C-w><CR>
+nnoremap <silent> g<C-h> :<C-u>help<Space><C-r><C-w><CR>
 " Grep in help.
-nnoremap grh  :<C-u>Hg<Space>
+nnoremap grh :<C-u>Hg<Space>
 " }}}
 
 " misc {{{
 " スペルミスを指摘する
 nnoremap <silent> <Space>sp :<C-u>setlocal spell! spelllang=en_us<CR>:setlocal spell?<CR>
 " Vimでクリップボードとやりとりをする
-nnoremap <C-r><C-u>  <C-r><C-o>+
+nnoremap <C-r><C-u> <C-r><C-o>+
 " }}}
 " }}}
 
@@ -543,19 +543,19 @@ inoremap <silent><C-a> <C-o>^
 " <C-e>で最後に移動する
 inoremap <silent><C-e> <C-o>$
 " <C-f>, <C-b>でページを移動する
-inoremap <expr><C-f>  pumvisible() ? "\<PageDown>" : "\<Right>"
-inoremap <expr><C-b>  pumvisible() ? "\<PageUp>"   : "\<Left>"
+inoremap <expr><C-f> pumvisible() ? "\<PageDown>" : "\<Right>"
+inoremap <expr><C-b> pumvisible() ? "\<PageUp>"   : "\<Left>"
 " <A-h>で前文字に移動する
-inoremap <A-h>  <Left>
+inoremap <A-h> <Left>
 " <A-l>で次文字に移動する
-inoremap <A-l>  <Right>
+inoremap <A-l> <Right>
 " <A-k>で前行に移動する
-inoremap <A-k>  <Up>
+inoremap <A-k> <Up>
 " <A-j>で次行に移動する
-inoremap <A-j>  <Down>
+inoremap <A-j> <Down>
 " <C-u>でundoする
-inoremap <C-u>  <C-g>u<C-u>
-inoremap <C-w>  <C-g>u<C-w>
+inoremap <C-u> <C-g>u<C-u>
+inoremap <C-w> <C-g>u<C-w>
 " <C-g><C-u>で直下の単語を大文字に変換する
 inoremap <C-g><C-u> <ESC>gUiw`]a
 " <C-y>でペースト
@@ -571,11 +571,11 @@ inoremap '' ''<LEFT>
 
 " Command-lineモード {{{
 " <C-d>をDelにする
-cnoremap <C-d>          <Del>
+cnoremap <C-d> <Del>
 " <C-a>で先頭に移動する
-cnoremap <C-a>          <Home>
+cnoremap <C-a> <Home>
 " <C-e>で最後に移動する
-cnoremap <C-e>          <End>
+cnoremap <C-e> <End>
 " <C-n>, <C-p>でコマンド履歴
 cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
@@ -584,28 +584,28 @@ cnoremap <C-s> <C-f>
 " <C-l>で補完履歴をリスト
 cnoremap <C-l> <C-d>
 " <A-h>で前の言葉に移動する
-cnoremap <A-h>  <S-Left>
+cnoremap <A-h> <S-Left>
 " <A-l>で次の言葉に移動する
-cnoremap <A-l>  <S-Right>
+cnoremap <A-l> <S-Right>
 " }}}
 
 " テキストオブジェクト用キーマップ {{{
-onoremap aa  a>
-vnoremap aa  a>
-onoremap ia  i>
-vnoremap ia  i>
+onoremap aa a>
+vnoremap aa a>
+onoremap ia i>
+vnoremap ia i>
 
-onoremap ar  a]
-vnoremap ar  a]
-onoremap ir  i]
-vnoremap ir  i]
+onoremap ar a]
+vnoremap ar a]
+onoremap ir i]
+vnoremap ir i]
 " }}}
 
 " レジスタ用キーマップ {{{
 " <Leader>mでマーク内容を確認
-nnoremap <Leader>m  :<C-u>marks<CR>
+nnoremap <Leader>m :<C-u>marks<CR>
 " <Leader>qでレジスタ内容を確認
-nnoremap <Leader>q  :<C-u>registers<CR>
+nnoremap <Leader>q :<C-u>registers<CR>
 " }}}
 
 " ヘルプコマンド用キーマップ {{{
@@ -652,14 +652,14 @@ nmap <Leader>eu :<C-u>set fileformat=unix<CR>
 " Plug-in用設定 {{{
 " Plug-inフォルダを汚したくないが、使ってみたい場合の設定 {{{
 function! s:load_optional_rtp(loc)
-  let loc = expand(a:loc)
-  exe "set rtp+=".loc
-  let files = split(globpath(loc, '**/*.vim'), "\n")
-  for i in reverse(filter(files, 'filereadable(v:val)'))
-    if i !~ '/tests\?/'
-      source `=i`
-    endif
-  endfor
+    let loc = expand(a:loc)
+    exe "set rtp+=".loc
+    let files = split(globpath(loc, '**/*.vim'), "\n")
+    for i in reverse(filter(files, 'filereadable(v:val)'))
+        if i !~ '/tests\?/'
+        source `=i`
+        endif
+    endfor
 endfunction
 
 " call s:load_optional_rtp("~/dev/eskk.vim")
@@ -750,20 +750,42 @@ AlterCommand unite Unite
 let g:unite_data_directory = $DOTVIM.'/unite'
 let g:unite_enable_start_insert = 1
 " The prefix key.
-nnoremap    [unite]   <Nop>
-nmap    <C-u> [unite]
+nnoremap [unite] <Nop>
+nmap <C-u> [unite]
 
-nnoremap [unite]u  :<C-u>Unite<Space>
-nnoremap <silent> [unite]c  :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
-nnoremap <silent> [unite]b  :<C-u>UniteWithBufferDir buffer file_mru file<CR>
+nnoremap [unite]u :<C-u>Unite<Space>
+nnoremap <silent> [unite]c :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
+nnoremap <silent> [unite]b :<C-u>UniteWithBufferDir buffer file_mru file<CR>
 autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
-    imap <buffer> jj      <Plug>(unite_insert_leave)
+    imap <buffer> jj <Plug>(unite_insert_leave)
     nnoremap <buffer> t G
 endfunction
+
+" 置換用設定{{{
+call unite#set_substitute_pattern('file', '\$\w\+', '\=eval(submatch(0))', 200)
+
+call unite#set_substitute_pattern('file', '[^~.]\zs/', '*/*', 20)
+call unite#set_substitute_pattern('file', '/\ze[^*]', '/*', 10)
+
+call unite#set_substitute_pattern('file', '^@@', '\=fnamemodify(expand("#"), ":p:h")."/*"', 2)
+call unite#set_substitute_pattern('file', '^@', '\=getcwd()."/*"', 1)
+call unite#set_substitute_pattern('file', '^\\', '~/*')
+
+call unite#set_substitute_pattern('file', '^;v', '~/.vim/*')
+call unite#set_substitute_pattern('file', '^;r', '\=$VIMRUNTIME."/*"')
+if has('win32') || has('win64')
+    call unite#set_substitute_pattern('file', '^;p', 'C:/Program Files/*')
+endif
+
+call unite#set_substitute_pattern('file', '\*\*\+', '*', -1)
+call unite#set_substitute_pattern('file', '^\~', escape($HOME, '\'), -2)
+call unite#set_substitute_pattern('file', '\\\@<! ', '\\ ', -20)
+call unite#set_substitute_pattern('file', '\\ \@!', '/', -30)
+" }}}
 " }}}
 
-" ref.vim用設定  {{{
+" ref.vim用設定 {{{
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
 let g:ref_use_vimproc = 1
@@ -783,14 +805,14 @@ map R <Plug>(operator-replace)
 " }}}
 
 " quickrun.vim用設定 {{{
-nnoremap qr  :<C-u>QuickRun<Space>
+nnoremap qr :<C-u>QuickRun<Space>
 AlterCommand qr QuickRun
 " }}}
 
-" git-vim用設定 {{{
-" call GitBranch()
+" zoom.vim用設定 {{{
+nnoremap <silent> <C-kPlus> :<C-u>ZoomIn<CR>
+nnoremap <silent> <C-kMinus> :<C-u>ZoomOut<CR>
 " }}}
-
 " }}}
 
 
