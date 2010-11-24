@@ -760,9 +760,11 @@ let g:unite_enable_start_insert = 0
 nnoremap [unite] <Nop>
 nmap <C-u> [unite]
 
-nnoremap [unite]u :<C-u>Unite<Space>
+nnoremap <silent> [unite]<Space> :<C-u>Unite<Space>
 nnoremap <silent> [unite]c :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
 nnoremap <silent> [unite]b :<C-u>UniteWithBufferDir buffer file_mru file<CR>
+nnoremap <silent> [unite]h :<C-u>Unite help<CR>
+nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
     imap <buffer> jj <Plug>(unite_insert_leave)
