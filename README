@@ -1,0 +1,37 @@
+vim plugin I use
+    eregex.vim
+    neocomplcache
+    skk.vim
+    unite-help
+    unite-online
+    unite-tags
+    unite.vim
+    vim-altercmd
+    vim-operator-replace
+    vim-operator-user
+    vim-quickrun
+    vim-ref
+    vim-surround
+    vimfiler
+    vimshell
+    zoom.vim
+vimperator plugin I use
+    _libly.js
+    auto_detect_link.js
+    auto-focus-frame.js
+    autopagerize_controll.js
+    caret-hint.js
+    cookieManager.js
+    copy.js
+    delicious_search.js
+    feedSomeKeys_3.js
+    maine_coon.js
+    multi_requester.js
+    opener.js
+    prevent_focus_ietab.js
+    session-manager.js
+    spatial-navigation.js
+    tabsort.js
+    twittperator.js
+    x-hint.js
+    zoom-em-all.js
