@@ -6,7 +6,7 @@ command! ReloadGVimrc  source $MYVIMRC
 autocmd!
 
 " カラー設定 {{{
-syntax on
+syntax enable
 " Insertモード時にステータスラインの色を変更 {{{
 let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
 
