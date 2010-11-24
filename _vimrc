@@ -28,11 +28,13 @@ call altercmd#load()
 
 "-- 
 " 日本語用エンコード設定{{{
-set encoding=utf-8
+set encoding=cp932
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
-source $VIMRUNTIME/delmenu.vim
-set langmenu=menu_ja_jp.utf-8.vim
-source $VIMRUNTIME/menu.vim
+" vimをutf-8対応にする場合は以下をコメントイン
+" set encoding=utf-8
+" source $VIMRUNTIME/delmenu.vim
+" set langmenu=menu_ja_jp.utf-8.vim
+" source $VIMRUNTIME/menu.vim
 
 " modeline内にfencを指定されている場合の対応 {{{
 let s:oldlang=v:lang
@@ -522,6 +524,8 @@ nnoremap grh :<C-u>Hg<Space>
 nnoremap <silent> <Space>sp :<C-u>setlocal spell! spelllang=en_us<CR>:setlocal spell?<CR>
 " Vimでクリップボードとやりとりをする
 nnoremap <C-r><C-u> <C-r><C-o>+
+" gZZでVim終了時に画面をクリアしないようにする
+nmap <silent> gZZ :set t_te= t_ti= <cr>:quit<cr>:set t_te& t_ti&<cr>
 " }}}
 " }}}
 
