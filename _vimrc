@@ -502,9 +502,8 @@ function! s:move_window_into_tab_page(target_tabpagenr)
     endif
     execute target_tabpagenr 'tabnext'
 endfunction
-" }}}
-" <space>ao move current buffer into a new tab.
 nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
+" }}}
 " }}}
 
 " Smart <C-f>, <C-b> {{{
