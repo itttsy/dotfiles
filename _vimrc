@@ -17,6 +17,9 @@ command! ReloadVimrc source $MYVIMRC
 set iminsert=0
 set nocompatible
 filetype plugin indent on
+if !has('syntax')
+    syntax enable
+endif
 if has('win32') || has('win64')
     set shellslash
 endif
@@ -214,7 +217,6 @@ autocmd FileType pl :<C-u>set dictionary+=$DOTVIM'/dict/perl.dict'
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
-set wildignore=*.o,*.obj,*.la,*.a,*.exe,*.com,*.tds
 set pumheight=20
 " ]で補完が可能になる
 imap <expr>] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
@@ -454,6 +456,7 @@ nmap <C-t> [Tabbed]
 
 nnoremap <silent> [Tabbed]s :<C-u>tabs<CR>
 nnoremap <silent> [Tabbed]n :<C-u>tabnext<CR>
+nnoremap <silent> [Tabbed]<Space> :<C-u>tabnext<CR>
 nnoremap <silent> [Tabbed]p :<C-u>tabprevious<CR>
 nnoremap <silent> [Tabbed]c :<C-u>tabnew<CR>
 nnoremap <silent> [Tabbed]k :<C-u>tabclose<CR>
@@ -721,7 +724,7 @@ let g:vimshell_prompt = $USERNAME."> "
 let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
 let g:vimshell_smart_case = 1
-let g:vimshell_interactive_cygwin_path = $HOME.'/cygwin'
+let g:vimshell_use_ckw =1
 let g:vimshell_interactive_encodings = {'telnet':'cp932'}
 let g:vimshell_execute_file_list = {}
 call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
@@ -748,7 +751,7 @@ endfunction
 " unite.vim用設定 {{{
 AlterCommand unite Unite
 let g:unite_data_directory = $DOTVIM.'/unite'
-let g:unite_enable_start_insert = 1
+let g:unite_enable_start_insert = 0
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap <C-u> [unite]
@@ -761,6 +764,23 @@ function! s:unite_my_settings()
     imap <buffer> jj <Plug>(unite_insert_leave)
     nnoremap <buffer> t G
 endfunction
+
+let s:unite_action = {
+\   'is_selectable': 1,
+\ }
+
+" 選択したファイルをまとめて別タブに縦に分割して開く {{{
+function! s:unite_action.func(candidates)
+  tabnew `=a:candidates[0].action__path`
+  for c in a:candidates[1 :]
+    vsplit `=c.action__path`
+  endfor
+endfunction
+" }}}
+
+call unite#custom_action('openable', 'tabvsplit', s:unite_action)
+unlet! s:unite_action
+
 
 " 置換用設定{{{
 call unite#set_substitute_pattern('file', '\$\w\+', '\=eval(submatch(0))', 200)
@@ -789,8 +809,8 @@ call unite#set_substitute_pattern('file', '\\ \@!', '/', -30)
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
 let g:ref_use_vimproc = 1
+let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
-let g:ref_alc_encoding = "euc-jp"
 if has('win32') || has('win64')
     let g:ref_perldoc_cmd = 'C:/strawberry/perl/bin/perldoc.bat'
 endif
@@ -812,6 +832,7 @@ AlterCommand qr QuickRun
 " zoom.vim用設定 {{{
 nnoremap <silent> <C-kPlus> :<C-u>ZoomIn<CR>
 nnoremap <silent> <C-kMinus> :<C-u>ZoomOut<CR>
+nnoremap <silent> <C-k0> :<C-u>ZoomReset<CR>
 " }}}
 " }}}
 
