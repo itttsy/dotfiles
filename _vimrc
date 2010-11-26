@@ -719,37 +719,6 @@ inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
 inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
 " }}}
 
-" vimshell.vim用設定 {{{
-AlterCommand vsh VimShell
-AlterCommand vshp VimShellPop
-let g:vimshell_temporary_directory = $DOTVIM
-let g:vimshell_prompt = $USERNAME."> "
-let g:vimshell_user_prompt = 'getcwd()'
-let g:vimshell_max_list = 15
-let g:vimshell_smart_case = 1
-let g:vimshell_use_ckw =1
-let g:vimshell_execute_file_list = {}
-call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
-let g:vimshell_execute_file_list['pl'] = 'perl'
-call vimshell#set_execute_file('html,xhtml', 'gexe firefox')
-" }}}
-
-" vimfiler.vim用設定 {{{
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_split_command = 'Split'
-let g:vimfiler_edit_command = 'edit'
-let g:vimfiler_trashbox_directory = $HOME.'/tmp/vimfiler_trash'
-
-augroup Vimfier
-    autocmd!
-    autocmd Filetype vimfiler call s:vimfiler_settings()
-augroup END
-function! s:vimfiler_settings()
-    noremap -buffer L <Plug>(vimfiler_move_to_history_forward)
-    noremap -buffer H <Plug>(vimfiler_move_to_history_back)
-endfunction
-" }}}
-
 " unite.vim用設定 {{{
 AlterCommand unite Unite
 let g:unite_data_directory = $DOTVIM.'/unite'
@@ -826,21 +795,6 @@ AlterCommand mp :<C-u>Ref perldoc
 
 " operator-replace用設定 {{{
 map R <Plug>(operator-replace)
-" }}}
-
-" git-vim用設定 {{{
-let g:git_no_map_default = 1
-let g:git_command_edit = 'rightbelow vnew'
-nnoremap <Leader>gd :<C-u>GitDiff --cached<Enter>
-nnoremap <Leader>gD :<C-u>GitDiff<Enter>
-nnoremap <Leader>gs :<C-u>GitStatus<Enter>
-nnoremap <Leader>gl :<C-u>GitLog<Enter>
-nnoremap <Leader>gL :<C-u>GitLog -u \| head -10000<Enter>
-nnoremap <Leader>ga :<C-u>GitAdd<Enter>
-nnoremap <Leader>gA :<C-u>GitAdd <cfile><Enter>
-nnoremap <Leader>gc :<C-u>GitCommit<Enter>
-nnoremap <Leader>gC :<C-u>GitCommit --amend<Enter>
-nnoremap <Leader>gp :<C-u>Git push
 " }}}
 
 " quickrun.vim用設定 {{{
