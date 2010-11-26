@@ -12,8 +12,8 @@ vim plugin I use
     vim-quickrun
     vim-ref
     vim-surround
-    vimfiler
-    vimshell
+#    vimfiler
+#    vimshell
     zoom.vim
 vimperator plugin I use
     _libly.js
