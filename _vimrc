@@ -20,9 +20,9 @@ filetype plugin indent on
 if !has('syntax')
     syntax enable
 endif
-if has('win32') || has('win64')
-    set shellslash
-endif
+" if has('win32') || has('win64')
+"     set shellslash
+" endif
 call altercmd#load()
 " }}}
 
@@ -672,10 +672,11 @@ endfunction
 " }}}
 
 " netrw用設定 {{{
-" <C-h>で上のディレクトリに移動
+" hで上のディレクトリに移動、lでディレクトリを展開もしくはファイルを開く
 augroup NetrwCommand
     autocmd!
-    autocmd FileType netrw nmap <buffer> <C-h> -
+    autocmd FileType netrw nmap <buffer> h -
+    autocmd FileType netrw nmap <buffer> l <CR>
 augroup END
 " }}}
 
@@ -727,9 +728,7 @@ let g:unite_enable_start_insert = 0
 nnoremap [unite] <Nop>
 nmap <C-u> [unite]
 
-nnoremap <silent> [unite]<Space> :<C-u>Unite<Space>
-nnoremap <silent> [unite]c :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
-nnoremap <silent> [unite]b :<C-u>UniteWithBufferDir buffer file_mru file<CR>
+nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 autocmd FileType unite call s:unite_my_settings()
@@ -781,7 +780,7 @@ call unite#set_substitute_pattern('file', '\\ \@!', '/', -30)
 " ref.vim用設定 {{{
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM.'/tmp/ref'
-let g:ref_use_vimproc = 1
+let g:ref_use_vimproc = 0
 let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 if has('win32') || has('win64')
