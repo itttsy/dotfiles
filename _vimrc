@@ -728,7 +728,6 @@ let g:vimshell_user_prompt = 'getcwd()'
 let g:vimshell_max_list = 15
 let g:vimshell_smart_case = 1
 let g:vimshell_use_ckw =1
-let g:vimshell_interactive_encodings = {'telnet':'cp932'}
 let g:vimshell_execute_file_list = {}
 call vimshell#set_execute_file('txt,vim,c,h,cpp,d,xml,java', 'vim')
 let g:vimshell_execute_file_list['pl'] = 'perl'
