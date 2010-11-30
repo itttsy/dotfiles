@@ -220,8 +220,6 @@ set complete+=k
 set wildmenu
 set wildchar=<Tab>
 set pumheight=20
-" ]で補完が可能になる
-imap <expr>] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " }}}
 
 " swap {{{
@@ -710,14 +708,19 @@ let g:neocomplcache_enable_smart_case = 1
 let g:neocomplcache_enable_quick_match = 1
 let g:neocomplcache_enable_auto_select = 0
 let g:neocomplcache_temporary_dir = $DOTVIM.'/tmp/neocon'
-imap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
-smap <expr><C-k> <Plug>(neocomplcache_snippets_expand)
+imap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
+smap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
-inoremap <expr><C-l> neocomplcache#complete_common_string() 
-" <C-h>, <BS>, <Space>でポップアップも消す
-inoremap <expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
-inoremap <expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
-inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() . ' ' : ' '
+inoremap <expr><C-k> neocomplcache#complete_common_string() 
+" SuperTab風snippets
+imap <expr>] neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\]"
+" <CR>, <C-h>, <BS>, <Space>でポップアップも消す
+inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
+inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
+inoremap <expr><C-y> neocomplcache#close_popup()
+inoremap <expr><C-e> neocomplcache#cansel_popup()
 " }}}
 
 " unite.vim用設定 {{{
