@@ -273,7 +273,7 @@ endfunction
 " 使い捨て用のファイルを生成する
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
-    let l:junk_dir = $DOTVIM . '/.vim_junk'. strftime('/%Y/%m')
+    let l:junk_dir = $DOTVIM . '/vim_junk'. strftime('/%Y/%m')
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
@@ -628,6 +628,17 @@ function! s:load_optional_rtp(loc)
     endfor
 endfunction
 " call s:load_optional_rtp("~/dev/eskk.vim")
+
+" Kaoriya版でのプラグイン
+if has('Kaoriya')
+    let plugin_autodate_disable  = 1
+    let plugin_cmdex_disable     = 0
+    let plugin_dicwin_disable    = 1
+    let plugin_format_disable    = 1
+    let plugin_hz_ja_disable     = 1
+    let plugin_scrnmode_disable  = 1
+    let plugin_verifyenc_disable = 1
+endif
 
 " netrw用設定
 " hで上のディレクトリに移動、lでディレクトリを展開もしくはファイルを開く

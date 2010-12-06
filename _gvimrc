@@ -1,13 +1,15 @@
-" vim:set ts=8 sts=2 sw=2 tw=0: (この行に関しては:help modelineを参照)
+" vim:set ts=8 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
 " :ReloadVimrcコマンドの追加
 command! ReloadGVimrc  source $MYVIMRC
 
+"----------
 "初期設定
 autocmd!
 
-" カラー設定 {{{
+"----------
+" カラー設定
 syntax enable
-" Insertモード時にステータスラインの色を変更 {{{
+" Insertモード時にステータスラインの色を変更
 let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
 
 if has('syntax')
@@ -37,13 +39,12 @@ function! s:GetHighlight(hi)
     let hl = substitute(hl, 'xxx', '', '')
     return hl
 endfunction
-" }}}
-" }}}
 
-" フォント設定 {{{
+"----------
+" フォント設定
 set guifont=VL_Gothic:h10:cDEFAULT
 set linespace=1
-" 文字の大きさをトグルする {{{
+" 文字の大きさをトグルする
 function! ZoomToggle()
     let normal_font = 'VL_Gothic:h10'
     let zoom_font = 'VL_Gothic:h25'
@@ -61,36 +62,40 @@ function! ZoomToggle()
     execute 'set lines=' . lines
 endfunction
 nnoremap <Space>z :<C-u>call ZoomToggle()<CR>
-" }}}
-" }}}
 
-" IME切り替えの為の設定 {{{
+"----------
+" IME切り替えの為の設定
 if has('multi_byte_ime')
     highlight CursorIM guibg=Purple guifg=NONE
     set iminsert=0 imsearch=0
     inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
 endif
-" }}}
 
-" ウインドウに関する設定 {{{
+"----------
+" ウインドウに関する設定
 set columns=120
 set lines=32
-" }}}
 
-" マウスに関する設定 {{{
+"----------
+" マウスに関する設定
 set nomousefocus
 set mousehide
-" }}}
 
-" メニューに関する設定 {{{
+"----------
+" メニューに関する設定
 set guioptions=
-" }}}
 
-" 検索文字列をハイライトしない {{{
+"----------
+" 検索文字列をハイライトしない
 set nohlsearch
-" }}}
 
-" 印刷に関する設定 {{{
+"----------
+" 印刷に関する設定
 set printfont=VL_Gothic:h12:cDEFAULT
-" }}}
+
+"----------
+" Pluginに関する設定
+" Kaoriya版でウィンドウを半透明にする
+gui
+set transparency=200
 
