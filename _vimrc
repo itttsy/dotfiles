@@ -212,7 +212,6 @@ set shiftround
 set shiftwidth=4
 
 " completion
-autocmd FileType pl :<C-u>set dictionary+=$DOTVIM'/dict/perl.dict'
 set complete+=k
 set wildmenu
 set wildchar=<Tab>
@@ -246,6 +245,7 @@ nnoremap Y y$
 augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
+    autocmd FileType pl :<C-u>set dictionary+=$DOTVIM'/dict/perl.dict'
 augroup END
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
@@ -695,55 +695,25 @@ inoremap <expr><C-e> neocomplcache#cansel_popup()
 AlterCommand unite Unite
 AlterCommand u Unite
 let g:unite_data_directory = $DOTVIM.'/unite'
-let g:unite_enable_start_insert = 0
+let g:unite_enable_start_insert = 1
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap <C-u> [unite]
 
-nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir buffer file_mru file<CR>
+nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]s :<C-u>Unite source<CR>
+nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
-autocmd FileType unite call s:unite_my_settings()
+augroup UniteSetting
+    autocmd!
+    autocmd FileType unite call s:unite_my_settings()
+augroup END
 function! s:unite_my_settings()
+    nmap <buffer> <ESC> <Plug>(unite_exit)
     imap <buffer> jj <Plug>(unite_insert_leave)
-    nnoremap <buffer> t G
 endfunction
-
-let s:unite_action = {
-\   'is_selectable': 1,
-\ }
-
-" 選択したファイルをまとめて別タブに縦に分割して開く
-function! s:unite_action.func(candidates)
-  tabnew `=a:candidates[0].action__path`
-  for c in a:candidates[1 :]
-    vsplit `=c.action__path`
-  endfor
-endfunction
-
-call unite#custom_action('openable', 'tabvsplit', s:unite_action)
-unlet! s:unite_action
-
-" 置換用設定
-call unite#set_substitute_pattern('file', '\$\w\+', '\=eval(submatch(0))', 200)
-
-call unite#set_substitute_pattern('file', '[^~.]\zs/', '*/*', 20)
-call unite#set_substitute_pattern('file', '/\ze[^*]', '/*', 10)
-
-call unite#set_substitute_pattern('file', '^@@', '\=fnamemodify(expand("#"), ":p:h")."/*"', 2)
-call unite#set_substitute_pattern('file', '^@', '\=getcwd()."/*"', 1)
-call unite#set_substitute_pattern('file', '^\\', '~/*')
-
-call unite#set_substitute_pattern('file', '^;v', '~/.vim/*')
-call unite#set_substitute_pattern('file', '^;r', '\=$VIMRUNTIME."/*"')
-if has('win32') || has('win64')
-    call unite#set_substitute_pattern('file', '^;p', 'C:/Program Files/*')
-endif
-
-call unite#set_substitute_pattern('file', '\*\*\+', '*', -1)
-call unite#set_substitute_pattern('file', '^\~', escape($HOME, '\'), -2)
-call unite#set_substitute_pattern('file', '\\\@<! ', '\\ ', -20)
-call unite#set_substitute_pattern('file', '\\ \@!', '/', -30)
 
 " ref.vim用設定
 AlterCommand ref Ref
@@ -767,7 +737,6 @@ AlterCommand qr QuickRun
 nnoremap <silent> <C-kPlus> :<C-u>ZoomIn<CR>
 nnoremap <silent> <C-kMinus> :<C-u>ZoomOut<CR>
 nnoremap <silent> <C-k0> :<C-u>ZoomReset<CR>
-
 
 set secure
 
