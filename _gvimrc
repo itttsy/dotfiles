@@ -3,10 +3,6 @@
 command! ReloadGVimrc source $MYVIMRC
 
 "----------
-"初期設定
-autocmd!
-
-"----------
 " カラー設定
 syntax enable
 " Insertモード時にステータスラインの色を変更

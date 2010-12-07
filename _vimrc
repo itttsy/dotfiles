@@ -159,9 +159,9 @@ set scrolloff=9999
 
 " case arc
 set showmatch
-set cpoptions-=m
+set cpoptions& cpoptions-=m
 set matchtime=3
-set matchpairs+=<:>
+set matchpairs& matchpairs+=<:>
 
 " fold
 set foldenable
@@ -181,7 +181,7 @@ nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 
 " カレントウィンドウにのみ罫線を引く
 augroup cch
-    autocmd! cch
+    autocmd!
     autocmd WinLeave * set nocursorline
     autocmd WinEnter,BufRead * set cursorline
 augroup END
@@ -212,7 +212,7 @@ set shiftround
 set shiftwidth=4
 
 " completion
-set complete+=k
+set complete& complete+=k
 set wildmenu
 set wildchar=<Tab>
 set pumheight=20
@@ -237,7 +237,7 @@ set undodir=$DOTVIM/tmp/undo
 set hidden
 set formatoptions& formatoptions+=mM
 set nrformats& nrformats-=octal
-set virtualedit+=block
+set virtualedit& virtualedit+=block
 set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 set autochdir
@@ -245,7 +245,7 @@ nnoremap Y y$
 augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
-    autocmd FileType pl :<C-u>set dictionary+=$DOTVIM'/dict/perl.dict'
+    autocmd FileType pl :<C-u>set dictionary& dictionary+=$DOTVIM'/dict/perl.dict'
 augroup END
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
@@ -259,7 +259,6 @@ augroup BUFWRITE_POSTDELETE
     autocmd!
     autocmd BufWritePost *.txt call BufWritePostDelete()
 augroup END
-
 function! BufWritePostDelete()
     let crlen = 0
     if &binary == 0
