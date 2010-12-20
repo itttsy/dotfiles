@@ -11,7 +11,6 @@ set titlestring=Vimfox
 
 " メニュー/ツール/リンクを表示
 set guioptions=
-set go-=D
 set defsearch=google
 
 " タブの非表示
@@ -28,11 +27,14 @@ set wildoptions=auto
 
 " URLのオートコンプリート
 set complete=
-autocmd VimperatorEnter ".*" :set complete+=DlS
+autocmd VimperatorEnter ".*" :set complete+=lS
 set history=300
 
 " テキストボックスに勝手にフォーカスしない
 set focuscontent
+
+" フォーム記入時にTextAreaモードを利用する
+set noinsertmode
 
 " ページ全体で検索語を強調表示
 set hlsearch
@@ -175,28 +177,6 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 silent bmark -title="Wikipedia(ja)" -tags=keyword -keyword=wk http://ja.wikipedia.org/wiki/Special:Search?search=%s
 silent bmark -title="NewYorkTimes" -tags=keyword -keyword=nt http://query.nytimes.com/search/sitesearch?query=%s
 
-" Javascript用ブックマーク {{{
-" Delicious bookmark用
-command! Delicious open javascript:(function(){f='http://delicious.com/save?url='+encodeURIComponent(window.location.href)+'&title='+encodeURIComponent(document.title)+'&v=5&';a=function(){if(!window.open(f+'noui=1&jump=doclose','deliciousuiv5','location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))location.href=f+'jump=yes'};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})()
-
-" Evernote用
-command! Evernote open javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);}})()
-
-" Tumblr用
-command! Tumblr open javascript:var d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),f='http://www.tumblr.com/share',l=d.location,e=encodeURIComponent,p='?v=3&u='+e(l.href) +'&t='+e(d.title) +'&s='+e(s),u=f+p;try{if(!/^(.*\.)?tumblr[^.]*$/.test(l.host))throw(0);tstbklt();}catch(z){a =function(){if(!w.open(u,'t','toolbar=0,resizable=0,status=1,width=450,height=430'))l.href=u;};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else a();}void(0)
-
-" Readability用
-command! Readability open javascript:(function(){readConvertLinksToFootnotes=false;readStyle='style-ebook';readSize='size-medium';readMargin='margin-narrow';_readability_script=document.createElement('script');_readability_script.type='text/javascript';_readability_script.src='http://lab.arc90.com/experiments/readability/js/readability.js?x='+(Math.random());document.documentElement.appendChild(_readability_script);_readability_css=document.createElement('link');_readability_css.rel='stylesheet';_readability_css.href='http://lab.arc90.com/experiments/readability/css/readability.css';_readability_css.type='text/css';_readability_css.media='all';document.documentElement.appendChild(_readability_css);_readability_print_css=document.createElement('link');_readability_print_css.rel='stylesheet';_readability_print_css.href='http://lab.arc90.com/experiments/readability/css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);})();
-
-" GoogleReader用
-command! GoogleReader open javascript:var%20l=document.getElementsByTagName("link");var%20href="";for(i=0;i<l.length;i++){type=l[i].getAttribute("type");rel=l[i].getAttribute("rel");if(rel&&type&&rel=="alternate"&&type.indexOf("+xml")!=-1){href=l[i].getAttribute("href");if(href.indexOf("http")!=0){var%20k=href;var%20loc=window.document.location;if(href.indexOf("/")!=0){var%20j=loc.pathname.split("/");j[j.length-1]=href;k=j.join("/")}href=loc.protocol+"//"+loc.hostname+href;}break;}}if(href!=""){var%20txt="";if(window.getSelection){txt=window.getSelection();}else%20if(document.getSelection){txt=document.getSelection();}else%20if(document.selection){txt=document.selection.createRange().text;};var%20query;if(txt!="")query=txt;else%20query=document.title;var%20gread="http://www.google.com/reader/view/#search/"+query+"//"+encodeURIComponent("feed/"+href);window.document.location=gread;}else{alert("No%20available%20feed!");};
-
-" XRAY用
-command! Xray open javascript:function%20loadScript(scriptURL)%20{%20var%20scriptElem%20=%20document.createElement('SCRIPT');%20scriptElem.setAttribute('language',%20'JavaScript');%20scriptElem.setAttribute('src',%20scriptURL);%20document.body.appendChild(scriptElem);}loadScript('http://westciv.com/xray/thexray.js');
-
-" Github用
-command! Github open javascript:(function(){var%20a=(new%20RegExp("github.com/(.+)","i")).exec(window.location.href);var%20f=a?a[1].split("/"):[];var%20b=f[0];var%20d=f[1];var%20e=f[3];var%20c="http://sr3d.github.com/GithubFinder/?utm_source=bml"+(a?"&user_id="+b+"&repo="+d+(e?"&branch="+e:""):"");if(!c){alert("Invalid%20Github%20URL");return}window.open(c)})();
-" }}}
 " }}}
 
 "-- 
