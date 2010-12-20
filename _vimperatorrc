@@ -3,8 +3,8 @@ mapclear
 cmapclear
 imapclear
 
-"-- 
-" 基本設定 {{{
+"----------
+" 基本設定
 
 " ブラウザタイトルの変更
 set titlestring=Vimfox
@@ -47,10 +47,9 @@ set editor="gvim -f -c ':set fenc=utf8'"
 
 " コマンドラインへの移行時にIMEを指定の状態に切り替える
 style -name commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
-" }}}
 
-"-- 
-" Firefoxに関する設定 {{{
+"----------
+" Firefoxに関する設定
 " アクセスキーを無効にする
 set! ui.key.generalAccessKey=0
 
@@ -71,10 +70,8 @@ set! browser.sessionstore.max_tabs_undo=5
 set! browser.sessionhistory.max_total_viewers=5
 set! browser.tabs.loadInBackground=false
 
-" }}}
-
-"-- 
-" 視覚に関する設定 {{{
+"----------
+" 視覚に関する設定
 
 " ヒントモードの文字を見やすく
 hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9;
@@ -108,11 +105,10 @@ command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=
 " 補完のURLが長すぎて、切れてしまう問題の対処
 hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
 hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
-" }}}
 
-"-- 
-" 操作に関する設定 {{{
-" Insertモードでキーバインドが効くようにする {{{
+"----------
+" 操作に関する設定
+" Insertモードでキーバインドが効くようにする
 javascript <<EOM
 window.addEventListener(
     'keypress',
@@ -140,7 +136,6 @@ window.addEventListener(
     false
 );
 EOM
-" }}}
 
 " <C-h>で履歴を表示しないようにする
 noremap <C-h> <Nop>
@@ -165,10 +160,9 @@ cnoremap <C-r> <Up>
 
 " undo一覧から開く
 noremap U :undo<Space>
-" }}}
 
-"-- 
-" 検索用ブックマーク {{{
+"----------
+" 検索用ブックマーク
 silent bmark -title="Google US Search" -tags=keyword -keyword=gs https://www.google.com/search?q=%s
 silent bmark -title="Twitter Search" -tags=keyword -keyword=ts http://search.twitter.com/search?q=%s
 silent bmark -title="Wolfram|Alpha" -tags=keyword -keyword=wa http://www.wolframalpha.com/input/?i=%s
@@ -177,19 +171,16 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 silent bmark -title="Wikipedia(ja)" -tags=keyword -keyword=wk http://ja.wikipedia.org/wiki/Special:Search?search=%s
 silent bmark -title="NewYorkTimes" -tags=keyword -keyword=nt http://query.nytimes.com/search/sitesearch?query=%s
 
-" }}}
-
-"-- 
-" プラグインに関する設定 {{{
-" multi_requester.js {{{
+"----------
+" プラグインに関する設定
+" multi_requester.js
 noremap ma :mr<Space>alc<Space>
 noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
 noremap mg :mr<Space>goo<Space>
 noremap me :mr<Space>answers<Space>
 noremap mw :mr<Space>weather-yahoo<Space>
-" }}}
 
-" FeedSomeKeys3.js {{{
+" FeedSomeKeys3.js
 command! -nargs=+ lazy autocmd VimperatorEnter .* <args>
 " google.com
 lazy fmaps -u='mail\.google\.com/mail' u k j o <CR p n c ? x s y e m ! # h
@@ -201,17 +192,14 @@ lazy fmaps -urls='^http://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
 lazy fmaps -u='https?://www\.rememberthemilk\.com/home/' j k m i c t ? d F,f G,g S,s L,l Y,y H,h M,m <Del> <C-S-Left> <C-S-Right>
 " tumblr.com
 lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
-" }}}
 
-" twittperator.js {{{
+" twittperator.js
 let g:twittperator_use_chirp = 1
-" }}}
 
-" }}}
-
-"-- 
-" JavaScriptに関する設定 {{{
-" 戻るを拡張 {{{
+"----------
+" JavaScriptに関する設定
+"----------
+" 戻るを拡張
 javascript <<EOM
 let (
     back = mappings.getDefault(modes.NORMAL, 'H').action,
@@ -224,9 +212,9 @@ mappings.addUserMap(
     function () (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
 );
 EOM
-" }}}
 
-" マウスオーバーするヒントモード {{{
+"----------
+" マウスオーバーするヒントモード
 javascript <<EOM
 hints.addMode(
     'm',
@@ -245,9 +233,9 @@ hints.addMode(
     function () options.get('hinttags').get()
 );
 EOM
-" }}}
 
-" flash blockにヒントモード追加 {{{
+"----------
+" flash blockにヒントモード追加
 javascript <<EOM
 hints.addMode('z', 'Enable a Flash object',
     function(elem){
@@ -259,9 +247,9 @@ hints.addMode('z', 'Enable a Flash object',
     function() '//xhtml:div[@title]'
 );
 EOM
-" }}}
 
-" コマンドラインでbangをトグル {{{
+"----------
+" コマンドラインでbangをトグル
 javascript <<EOM
 mappings.addUserMap(
   [modes.COMMAND_LINE],
@@ -273,13 +261,13 @@ mappings.addUserMap(
     commandline.command = cmd + bang + ' ' + args;
   });
 EOM
-" }}}
 
-" 選択範囲のリンクを開くコマンド {{{
+"----------
+" 選択範囲のリンクを開くコマンド
 command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if (content.window.getSelection().containsNode(a, true))]
-" }}}
 
-" openに渡るコマンドがドメインやIPアドレスかを自動で判断する {{{
+"----------
+" openに渡るコマンドがドメインやIPアドレスかを自動で判断する
 javascript <<EOM
 (function(){
     liberator.registerObserver('enter',function(){
@@ -301,9 +289,9 @@ javascript <<EOM
     })
 })();
 EOM
-" }}}
 
-" INSERTモード時、<C-Space>で日本語入力をonにする {{{
+"----------
+" INSERTモード時、<C-Space>で日本語入力をonにする
 javascript <<EOM
 (function () {
     function activateIME(mode) {
@@ -324,9 +312,9 @@ javascript <<EOM
         'Activate Windows IME', function () activateIME(false));
 })();
 EOM
-" }}}
 
-" Insertモード時、C-1, ..., C-9,C-tが使えるようにする {{{
+"----------
+" Insertモード時、C-1, ..., C-9,C-tが使えるようにする
 javascript <<EOM
 {for(let i = 0; i < 10; i++){
     mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT', function(){
@@ -342,9 +330,9 @@ javascript <<EOM
 });
 }
 EOM
-" }}}
 
-" guを使いやすくする {{{
+"----------
+" guを使いやすくする
 javascript <<EOM
 (function(){
     // thanks to http://trac.arantius.com/browser/extension/uppity/content/uppity.js
@@ -408,9 +396,9 @@ javascript <<EOM
     );
 })();
 EOM
-" }}}
 
-" j,kキーでスムーススクロールする {{{
+"----------
+" j,kキーでスムーススクロールする
 javascript <<EOM
 let self = (function(){
     mappings.addUserMap(
@@ -453,9 +441,9 @@ let self = (function(){
     return PUBLICS;
 })();
 EOM
-" }}}
 
-" コマンドラインを外部エディタで編集 {{{
+"----------
+" コマンドラインを外部エディタで編集
 javascript <<EOM
 mappings.addUserMap(
     [modes.COMMAND_LINE],
@@ -473,9 +461,9 @@ mappings.addUserMap(
     }
 );
 EOM
-" }}}
 
-" RichTextEditorのコンテンツを<C-S-i>で外部エディタで編集するプラグイン {{{
+"----------
+" RichTextEditorのコンテンツを<C-S-i>で外部エディタで編集するプラグイン
 javascript <<EOM
 let nsIR = Ci.nsIInterfaceRequestor;
 
@@ -485,106 +473,106 @@ let OUTPUT_SELECTION_ONLY = 1,
     OUTPUT_BODYONLY = 8;
 
 mappings.add([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA],
-  ["<C-S-I>"], "edit window with externall editor",
-  function () {
-    if (config.isComposeWindow)
-      editWindowExternally(GetCurrentEditorElement().contentWindow, true);
-    else
-      editWindowExternally();
-  }, {});
-function getEditingSession(win) {
-  if (!win)
-    win = document.commandDispatcher.focusedWindow;
-  if (win instanceof Window) {
-    return es = win.QueryInterface(nsIR)
-                .getInterface(Ci.nsIWebNavigation)
-                .QueryInterface(nsIR)
-                .getInterface(Ci.nsIEditingSession);
-  }
-  return null;
+    ["<C-S-I>"], "edit window with externall editor",
+    function () {
+        if (config.isComposeWindow)
+        editWindowExternally(GetCurrentEditorElement().contentWindow, true);
+        else
+        editWindowExternally();
+    }, {});
+    function getEditingSession(win) {
+    if (!win)
+        win = document.commandDispatcher.focusedWindow;
+    if (win instanceof Window) {
+        return es = win.QueryInterface(nsIR)
+                    .getInterface(Ci.nsIWebNavigation)
+                    .QueryInterface(nsIR)
+                    .getInterface(Ci.nsIEditingSession);
+    }
+    return null;
 }
 
 function getEditorForWindow(win) {
-  if (!(win instanceof Window))
-    return null;
-  let es = getEditingSession(win);
-  if (es && es.windowIsEditable(win) &&
-      util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write")
-    return es.getEditorForWindow(win);
+    if (!(win instanceof Window))
+        return null;
+    let es = getEditingSession(win);
+    if (es && es.windowIsEditable(win) &&
+        util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write")
+        return es.getEditorForWindow(win);
 
-  return null;
+    return null;
 }
 
 function editWindowExternally (win, forceText) {
-  if (!options["editor"])
-    return;
-  if (!win)
-    win = document.commandDispatcher.focusedWindow;
-  let editor = getEditorForWindow(win);
-  if (!editor) {
-    commandline.echo("the window is not editable", commandline.HL_ERRORMSG, commandline.APPEND_TO_MESSAGES | commandline.DISALLOW_MULTILINE);
-    return;
-  }
-  editor instanceof Ci.nsIPlaintextEditor;
-  editor instanceof Ci.nsIHTMLEditor;
+    if (!options["editor"])
+        return;
+    if (!win)
+        win = document.commandDispatcher.focusedWindow;
+    let editor = getEditorForWindow(win);
+    if (!editor) {
+        commandline.echo("the window is not editable", commandline.HL_ERRORMSG, commandline.APPEND_TO_MESSAGES | commandline.DISALLOW_MULTILINE);
+        return;
+    }
+    editor instanceof Ci.nsIPlaintextEditor;
+    editor instanceof Ci.nsIHTMLEditor;
 
-  let text = forceText ?
-             editor.outputToString("text/plain", OUTPUT_FORMATTED) :
-             editor.outputToString("text/html", OUTPUT_BODYONLY);
-  try {
-    let res = io.withTempFiles (function (tmpFile) {
-      if (!tmpFile.write(text))
-        throw Error("Input contains characters not valid in the current file encoding");
+    let text = forceText ?
+                editor.outputToString("text/plain", OUTPUT_FORMATTED) :
+                editor.outputToString("text/html", OUTPUT_BODYONLY);
+    try {
+        let res = io.withTempFiles (function (tmpFile) {
+        if (!tmpFile.write(text))
+            throw Error("Input contains characters not valid in the current file encoding");
 
-      modules.editor.editFileExternally(tmpFile.path);
+        modules.editor.editFileExternally(tmpFile.path);
 
-      let val = tmpFile.read();
+        let val = tmpFile.read();
 
-      editor.selectAll();
-      editor.selection.deleteFromDocument();
-      if (forceText) {
-        editor.insertText(val);
-      } else {
-        let doc = editor.document;
-        let htmlFragment = doc.implementation.createDocument(null, 'html', null);
-        let range = doc.createRange();
-        range.setStartAfter(doc.body);
-        doc.body.appendChild(range.createContextualFragment(val));
-      }
-    }, this);
-    if (res == false)
-      throw Error("Couldn't create temporary file");
-  } catch (e) {
-    liberator.echoerr(e);
-  }
+        editor.selectAll();
+        editor.selection.deleteFromDocument();
+        if (forceText) {
+            editor.insertText(val);
+        } else {
+            let doc = editor.document;
+            let htmlFragment = doc.implementation.createDocument(null, 'html', null);
+            let range = doc.createRange();
+            range.setStartAfter(doc.body);
+            doc.body.appendChild(range.createContextualFragment(val));
+        }
+        }, this);
+        if (res == false)
+        throw Error("Couldn't create temporary file");
+    } catch (e) {
+        liberator.echoerr(e);
+    }
 }
 EOM
-" }}}
 
-" faviconをstatusbarに表示する {{{
+"----------
+" faviconをstatusbarに表示する
 javascript <<EOM
 (function() {
-  var setFavicon = function(){
-    var p = document.getElementById('page-proxy-favicon-clone');
-    var b = document.getElementById('page-proxy-favicon');
-    if (!p) {
-      p = document.createElement('statusbarpanel');
-      p.setAttribute('id','page-proxy-favicon-clone');
-      p.appendChild(b.cloneNode(true));
-      document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+    var setFavicon = function(){
+        var p = document.getElementById('page-proxy-favicon-clone');
+        var b = document.getElementById('page-proxy-favicon');
+        if (!p) {
+        p = document.createElement('statusbarpanel');
+        p.setAttribute('id','page-proxy-favicon-clone');
+        p.appendChild(b.cloneNode(true));
+        document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+        }
+        if (p.childNodes.length > 0) {
+        var node = p.childNodes.item(0);
+        node.setAttribute('src', b.getAttribute('src'));
+        }
     }
-    if (p.childNodes.length > 0) {
-      var node = p.childNodes.item(0);
-      node.setAttribute('src', b.getAttribute('src'));
-    }
-  }
-  getBrowser().addEventListener("load", function() setFavicon() , true);
-  getBrowser().addEventListener("TabSelect", function() setFavicon() , true);
+    getBrowser().addEventListener("load", function() setFavicon() , true);
+    getBrowser().addEventListener("TabSelect", function() setFavicon() , true);
 })();
 EOM
-" }}}
 
-" statusbarのiconの間隔を狭める {{{
+"----------
+" statusbarのiconの間隔を狭める
 style -name statusbar chrome://* <<EOM
 #status-bar statusbarpanel {
     padding: 1px !important;
@@ -594,9 +582,9 @@ statusbarpanel > * {
     padding:0 !important;
 }
 EOM
-" }}}
 
-" /vimperator/stylesの中の.cssファイルを読み込む {{{
+"----------
+" /vimperator/stylesの中の.cssファイルを読み込む
 javascript <<EOM
 (function(){
     let filter = new RegExp('^.*\.css$');
@@ -611,9 +599,9 @@ javascript <<EOM
     }
 })();
 EOM
-" }}}
 
-" personas用の設定 {{{
+"----------
+" personas用の設定
 javascript <<EOM
 Cu.import("resource://gre/modules/LightweightThemeManager.jsm");
  
@@ -623,117 +611,115 @@ let prefs = Cc["@mozilla.org/preferences-service;1"]
 let observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
  
 function createLWTheme(obj){
-  let buf = {
-    id: null,
-    name: null,
-    accentcolor: "-moz-diag",
-    textcolor: "-moz-diagtext",
-    description: "custom personas",
-    author: "",
-    headerURL: "",
-    footerURL: "",
-    previewURL: "",
-    iconURL: "",
-  };
-  for (let key in obj){
-    switch(key){
-      case "headerURL":
-      case "footerURL":
-      case "previewURL":
-      case "iconURL":
-        let path = obj[key];
-        if (path.charAt(0) == "~")
-          path = io.File("~").path + path.substr(1);
-        let uri = util.createURI(path);
-        buf[key] = uri.spec;
-        break;
-      default:
-        buf[key] = obj[key];
-    }
-  }
-  if (!buf.name)
-    buf.name = buf.id;
- 
-  return buf;
-}
- 
-function appendThemes(aThemes){
-  if (!aThemes)
-    aThemes = liberator.globalVariables.lwt;
-  if (!(aThemes instanceof Array))
-    aThemes = [aThemes];
-  let currentThemes = LightweightThemeManager.usedThemes;
-  aThemes.forEach(function(theme){
-    let t = createLWTheme(theme);
-    if (t && t.id){
-      for (let i=0, len = currentThemes.length; i<len; i++){
-        if (currentThemes[i].id == t.id){
-          currentThemes.splice(i, 1);
-          break;
+    let buf = {
+        id: null,
+        name: null,
+        accentcolor: "-moz-diag",
+        textcolor: "-moz-diagtext",
+        description: "custom personas",
+        author: "",
+        headerURL: "",
+        footerURL: "",
+        previewURL: "",
+        iconURL: "",
+    };
+    for (let key in obj){
+        switch(key){
+        case "headerURL":
+        case "footerURL":
+        case "previewURL":
+        case "iconURL":
+            let path = obj[key];
+            if (path.charAt(0) == "~")
+            path = io.File("~").path + path.substr(1);
+            let uri = util.createURI(path);
+            buf[key] = uri.spec;
+            break;
+        default:
+            buf[key] = obj[key];
         }
-      }
-      currentThemes.push(t);
     }
-  });
-  prefs.setCharPref("usedThemes", JSON.stringify(currentThemes));
-  observerService.notifyObservers(null, "lightweight-theme-list-changed", null);
+    if (!buf.name)
+        buf.name = buf.id;
+
+    return buf;
 }
- 
+
+function appendThemes(aThemes){
+    if (!aThemes)
+        aThemes = liberator.globalVariables.lwt;
+    if (!(aThemes instanceof Array))
+        aThemes = [aThemes];
+    let currentThemes = LightweightThemeManager.usedThemes;
+    aThemes.forEach(function(theme){
+        let t = createLWTheme(theme);
+        if (t && t.id){
+        for (let i=0, len = currentThemes.length; i<len; i++){
+            if (currentThemes[i].id == t.id){
+            currentThemes.splice(i, 1);
+            break;
+            }
+        }
+        currentThemes.push(t);
+        }
+    });
+    prefs.setCharPref("usedThemes", JSON.stringify(currentThemes));
+    observerService.notifyObservers(null, "lightweight-theme-list-changed", null);
+}
+
 if (liberator.globalVariables.lwt instanceof Array){
-  appendThemes(liberator.globalVariables.lwt);
+    appendThemes(liberator.globalVariables.lwt);
 }
- 
+
 function fileCompleter(c){
-  return completion.runCompleter("file", c.filter).map(function(f) [f.path, f.leafName]);
+    return completion.runCompleter("file", c.filter).map(function(f) [f.path, f.leafName]);
 }
 let options = [
-  ["textcolor", ["-c", "-color"], commands.OPTION_STRING],
-  ["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
-  ["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
-  ["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
+["textcolor", ["-c", "-color"], commands.OPTION_STRING],
+["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
+["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
+["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
 ];
 commands.addUserCommand(['personas'], "Personas Theme",
-  function(args){
+function(args){
     let id = args[0];
     if (args.bang){
-      LightweightThemeManager.forgetUsedTheme(id);
-      return;
+    LightweightThemeManager.forgetUsedTheme(id);
+    return;
     }
     let registeredThemer = LightweightThemeManager.getUsedTheme(id);
     if (registeredThemer) {
-      LightweightThemeManager.currentTheme = registeredThemer;
+    LightweightThemeManager.currentTheme = registeredThemer;
     } else {
-      let buf = {id: id};
-      options.forEach(function(opt){
+    let buf = {id: id};
+    options.forEach(function(opt){
         if (args[opt[1][0]])
-          buf[opt[0]] = args[opt[1][0]];
-      });
-      let t = createLWTheme(buf);
-      if (t)
+        buf[opt[0]] = args[opt[1][0]];
+    });
+    let t = createLWTheme(buf);
+    if (t)
         LightweightThemeManager.currentTheme = t;
     }
-  }, {
+}, {
     argCount: "1",
     bang: true,
     options: options.map(function(opt) opt.slice(1)),
     completer: function(context, args){
-      context.format = {
+    context.format = {
         title: ["Name","Description"],
         keys: { text: "id", description: "name", icon: "iconURL" },
         process: [
-          function name(item, text) <span sltyle="vertial-align: center">
+        function name(item, text) <span sltyle="vertial-align: center">
             <img src={item.icon}/><span>{item.item.id}</span>
-          </span>,
-          function desc(item, text) <>
+        </span>,
+        function desc(item, text) <>
             <img src={item.item.previewURL} align="left" style="height:3em;"/>
             <span>{item.item.name}<br/>{item.item.description}</span>
-          </>,
+        </>,
         ]
-      }
-      context.completions = LightweightThemeManager.usedThemes;
     }
-  }, true);
+    context.completions = LightweightThemeManager.usedThemes;
+    }
+}, true);
 EOM
-" }}}
-" }}}
 
