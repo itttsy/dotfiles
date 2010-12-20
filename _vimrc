@@ -24,6 +24,8 @@ endif
 " if has('win32') || has('win64')
 "     set shellslash
 " endif
+call pathogen#runtime_append_all_bundles()
+call pathogen#helptags()
 call altercmd#load()
 
 "----------
@@ -108,11 +110,11 @@ if has('mac')
 endif
 
 " helptagsの生成
-if has('mac')
+" if has('mac')
 "    helptags ~/.vim/doc
-elseif has('win32')
+" elseif has('win32')
 "    helptags ~/vimfiles/doc
-endif
+" endif
 
 "----------
 " GUI固有ではない画面表示の設定
@@ -441,6 +443,18 @@ nnoremap H :<C-u>bp<CR>
 nnoremap L :<C-u>bn<CR>
 " <Space>llで現在のバッファを表示
 nnoremap <Space>ll :<C-u>buffers<CR>
+" 最後の2 digitで移動する
+command! -count=1 -nargs=0 LastTwoDigitMove call LastTwoDigitMove(<count>)
+function! LastTwoDigitMove(bound)
+    " for example when you are at line num 123 and typed 3gl
+    " getpos('.')[1] is 123
+    " a:bound is 125
+    " the goal is 103
+    let current = getpos('.')[1]
+    let to = current / 100 * 100 + a:bound - current + 1
+    execute to
+endfunction
+nnoremap <silent> gl :LastTwoDigitMove<Cr>
 
 " Tab関係
 nnoremap [Tabbed] <Nop>
@@ -692,19 +706,31 @@ inoremap <expr><C-e> neocomplcache#cansel_popup()
 
 " unite.vim用設定
 AlterCommand unite Unite
-AlterCommand u Unite
 let g:unite_data_directory = $DOTVIM.'/unite'
 let g:unite_enable_start_insert = 1
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap <C-u> [unite]
 
+nnoremap [unite]<Space> :<C-u>Unite<Space>
 nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]<C-r> :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]s :<C-u>Unite source<CR>
+nnoremap <silent> [unite]<C-s> :<C-u>Unite source<CR>
+nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]f :<C-u>Unite file<CR>
+nnoremap <silent> [unite]<C-f> :<C-u>Unite file<CR>
 nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
+nnoremap <silent> [unite]<C-m> :<C-u>Unite file_mru<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
+nnoremap <silent> [unite]<C-h> :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]<C-o> :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
+nnoremap <silent> [unite]<C-g> :<C-u>Unite grep<CR>
 augroup UniteSetting
     autocmd!
     autocmd FileType unite call s:unite_my_settings()
@@ -722,6 +748,8 @@ let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
 vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
+nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR>
+vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
 AlterCommand ma :<C-u>Ref alc
 AlterCommand mp :<C-u>Ref perldoc
 
