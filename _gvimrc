@@ -40,32 +40,6 @@ endfunction
 " フォント設定
 set guifont=VL_Gothic:h10:cDEFAULT
 set linespace=1
-" 文字の大きさをトグルする
-function! ZoomToggle()
-    let normal_font = 'VL_Gothic:h10'
-    let zoom_font = 'VL_Gothic:h25'
-        if &guifont == normal_font
-        let font = zoom_font
-        let columns = 78
-        let lines = 22
-    else
-        let font = normal_font
-        let columns = 120
-        let lines = 32
-    endif
-    execute 'set guifont=' . font
-    execute 'set columns=' . columns
-    execute 'set lines=' . lines
-endfunction
-nnoremap <Space>z :<C-u>call ZoomToggle()<CR>
-
-"----------
-" IME切り替えの為の設定
-if has('multi_byte_ime')
-    highlight CursorIM guibg=Purple guifg=NONE
-    set iminsert=0 imsearch=0
-    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
-endif
 
 "----------
 " ウインドウに関する設定
@@ -76,14 +50,6 @@ set lines=32
 " マウスに関する設定
 set nomousefocus
 set mousehide
-
-"----------
-" メニューに関する設定
-set guioptions=
-
-"----------
-" 検索文字列をハイライトしない
-set nohlsearch
 
 "----------
 " 印刷に関する設定
