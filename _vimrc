@@ -13,21 +13,15 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 " :ReloadVimrcコマンドの追加
 command! ReloadVimrc source $MYVIMRC
 
-" インサートモードに入ったときに自動的にIMEをオンにする
-set iminsert=0
 " Vi互換ではなくする
 set nocompatible
 " ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
 filetype plugin indent on
-" 構文強調表示を有効にする
-if &t_Co > 2 || has("gui_running")
-    syntax enable
-    set hlsearch
-endif
 " ファイル名の展開にスラッシュを使う
 " if has('win32') || has('win64')
 "    set shellslash
 " endif
+set all&
 " 各種プラグインのロード
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
@@ -43,6 +37,12 @@ set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " set langmenu=menu_ja_jp.utf-8.vim
 " source $VIMRUNTIME/menu.vim
 
+" IME切り替えの為の設定
+if has('multi_byte_ime')
+    highlight CursorIM guibg=Purple guifg=NONE
+    set iminsert=0 imsearch=0
+    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
+endif
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
 function! s:DoModelineFileEncoding()
@@ -120,6 +120,13 @@ helptags $DOTVIM/doc
 "----------
 " GUI固有ではない画面表示の設定
 colorscheme less
+" 画面表示に関する設定
+set guioptions=aegithpF
+" 構文強調表示を有効にする
+if &t_Co > 2 || has("gui_running")
+    syntax enable
+    set hlsearch
+endif
 " 長い行について折り返す
 set wrap
 " 現在のモードを表示する
@@ -147,8 +154,6 @@ set cmdheight=1
 set showcmd
 
 " gui
-" ターミナルが使用出来る色の数
-set t_Co=256
 " ビープ音にビジュアルベルを使用する
 set visualbell
 " Vimを終了したときにコンソール画面を復元しない
