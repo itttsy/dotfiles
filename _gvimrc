@@ -1,6 +1,6 @@
 " vim:set ts=8 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
 " :ReloadVimrcコマンドの追加
-command! ReloadGVimrc source $MYVIMRC
+" command! ReloadGVimrc source $MYVIMRC
 
 "----------
 " カラー設定
