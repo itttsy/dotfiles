@@ -1,6 +1,24 @@
 " vim:set ts=4 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
+
+" 初期処理
+if v:version < 702
+  echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
+  finish
+endif
+for feat in ['multi_byte', 'iconv', 'syntax', 'autocmd']
+  if !has(feat)
+    echoerr 'Error: vimrc: Require the feature "' . feat . '"'
+    finish
+  endif
+endfor
+unlet feat
+
 if !exists('g:loaded_vimrc')
     let g:loaded_vimrc = 0
+endif
+if g:loaded_vimrc == 0
+    mapclear
+    mapclear!
 endif
 
 "----------
@@ -11,8 +29,9 @@ let g:mapleader = ' '
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 " :ReloadVimrcコマンドの追加
-command! ReloadVimrc source $MYVIMRC
+" command! ReloadVimrc source $MYVIMRC
 
+set all&
 " Vi互換ではなくする
 set nocompatible
 " ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
@@ -21,7 +40,6 @@ filetype plugin indent on
 " if has('win32') || has('win64')
 "    set shellslash
 " endif
-set all&
 " 各種プラグインのロード
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
@@ -29,20 +47,15 @@ call altercmd#load()
 
 "----------
 " 日本語用エンコード設定
-set encoding=cp932
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " vimをutf-8対応にする場合は以下をコメントイン
-" set encoding=utf-8
-" source $VIMRUNTIME/delmenu.vim
-" set langmenu=menu_ja_jp.utf-8.vim
-" source $VIMRUNTIME/menu.vim
+set encoding=utf-8
+source $VIMRUNTIME/delmenu.vim
+set langmenu=menu_ja_jp.utf-8.vim
+source $VIMRUNTIME/menu.vim
+set fileformat=unix
+scriptencoding utf-8
 
-" IME切り替えの為の設定
-if has('multi_byte_ime')
-    highlight CursorIM guibg=Purple guifg=NONE
-    set iminsert=0 imsearch=0
-    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
-endif
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
 function! s:DoModelineFileEncoding()
@@ -118,10 +131,18 @@ endif
 helptags $DOTVIM/doc
 
 "----------
+" IME切り替えの為の設定
+if has('multi_byte_ime')
+    highlight CursorIM guibg=Purple guifg=NONE
+    set iminsert=0 imsearch=0
+    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
+endif
+
+"----------
 " GUI固有ではない画面表示の設定
 colorscheme less
 " 画面表示に関する設定
-set guioptions=aegithpF
+set guioptions=aegip
 " 構文強調表示を有効にする
 if &t_Co > 2 || has("gui_running")
     syntax enable
@@ -220,6 +241,8 @@ augroup cch
 augroup END
 
 " misc
+" ファイルフォーマットの設定
+set fileformats=unix,dos,mac
 " マルチバイト文字の幅の扱いを指定する
 set ambiwidth=double
 " Diffモード用の設定
@@ -228,6 +251,18 @@ set diffopt=filler,vertical
 set helplang=ja,en
 " 行連結コマンドにおいて空白を挿入しない
 set nojoinspaces
+" 全角スペースを表示する
+function! ZenkakuSpace()
+  highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guifg=darkgrey
+  silent! match ZenkakuSpace /　/
+endfunction
+
+if has('syntax')
+  augroup ZenkakuSpace
+    autocmd!
+    autocmd VimEnter,BufEnter * call ZenkakuSpace()
+  augroup END
+endif
 
 "----------
 " マウスに関する設定
@@ -244,7 +279,8 @@ set smartindent
 " Insertモードでタブ文字を挿入するときに代わりに適切な数の空白を使う
 set expandtab
 set smarttab
-set tabstop=4
+set tabstop=8
+set softtabstop=4
 set shiftwidth=4
 " インデントをshiftwidthの値の整数倍にまとめる
 set shiftround
@@ -577,8 +613,6 @@ nnoremap <silent> g<C-h> :<C-u>help<Space><C-r><C-w><CR>
 nnoremap grh :<C-u>Hg<Space>
 
 " misc
-" gZZでVim終了時に画面をクリアしないようにする
-nmap <silent> gZZ :set t_te= t_ti= <cr>:quit<cr>:set t_te& t_ti&<cr>
 " ファイルタイプを変更
 nmap <Leader>ew :<C-u>set fileformat=dos<CR>
 nmap <Leader>ea :<C-u>set fileformat=mac<CR>

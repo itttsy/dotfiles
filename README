@@ -1,17 +1,26 @@
 vim plugin I use
     eregex.vim
     neocomplcache
+    echodoc
     skk.vim
-    unite-help
-    unite-online
-    unite-tags
+    shadow.vim
     unite.vim
+    unite-grep
+    unite-qf
+    unite-help
+    unite-tags
+    unite-outline
     vim-altercmd
     vim-operator-replace
     vim-operator-user
     vim-quickrun
     vim-ref
     vim-surround
+    vim-surround
+    vim-textobj-user
+    vim-textobj-diff
+    vim-textobj-indent
+    vim-textobj-syntax
 #    vimfiler
 #    vimshell
     zoom.vim
@@ -25,6 +34,7 @@ vimperator plugin I use
     copy.js
     delicious_search.js
     feedSomeKeys_3.js
+    lo.js
     maine_coon.js
     multi_requester.js
     opener.js
