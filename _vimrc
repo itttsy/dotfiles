@@ -49,12 +49,13 @@ call altercmd#load()
 " 日本語用エンコード設定
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " vimをutf-8対応にする場合は以下をコメントイン
-set encoding=utf-8
-source $VIMRUNTIME/delmenu.vim
-set langmenu=menu_ja_jp.utf-8.vim
-source $VIMRUNTIME/menu.vim
-set fileformat=unix
-scriptencoding utf-8
+set encoding=cp932
+" set encoding=utf-8
+" source $VIMRUNTIME/delmenu.vim
+" set langmenu=menu_ja_jp.utf-8.vim
+" source $VIMRUNTIME/menu.vim
+" set fileformat=unix
+" scriptencoding utf-8
 
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
@@ -140,7 +141,9 @@ endif
 
 "----------
 " GUI固有ではない画面表示の設定
-colorscheme less
+if !has('gui_running')
+    colorscheme less
+endif
 " 画面表示に関する設定
 set guioptions=aegip
 " 構文強調表示を有効にする
@@ -183,8 +186,6 @@ set t_ti=
 set t_te=
 
 " cursor
-" カーソルがある画面上の行を強調する
-set cursorline
 " Insertモードでautoindent、改行を超えてバックスペースを働かせる
 set backspace=2
 
@@ -253,7 +254,7 @@ set helplang=ja,en
 set nojoinspaces
 " 全角スペースを表示する
 function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guifg=darkgrey
+  highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guifg=green
   silent! match ZenkakuSpace /　/
 endfunction
 
@@ -325,22 +326,26 @@ set hidden
 set formatoptions& formatoptions+=mM
 " 数の増減に関する設定
 set nrformats& nrformats-=octal
-" 文字のない場所にもカーソルを持っていけるようにする
-set virtualedit& virtualedit+=all
-if has('virtualedit') && &virtualedit =~# '\<all\>'
-    nnoremap <expr> p (col('.') >= col('$') ? '$' : '') . 'p'
-endif
 " grepで利用するプログラム
 set grepprg=internal
 " クリップボードに利用するレジスタの設定
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
+
+" 文字のない場所にもカーソルを持っていけるようにする
+set virtualedit& virtualedit+=all
+if has('virtualedit') && &virtualedit =~# '\<all\>'
+    nnoremap <expr> p (col('.') >= col('$') ? '$' : '') . 'p'
+endif
+
 " カレントディレクトリをファイルと同じディレクトリに移動する
 " set autochdir
 au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
+
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
+
 " 縦に連番を入力する
 nnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
 vnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
@@ -374,6 +379,31 @@ function! s:open_junk_file()
     endif
 endfunction
 
+" タブページ毎にカレントディレクトリを設定する
+AlterCommand cd TabpageCD
+nnoremap ,cd       :<C-u>TabpageCD %:p:h<CR>
+nnoremap <Space>cd :<C-u>lcd %:p:h<CR>
+command!
+\   -bar -complete=dir -nargs=?
+\   CD
+\   TabpageCD <args>
+command!
+\   -bar -complete=dir -nargs=?
+\   TabpageCD
+\   execute 'cd' fnameescape(expand(<q-args>))
+\   | let t:cwd = getcwd()
+augroup TabpageCD
+    autocmd!
+    autocmd TabEnter *
+    \   if exists('t:cwd') && !isdirectory(t:cwd)
+    \ |     unlet t:cwd
+    \ | endif
+    \ | if !exists('t:cwd')
+    \ |   let t:cwd = getcwd()
+    \ | endif
+    \ | execute 'cd' fnameescape(expand(t:cwd))
+augroup END
+
 "----------
 " 検索に関する設定
 " 検索コマンドを打ち込んでいる間に、打ち込んでいるところまでのパターンマッチを行なう
@@ -384,6 +414,10 @@ set ignorecase
 set smartcase
 " 検索がファイル末尾まで進んだらファイル先頭から再び検索する
 set wrapscan
+" 検索パターン入力中は/で\/を入力する
+cnoremap <expr> / getcmdtype() == '/' ? '\/' : '/'
+" 検索パターン入力中は?で\?を入力する
+cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 " fを利用するときにIMEをオフにする
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
@@ -802,13 +836,21 @@ nnoremap [unite]<Space> :<C-u>Unite<Space>
 nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]<C-r> :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]s :<C-u>Unite source<CR>
+nnoremap <silent> [unite]<C-s> :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
+nnoremap <silent> [unite]<C-f> :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
+nnoremap <silent> [unite]<C-m> :<C-u>Unite file_mru<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
+nnoremap <silent> [unite]<C-h> :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]<C-o> :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
+nnoremap <silent> [unite]<C-g> :<C-u>Unite grep<CR>
 augroup UniteSetting
     autocmd!
     autocmd FileType unite call s:unite_my_settings()
