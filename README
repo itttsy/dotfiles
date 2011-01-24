@@ -38,6 +38,7 @@ vimperator plugin I use
     maine_coon.js
     multi_requester.js
     opener.js
+    pluginmanager.js
     prevent_focus_ietab.js
     session-manager.js
     spatial-navigation.js
