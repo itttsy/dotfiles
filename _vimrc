@@ -381,25 +381,25 @@ endfunction
 
 " タブページ毎にカレントディレクトリを設定する
 AlterCommand cd TabpageCD
-nnoremap ,cd       :<C-u>TabpageCD %:p:h<CR>
-nnoremap <Space>cd :<C-u>lcd %:p:h<CR>
+nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
+
 command!
-\   -bar -complete=dir -nargs=?
-\   CD
-\   TabpageCD <args>
+\ -bar -complete=dir -nargs=?
+\ CD
+\ TabpageCD <args>
 command!
-\   -bar -complete=dir -nargs=?
-\   TabpageCD
-\   execute 'cd' fnameescape(expand(<q-args>))
-\   | let t:cwd = getcwd()
+\ -bar -complete=dir -nargs=?
+\ TabpageCD
+\ execute 'cd' fnameescape(expand(<q-args>))
+\ | let t:cwd = getcwd()
 augroup TabpageCD
     autocmd!
     autocmd TabEnter *
-    \   if exists('t:cwd') && !isdirectory(t:cwd)
-    \ |     unlet t:cwd
+    \ if exists('t:cwd') && !isdirectory(t:cwd)
+    \ | unlet t:cwd
     \ | endif
     \ | if !exists('t:cwd')
-    \ |   let t:cwd = getcwd()
+    \ | let t:cwd = getcwd()
     \ | endif
     \ | execute 'cd' fnameescape(expand(t:cwd))
 augroup END
@@ -767,12 +767,12 @@ augroup NetrwCommand
 augroup END
 
 " vimfiler用設定
-" let g:vimfiler_as_default_explorer = 1
-" let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
 
 " vimshell用設定
-" AlterCommand vsh VimShell
-" let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+AlterCommand vsh VimShell
+let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
@@ -869,7 +869,7 @@ endfunction
 " ref.vim用設定
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM . '/tmp/ref'
-let g:ref_use_vimproc = 0
+let g:ref_use_vimproc = 1
 let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
