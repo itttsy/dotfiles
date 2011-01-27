@@ -5,7 +5,7 @@
 "----------
 " カラー設定
 " syntax enable
-colorscheme newspaper
+colorscheme zenburn
 " Insertモード時にステータスラインの色を変更
 let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
 
