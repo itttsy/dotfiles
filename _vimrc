@@ -773,6 +773,41 @@ let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
 " vimshell用設定
 AlterCommand vsh VimShell
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_enable_smart_case = 1
+
+if has('win32') || has('win64')
+    let g:vimshell_prompt = $USERNAME."% "
+else
+    let g:vimshell_prompt = $USER."% "
+endif
+
+augroup VimShell
+    autocmd!
+    autocmd FileType vimshell
+        \ call vimshell#altercmd#define('g', 'git')
+        \| call vimshell#altercmd#define('i', 'iexe')
+        \| call vimshell#altercmd#define('ll', 'ls -l')
+augroup END
+
+function! g:my_chpwd(args, context)
+    call vimshell#execute('echo "chpwd"')
+endfunction
+function! g:my_emptycmd(cmdline, context)
+    call vimshell#execute('echo "emptycmd"')
+    return a:cmdline
+endfunction
+function! g:my_preprompt(args, context)
+    call vimshell#execute('echo "preprompt"')
+endfunction
+function! g:my_preexec(cmdline, context)
+    call vimshell#execute('echo "preexec"')
+    let l:args = vimproc#parser#split_args(a:cmdline)
+    if len(l:args) > 0 && l:args[0] ==# 'diff'
+        call vimshell#set_syntax('diff')
+    endif
+    return a:cmdline
+endfunction
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
