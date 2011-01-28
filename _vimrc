@@ -49,7 +49,6 @@ call altercmd#load()
 " 日本語用エンコード設定
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " vimをutf-8対応にする場合は以下をコメントイン
-set encoding=cp932
 " set encoding=utf-8
 " source $VIMRUNTIME/delmenu.vim
 " set langmenu=menu_ja_jp.utf-8.vim
@@ -769,12 +768,21 @@ augroup END
 " vimfiler用設定
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
+let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
+let g:vimfiler_external_copy_file_command = 'cp $src $dest'
+let g:vimfiler_external_delete_command = 'rm -r $srcs'
+let g:vimfiler_external_move_command = 'mv $srcs $dest'
+" Enable file operation commands.
+"let g:vimfiler_safe_mode_by_default = 0
 
 " vimshell用設定
 AlterCommand vsh VimShell
+AlterCommand vshp VimShellPop
+AlterCommand vshe VimShellExecute
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
 let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
 let g:vimshell_enable_smart_case = 1
+let g:vimshell_split_height = 50
 
 if has('win32') || has('win64')
     let g:vimshell_prompt = $USERNAME."% "
@@ -789,25 +797,6 @@ augroup VimShell
         \| call vimshell#altercmd#define('i', 'iexe')
         \| call vimshell#altercmd#define('ll', 'ls -l')
 augroup END
-
-function! g:my_chpwd(args, context)
-    call vimshell#execute('echo "chpwd"')
-endfunction
-function! g:my_emptycmd(cmdline, context)
-    call vimshell#execute('echo "emptycmd"')
-    return a:cmdline
-endfunction
-function! g:my_preprompt(args, context)
-    call vimshell#execute('echo "preprompt"')
-endfunction
-function! g:my_preexec(cmdline, context)
-    call vimshell#execute('echo "preexec"')
-    let l:args = vimproc#parser#split_args(a:cmdline)
-    if len(l:args) > 0 && l:args[0] ==# 'diff'
-        call vimshell#set_syntax('diff')
-    endif
-    return a:cmdline
-endfunction
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
