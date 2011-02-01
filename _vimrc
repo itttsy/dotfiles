@@ -291,7 +291,7 @@ set complete& complete+=k
 augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
-    autocmd FileType pl :<C-u>set dictionary& dictionary+=$DOTVIM'/dict/perl.dict'
+"   autocmd FileType pl :<C-u>set dictionary& dictionary+=$DOTVIM'/dict/perl.dict'
 augroup END
 " コマンドライン補完を拡張モードで行う
 set wildmenu
@@ -773,30 +773,30 @@ let g:vimfiler_external_copy_file_command = 'cp $src $dest'
 let g:vimfiler_external_delete_command = 'rm -r $srcs'
 let g:vimfiler_external_move_command = 'mv $srcs $dest'
 " Enable file operation commands.
-"let g:vimfiler_safe_mode_by_default = 0
+let g:vimfiler_safe_mode_by_default = 1
 
 " vimshell用設定
-AlterCommand vsh VimShell
-AlterCommand vshp VimShellPop
-AlterCommand vshe VimShellExecute
-let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-let g:vimshell_enable_smart_case = 1
-let g:vimshell_split_height = 50
-
-if has('win32') || has('win64')
-    let g:vimshell_prompt = $USERNAME."% "
-else
-    let g:vimshell_prompt = $USER."% "
-endif
-
-augroup VimShell
-    autocmd!
-    autocmd FileType vimshell
-        \ call vimshell#altercmd#define('g', 'git')
-        \| call vimshell#altercmd#define('i', 'iexe')
-        \| call vimshell#altercmd#define('ll', 'ls -l')
-augroup END
+" AlterCommand vsh VimShell
+" AlterCommand vshp VimShellPop
+" AlterCommand vshe VimShellExecute
+" let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+" let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+" let g:vimshell_enable_smart_case = 1
+" let g:vimshell_split_height = 50
+" 
+" if has('win32') || has('win64')
+"     let g:vimshell_prompt = $USERNAME."% "
+" else
+"     let g:vimshell_prompt = $USER."% "
+" endif
+" 
+" augroup VimShell
+"     autocmd!
+"     autocmd FileType vimshell
+"         \ call vimshell#altercmd#define('g', 'git')
+"         \| call vimshell#altercmd#define('i', 'iexe')
+"         \| call vimshell#altercmd#define('ll', 'ls -l')
+" augroup END
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
@@ -828,6 +828,12 @@ let g:neocomplcache_enable_quick_match = 1
 let g:neocomplcache_quick_match_patterns = { 'default' : '@' }
 let g:neocomplcache_enable_auto_select = 0
 let g:neocomplcache_temporary_dir = $DOTVIM . '/tmp/neocon'
+" Define dictionary.
+let g:neocomplcache_dictionary_filetype_lists = {
+    \ 'default'  : '',
+    \ 'perl'     : $DOTVIM . '/dict/perl.dict',
+    \ 'java'     : $DOTVIM . '/dict/java.dict',
+\ }
 imap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
 smap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
@@ -859,6 +865,10 @@ nmap <C-u> [unite]
 nnoremap [unite]<Space> :<C-u>Unite<Space>
 nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]<C-t> :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]w :<C-u>Unite -immediately window:no-current<CR>
+nnoremap <silent> [unite]<C-w> :<C-u>Unite -immediately window:no-current<CR>
 nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]<C-r> :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]s :<C-u>Unite source<CR>
@@ -893,7 +903,7 @@ endfunction
 " ref.vim用設定
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM . '/tmp/ref'
-let g:ref_use_vimproc = 1
+let g:ref_use_vimproc = 0
 let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>

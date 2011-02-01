@@ -177,6 +177,9 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 
 "----------
 " プラグインに関する設定
+" lo.js
+noremap <C-S-o> :lo<Space>
+
 " multi_requester.js
 noremap ma :mr<Space>alc<Space>
 noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
@@ -199,6 +202,11 @@ lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
 
 " twittperator.js
 let g:twittperator_use_chirp = 1
+" 呟きに現在のページのタイトルとURLを追加
+abbrev -j .title      '"' + buffer.title + '"'
+abbrev #v             #vimperator
+abbrev -j .url        plugins.bitly.jmp(buffer.URL)
+abbrev -j .tu         abbreviations.get(modes.INSERT, '.title').text + ' - ' + plugins.bitly.jmp(buffer.URL)
 
 "----------
 " JavaScriptに関する設定
