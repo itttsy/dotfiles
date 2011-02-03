@@ -55,6 +55,8 @@ set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " source $VIMRUNTIME/menu.vim
 " set fileformat=unix
 " scriptencoding utf-8
+" ターミナル用のエンコーディング
+set termencoding=utf-8
 
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
@@ -776,27 +778,29 @@ let g:vimfiler_external_move_command = 'mv $srcs $dest'
 let g:vimfiler_safe_mode_by_default = 1
 
 " vimshell用設定
-" AlterCommand vsh VimShell
-" AlterCommand vshp VimShellPop
-" AlterCommand vshe VimShellExecute
-" let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-" let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-" let g:vimshell_enable_smart_case = 1
-" let g:vimshell_split_height = 50
-" 
-" if has('win32') || has('win64')
-"     let g:vimshell_prompt = $USERNAME."% "
-" else
-"     let g:vimshell_prompt = $USER."% "
-" endif
-" 
-" augroup VimShell
-"     autocmd!
-"     autocmd FileType vimshell
-"         \ call vimshell#altercmd#define('g', 'git')
-"         \| call vimshell#altercmd#define('i', 'iexe')
-"         \| call vimshell#altercmd#define('ll', 'ls -l')
-" augroup END
+AlterCommand vsh VimShell
+AlterCommand vshp VimShellPop
+AlterCommand vshe VimShellExecute
+let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+let g:vimshell_interactive_cygwin_path = 'c:/cygwin/bin'
+let g:vimshell_use_ckw = 0
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_enable_smart_case = 1
+let g:vimshell_split_height = 50
+
+if has('win32') || has('win64')
+    let g:vimshell_prompt = $USERNAME."% "
+else
+    let g:vimshell_prompt = $USER."% "
+endif
+
+augroup VimShell
+    autocmd!
+    autocmd FileType vimshell
+        \ call vimshell#altercmd#define('g', 'git')
+        \| call vimshell#altercmd#define('i', 'iexe')
+        \| call vimshell#altercmd#define('ll', 'ls -l')
+augroup END
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
@@ -903,7 +907,7 @@ endfunction
 " ref.vim用設定
 AlterCommand ref Ref
 let g:ref_cache_dir = $DOTVIM . '/tmp/ref'
-let g:ref_use_vimproc = 0
+let g:ref_use_vimproc = 1
 let g:ref_alc_encoding = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>

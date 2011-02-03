@@ -21,8 +21,8 @@ vim plugin I use
     vim-textobj-diff
     vim-textobj-indent
     vim-textobj-syntax
-#    vimfiler
-#    vimshell
+    vimfiler
+    vimshell
     zoom.vim
 vimperator plugin I use
     _libly.js
