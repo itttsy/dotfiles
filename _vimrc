@@ -177,6 +177,8 @@ set laststatus=2
 set cmdheight=1
 " コマンドを画面最下行に表示する
 set showcmd
+" コマンドラインにメッセージが表示される閾値
+set report=1
 
 " gui
 " ビープ音にビジュアルベルを使用する
@@ -778,29 +780,30 @@ let g:vimfiler_external_move_command = 'mv $srcs $dest'
 let g:vimfiler_safe_mode_by_default = 1
 
 " vimshell用設定
-AlterCommand vsh VimShell
-AlterCommand vshp VimShellPop
-AlterCommand vshe VimShellExecute
-let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-let g:vimshell_interactive_cygwin_path = 'c:/cygwin/bin'
-let g:vimshell_use_ckw = 0
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-let g:vimshell_enable_smart_case = 1
-let g:vimshell_split_height = 50
-
-if has('win32') || has('win64')
-    let g:vimshell_prompt = $USERNAME."% "
-else
-    let g:vimshell_prompt = $USER."% "
-endif
-
-augroup VimShell
-    autocmd!
-    autocmd FileType vimshell
-        \ call vimshell#altercmd#define('g', 'git')
-        \| call vimshell#altercmd#define('i', 'iexe')
-        \| call vimshell#altercmd#define('ll', 'ls -l')
-augroup END
+" AlterCommand vsh VimShell
+" AlterCommand vshp VimShellPop
+" AlterCommand vshe VimShellExecute
+" let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+" let g:vimshell_interactive_cygwin_path = 'c:/cygwin/bin'
+" let g:vimshell_interactive_cygwin_home = ''
+" let g:vimshell_use_ckw = 0
+" let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+" let g:vimshell_enable_smart_case = 1
+" let g:vimshell_split_height = 50
+" 
+" if has('win32') || has('win64')
+"     let g:vimshell_prompt = $USERNAME."% "
+" else
+"     let g:vimshell_prompt = $USER."% "
+" endif
+" 
+" augroup VimShell
+"     autocmd!
+"     autocmd FileType vimshell
+"         \ call vimshell#altercmd#define('g', 'git')
+"         \| call vimshell#altercmd#define('i', 'iexe')
+"         \| call vimshell#altercmd#define('ll', 'ls -l')
+" augroup END
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
@@ -918,10 +921,15 @@ AlterCommand ma :<C-u>Ref alc
 AlterCommand mp :<C-u>Ref perldoc
 
 " operator-replace用設定
-map R <Plug>(operator-replace)
+map _ <Plug>(operator-replace)
 
 " quickrun.vim用設定
 AlterCommand qr QuickRun
+let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
+" Windows用Perl設定
+if executable('Perl') && (has('win32') || has('win64'))
+    let g:quickrun_config.perl = {'output_encode': 'sjis'}
+endif
 
 " zoom.vim用設定
 nnoremap <silent> <C-kPlus> :<C-u>ZoomIn<CR>
