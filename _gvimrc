@@ -5,7 +5,7 @@
 "----------
 " カラー設定
 " syntax enable
-colorscheme zenburn
+colorscheme rastafari
 " Insertモード時にステータスラインの色を変更
 let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
 
@@ -59,6 +59,8 @@ set printfont=VL_Gothic:h12:cDEFAULT
 "----------
 " Pluginに関する設定
 " Kaoriya版でウィンドウを半透明にする
-" gui
-" set transparency=230
+if has('Kaoriya')
+    gui
+    set transparency=224
+endif
 
