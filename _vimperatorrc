@@ -91,7 +91,7 @@ hi CompDesc             color: LightGray;
 hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 8pt; font-weight: normal;
 hi Normal               color: White;      background: rgba(128,128,128,0.7); font-size: 10pt;
 hi ModeMsg              color: White;      background: rgba(128,128,128,0.7); font-size: 8pt;
-style -name parsonas chrome://* <<EOM
+style -name personas chrome://* <<EOM
 #main-window { background-repeat: repeat-y !important;}
 #browser-bottombox { background-image: none !important; }
 #liberator-multiline-output, #liberator-completions { background: transparent !important; }
@@ -178,7 +178,7 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 "----------
 " プラグインに関する設定
 " lo.js
-noremap <C-S-o> :lo<Space>
+noremap w :lo<Space>
 
 " multi_requester.js
 noremap ma :mr<Space>alc<Space>
@@ -207,6 +207,8 @@ abbrev -j .title      '"' + buffer.title + '"'
 abbrev #v             #vimperator
 abbrev -j .url        plugins.bitly.jmp(buffer.URL)
 abbrev -j .tu         abbreviations.get(modes.INSERT, '.title').text + ' - ' + plugins.bitly.jmp(buffer.URL)
+cabbrev -j .reply     let (e=doc.querySelector('.hentry.status'))('@' + e.getAttribute('class').match(/u-(\S+)/)[1] + '#' + e.getAttribute('id').match(/\d+/))
+cabbrev -j .rt        let (e=doc.querySelector('.hentry.status'))('RT @' + e.getAttribute('class').match(/u-(\S+)/)[1] + '#' + e.getAttribute('id').match(/\d+/) + ': ' + doc.querySelector('.entry-content').textContent.trim())
 
 "----------
 " JavaScriptに関する設定
@@ -217,11 +219,8 @@ let (
     back = mappings.getDefault(modes.NORMAL, 'H').action,
     remove = mappings.getDefault(modes.NORMAL, 'd').action
 )
-mappings.addUserMap(
-    [modes.NORMAL],
-    ['H'],
-    'exteded back',
-    function () (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
+mappings.addUserMap([modes.NORMAL], ['H'], 'exteded back',
+    function() (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
 );
 EOM
 
@@ -263,15 +262,12 @@ EOM
 "----------
 " コマンドラインでbangをトグル
 javascript <<EOM
-mappings.addUserMap(
-  [modes.COMMAND_LINE],
-  ['<C-x>'],
-  'toggle bang',
-  function() {
-    let [,cmd,bang,args] = commands.parseCommand(commandline.command);
-    bang = bang ? '' : '!';
-    commandline.command = cmd + bang + ' ' + args;
-  });
+mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
+    function() {
+        let [,cmd,bang,args] = commands.parseCommand(commandline.command);
+        bang = bang ? '' : '!';
+        commandline.command = cmd + bang + ' ' + args;
+    });
 EOM
 
 "----------
@@ -303,6 +299,16 @@ javascript <<EOM
 EOM
 
 "----------
+" VISUALモードからGoogle検索
+javascript <<EOM
+mappings.addUserMap([modes.VISUAL], ['<C-g>'], 'Selection search',
+    function(){
+        BrowserSearch.loadSearch(getBrowserSelection(), true);
+    });
+EOM
+
+
+"----------
 " INSERTモード時、<C-Space>で日本語入力をonにする
 javascript <<EOM
 (function () {
@@ -318,10 +324,10 @@ javascript <<EOM
             cur.focus();
         },10);
     }
-    mappings.addUserMap([modes.INSERT], ['<C-Space>'],
-        'Activate Windows IME', function () activateIME(true));
-    mappings.addUserMap([modes.INSERT], ['<C-q>'],
-        'Activate Windows IME', function () activateIME(false));
+    mappings.addUserMap([modes.INSERT], ['<C-Space>'], 'Activate Windows IME',
+        function() activateIME(true));
+    mappings.addUserMap([modes.INSERT], ['<C-q>'], 'Activate Windows IME',
+        function() activateIME(false));
 })();
 EOM
 
@@ -329,15 +335,17 @@ EOM
 " Insertモード時、C-1, ..., C-9,C-tが使えるようにする
 javascript <<EOM
 {for(let i = 0; i < 10; i++){
-    mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT', function(){
-        mappings.get(1, i + 'gt').execute();
+    mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT',
+        function(){
+            mappings.get(1, i + 'gt').execute();
     });
 }
 [
     ['t', 'tabopen'],
 ].forEach(function([c, cmd]){
-    mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT', function(){
-        liberator.execute(cmd);
+    mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT',
+        function(){
+            liberator.execute(cmd);
     });
 });
 }
@@ -377,34 +385,34 @@ javascript <<EOM
         host = host.substr(0,host.length-6);
         return host.replace(/[^.]*\./,'')+hostSuffix;
     }
-    mappings.addUserMap([modes.NORMAL],["gu"], 'Smart Go to parent',
+    mappings.addUserMap([modes.NORMAL], ["gu"], 'Smart Go to parent',
         function(count){
-        if (count < 1)
-            count = 1;
-        let url = buffer.URL;
-        let [all,scheme,host,path] = regexp.exec(url);
-        path = path.replace(/\/$/,'').replace(/^\/+/,'');
-        for (let i = 0; i < count; i++) {
-            if (path) {
-            if (path = goUpPath(path)) {
-                url = scheme+host+'/'+path;
+            if (count < 1)
+                count = 1;
+            let url = buffer.URL;
+            let [all,scheme,host,path] = regexp.exec(url);
+            path = path.replace(/\/$/,'').replace(/^\/+/,'');
+            for (let i = 0; i < count; i++) {
+                if (path) {
+                if (path = goUpPath(path)) {
+                    url = scheme+host+'/'+path;
+                }
+                else {
+                    url = scheme+host+'/';
+                }
+                }
+                else {
+                    host = goUpHost(host);
+                    url = scheme+host+'/';
+                }
             }
-            else {
-                url = scheme+host+'/';
+            if (url == buffer.URL) {
+                liberator.beep();
             }
-            }
-            else {
-                host = goUpHost(host);
-                url = scheme+host+'/';
-            }
-        }
-        if (url == buffer.URL) {
-            liberator.beep();
-        }
-        else
-            liberator.open(url);
-        },
-        { count: true }
+            else
+                liberator.open(url);
+            },
+            { count: true }
     );
 })();
 EOM
@@ -413,13 +421,17 @@ EOM
 " j,kキーでスムーススクロールする
 javascript <<EOM
 let self = (function(){
-    mappings.addUserMap(
-        [modes.NORMAL],["j"],"Smooth scroll down",
-        function(count){self.smoothScrollBy(300 * (count || 1));}, {count: true}
+    mappings.addUserMap([modes.NORMAL], ["j"], "Smooth scroll down",
+        function(count){
+            self.smoothScrollBy(300 * (count || 1));
+        },
+        {count: true}
     );
-    mappings.addUserMap(
-        [modes.NORMAL],["k"],"Smooth scroll up",
-        function(count){self.smoothScrollBy(300 * -(count || 1));},{count: true}
+    mappings.addUserMap([modes.NORMAL], ["k"], "Smooth scroll up",
+        function(count){
+            self.smoothScrollBy(300 * -(count || 1));
+        },
+        {count: true}
     );
 
     var PUBLICS = {
@@ -457,11 +469,8 @@ EOM
 "----------
 " コマンドラインを外部エディタで編集
 javascript <<EOM
-mappings.addUserMap(
-    [modes.COMMAND_LINE],
-    ['<C-i>'],
-    'Edit commandline by external editor',
-    function () {
+mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
+    function() {
         io.withTempFiles(
             function (file) {
                 file.write(commandline.command);

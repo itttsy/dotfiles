@@ -295,7 +295,6 @@ set complete& complete+=k
 augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
-"   autocmd FileType pl :<C-u>set dictionary& dictionary+=$DOTVIM'/dict/perl.dict'
 augroup END
 " コマンドライン補完を拡張モードで行う
 set wildmenu

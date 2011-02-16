@@ -9,7 +9,7 @@ vim plugin I use
     unite-help
     unite-outline
     unite-qf
-    unite-tags
+    unite-tag
     vim-altercmd
     vimfiler
     vim-operator-replace
