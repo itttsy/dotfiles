@@ -187,6 +187,11 @@ noremap mg :mr<Space>goo<Space>
 noremap me :mr<Space>answers<Space>
 noremap mw :mr<Space>weather-yahoo<Space>
 
+" nextlink.js
+let g:nextlink_nositeinfo_act = "f"
+" let g:nextlink_prevmap = "[["
+" let g:nextlink_nextmap = "]]"
+
 " FeedSomeKeys3.js
 command! -nargs=+ lazy autocmd VimperatorEnter .* <args>
 " google.com

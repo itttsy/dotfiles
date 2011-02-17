@@ -48,7 +48,7 @@ call altercmd#load()
 "----------
 " 日本語用エンコード設定
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
-" vimをutf-8対応にする場合は以下をコメントイン
+" vimをutf-8仕様にする場合は以下をコメントイン
 " set encoding=utf-8
 " source $VIMRUNTIME/delmenu.vim
 " set langmenu=menu_ja_jp.utf-8.vim
@@ -56,7 +56,7 @@ set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 " set fileformat=unix
 " scriptencoding utf-8
 " ターミナル用のエンコーディング
-set termencoding=utf-8
+set termencoding=sjis
 
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
