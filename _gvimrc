@@ -5,37 +5,7 @@
 "----------
 " カラー設定
 " syntax enable
-colorscheme rastafari
-" Insertモード時にステータスラインの色を変更
-let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
-
-if has('syntax')
-    augroup InsertHook
-        autocmd!
-        autocmd InsertEnter * call s:StatusLine('Enter')
-        autocmd InsertLeave * call s:StatusLine('Leave')
-    augroup END
-endif
-let s:slhlcmd = ''
-
-function! s:StatusLine(mode)
-    if a:mode == 'Enter'
-        silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
-        silent exec g:hi_insert
-    else
-        highlight clear StatusLine
-        silent exec s:slhlcmd
-    endif
-endfunction
-
-function! s:GetHighlight(hi)
-    redir => hl
-    exec 'highlight '.a:hi
-    redir END
-    let hl = substitute(hl, '[\r\n]', '', 'g')
-    let hl = substitute(hl, 'xxx', '', '')
-    return hl
-endfunction
+colorscheme less
 
 "----------
 " フォント設定
@@ -59,8 +29,8 @@ set printfont=VL_Gothic:h12:cDEFAULT
 "----------
 " Pluginに関する設定
 " Kaoriya版でウィンドウを半透明にする
-if has('Kaoriya')
-    gui
-    set transparency=224
-endif
+" if has('Kaoriya')
+"     gui
+"     set transparency=224
+" endif
 
