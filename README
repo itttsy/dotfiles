@@ -3,7 +3,6 @@ vim plugin I use
     eregex.vim
     neocomplcache
     skk.vim
-#   shadow.vim
     unite.vim
     unite-grep
     unite-help
