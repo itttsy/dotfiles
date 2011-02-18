@@ -34,27 +34,17 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 set all&
 " Vi互換ではなくする
 set nocompatible
-" ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
-filetype plugin indent on
-" ファイル名の展開にスラッシュを使う
-" if has('win32') || has('win64')
-"    set shellslash
-" endif
 " 各種プラグインのロード
+filetype plugin indent off
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 call altercmd#load()
+" ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
+filetype plugin indent off
 
 "----------
 " 日本語用エンコード設定
 set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
-" vimをutf-8仕様にする場合は以下をコメントイン
-" set encoding=utf-8
-" source $VIMRUNTIME/delmenu.vim
-" set langmenu=menu_ja_jp.utf-8.vim
-" source $VIMRUNTIME/menu.vim
-" set fileformat=unix
-" scriptencoding utf-8
 " ターミナル用のエンコーディング
 set termencoding=sjis
 
@@ -179,6 +169,33 @@ set cmdheight=1
 set showcmd
 " コマンドラインにメッセージが表示される閾値
 set report=1
+" Insertモード時にステータスラインの色を変更
+let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
+if has('syntax')
+    augroup InsertHook
+        autocmd!
+        autocmd InsertEnter * call s:StatusLine('Enter')
+        autocmd InsertLeave * call s:StatusLine('Leave')
+    augroup END
+endif
+let s:slhlcmd = ''
+function! s:StatusLine(mode)
+    if a:mode == 'Enter'
+        silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+        silent exec g:hi_insert
+    else
+        highlight clear StatusLine
+        silent exec s:slhlcmd
+    endif
+endfunction
+function! s:GetHighlight(hi)
+    redir => hl
+    exec 'highlight '.a:hi
+    redir END
+    let hl = substitute(hl, '[\r\n]', '', 'g')
+    let hl = substitute(hl, 'xxx', '', '')
+    return hl
+endfunction
 
 " gui
 " ビープ音にビジュアルベルを使用する
@@ -205,8 +222,6 @@ set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
 set scroll=5
-" カーソルの上または下に表示する行数
-" set scrolloff=9999
 
 " case arc
 " 対応する括弧にジャンプする
@@ -257,7 +272,7 @@ set helplang=ja,en
 set nojoinspaces
 " 全角スペースを表示する
 function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guifg=green
+  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
   silent! match ZenkakuSpace /　/
 endfunction
 
@@ -272,6 +287,8 @@ endif
 " マウスに関する設定
 if has('mouse')
     set mouse=a
+    set guioptions+=a
+    set ttymouse=xterm
 endif
 
 "----------
@@ -423,6 +440,8 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 " fを利用するときにIMEをオフにする
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
+"Escの2回押しでハイライト消去
+nmap <ESC><ESC> :nohlsearch<CR><ESC>
 
 "----------
 " バイナリの編集に関する設定
@@ -497,14 +516,14 @@ set splitbelow
 set splitright
 "デフォルトの最小 window 高さを0に
 set winminheight=0
-" 画面を再描画する
-nnoremap <C-z> <C-l>
-" <C-j>/<C-k/<C-h/<C-l> で上下左右のWindowへ移動
+" <C-h>、<C-j>、<C-k>、<C-l>で画面を移動する
 nnoremap <C-j> <C-W>j<C-W>_
 nnoremap <C-k> <C-W>k<C-W>_
 nnoremap <C-h> <C-W>h<C-W>_
 nnoremap <C-l> <C-W>l<C-W>_
 nnoremap <C-w><Space> <C-w>w<C-W>_
+" 画面を再描画する
+nnoremap <C-z> <C-l>
 
 " 画面分割用のキーマップ
 nmap spj <SID>(split-to-j)
@@ -575,18 +594,6 @@ nnoremap H :<C-u>bp<CR>
 nnoremap L :<C-u>bn<CR>
 " <Leader>bで現在のバッファを表示
 nnoremap <Leader>b :<C-u>buffers<CR>
-" 最後の2 digitで移動する
-command! -count=1 -nargs=0 LastTwoDigitMove call LastTwoDigitMove(<count>)
-function! LastTwoDigitMove(bound)
-    " for example when you are at line num 123 and typed 3gl
-    " getpos('.')[1] is 123
-    " a:bound is 125
-    " the goal is 103
-    let current = getpos('.')[1]
-    let to = current / 100 * 100 + a:bound - current + 1
-    execute to
-endfunction
-nnoremap <silent> gl :LastTwoDigitMove<Cr>
 
 " Tab関係
 nnoremap [Tabbed] <Nop>
@@ -638,9 +645,26 @@ function! s:move_window_into_tab_page(target_tabpagenr)
 endfunction
 nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
 
-" Smart <C-f>, <C-b>
-nnoremap <silent> <C-f> z<CR><C-f>z.
-nnoremap <silent> <C-b> z-<C-b>z.
+" 移動関係
+" 最後に編集された位置に移動
+nnoremap gb '[
+nnoremap gp ']
+" 最後に変更されたテキストを選択する
+nnoremap gc  `[v`]
+vnoremap gc :<C-u>normal gc<Enter>
+onoremap gc :<C-u>normal gc<Enter>
+" 最後の2 digitで移動する
+command! -count=1 -nargs=0 LastTwoDigitMove call LastTwoDigitMove(<count>)
+function! LastTwoDigitMove(bound)
+    " for example when you are at line num 123 and typed 3gl
+    " getpos('.')[1] is 123
+    " a:bound is 125
+    " the goal is 103
+    let current = getpos('.')[1]
+    let to = current / 100 * 100 + a:bound - current + 1
+    execute to
+endfunction
+nnoremap <silent> gl :LastTwoDigitMove<Cr>
 
 " help関係
 " カーソル下のキーワードでヘルプを実行する
@@ -671,6 +695,8 @@ vnoremap <silent> * "vy/\V<C-r>=substitute(escape(@v,'\/'),"\n",'\\n','g')<CR><C
 inoremap <C-t> <C-v><Tab>
 " <C-d>をDelにする
 inoremap <C-d> <Del>
+" <C-p>でクリップボードの内容を貼り付ける
+imap <C-p> <Esc>"*pa
 " <C-a>で先頭に移動する
 inoremap <silent><C-a> <C-o>^
 " <C-e>で最後に移動する
@@ -771,38 +797,8 @@ augroup END
 " vimfiler用設定
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
-let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
-let g:vimfiler_external_copy_file_command = 'cp $src $dest'
-let g:vimfiler_external_delete_command = 'rm -r $srcs'
-let g:vimfiler_external_move_command = 'mv $srcs $dest'
 " Enable file operation commands.
 let g:vimfiler_safe_mode_by_default = 1
-
-" vimshell用設定
-" AlterCommand vsh VimShell
-" AlterCommand vshp VimShellPop
-" AlterCommand vshe VimShellExecute
-" let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-" let g:vimshell_interactive_cygwin_path = 'c:/cygwin/bin'
-" let g:vimshell_interactive_cygwin_home = ''
-" let g:vimshell_use_ckw = 0
-" let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-" let g:vimshell_enable_smart_case = 1
-" let g:vimshell_split_height = 50
-" 
-" if has('win32') || has('win64')
-"     let g:vimshell_prompt = $USERNAME."% "
-" else
-"     let g:vimshell_prompt = $USER."% "
-" endif
-" 
-" augroup VimShell
-"     autocmd!
-"     autocmd FileType vimshell
-"         \ call vimshell#altercmd#define('g', 'git')
-"         \| call vimshell#altercmd#define('i', 'iexe')
-"         \| call vimshell#altercmd#define('ll', 'ls -l')
-" augroup END
 
 " skk.vim用設定
 let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
@@ -919,21 +915,15 @@ vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR
 AlterCommand ma :<C-u>Ref alc
 AlterCommand mp :<C-u>Ref perldoc
 
-" operator-replace用設定
-map _ <Plug>(operator-replace)
-
 " quickrun.vim用設定
 AlterCommand qr QuickRun
+nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 " Windows用Perl設定
 if executable('Perl') && (has('win32') || has('win64'))
     let g:quickrun_config.perl = {'output_encode': 'sjis'}
 endif
 
-" zoom.vim用設定
-nnoremap <silent> <C-kPlus> :<C-u>ZoomIn<CR>
-nnoremap <silent> <C-kMinus> :<C-u>ZoomOut<CR>
-nnoremap <silent> <C-k0> :<C-u>ZoomReset<CR>
 
 set secure
 
