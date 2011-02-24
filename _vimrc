@@ -1,6 +1,7 @@
 " vim:set ts=4 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
 
 " 初期処理
+" バージョンの管理
 if v:version < 702
   echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
   finish
@@ -13,6 +14,7 @@ for feat in ['multi_byte', 'iconv', 'syntax', 'autocmd']
 endfor
 unlet feat
 
+" Vimの初期処理の管理
 if !exists('g:loaded_vimrc')
     let g:loaded_vimrc = 0
 endif
@@ -28,14 +30,12 @@ let mapleader = ' '
 let g:mapleader = ' '
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
-" :ReloadVimrcコマンドの追加
-" command! ReloadVimrc source $MYVIMRC
 
 set all&
+filetype plugin indent off
 " Vi互換ではなくする
 set nocompatible
 " 各種プラグインのロード
-filetype plugin indent off
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 call altercmd#load()
@@ -385,6 +385,18 @@ function! BufWritePostDelete()
     endif
 endfunction
 
+" 存在しないディレクトリを自動で作成する
+augroup vimrc-auto-mkdir
+  autocmd!
+  autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+  function! s:auto_mkdir(dir, force)
+    if !isdirectory(a:dir) && (a:force ||
+    \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
+      call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+    endif
+  endfunction
+augroup END
+
 " 使い捨て用のファイルを生成する
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
@@ -502,12 +514,6 @@ function! s:sticky_func()
         return ''
     endif
 endfunction
-
-"----------
-" マップ定義 - 全般
-" 'と`を入れ替える
-noremap ' `
-noremap ` '
 
 "----------
 " マップ定義 - Normalモード
@@ -653,18 +659,52 @@ nnoremap gp ']
 nnoremap gc  `[v`]
 vnoremap gc :<C-u>normal gc<Enter>
 onoremap gc :<C-u>normal gc<Enter>
-" 最後の2 digitで移動する
-command! -count=1 -nargs=0 LastTwoDigitMove call LastTwoDigitMove(<count>)
-function! LastTwoDigitMove(bound)
-    " for example when you are at line num 123 and typed 3gl
-    " getpos('.')[1] is 123
-    " a:bound is 125
-    " the goal is 103
-    let current = getpos('.')[1]
-    let to = current / 100 * 100 + a:bound - current + 1
-    execute to
+" <C-f>、<C-b>でスムーススクロールをする
+let g:scroll_factor = 5000
+let g:scroll_skip_line_size = 4
+function! SmoothScroll(dir, windiv, factor)
+    if &cursorline == 1
+        set nocursorline
+        let cursorline_changed_flag = 1
+    else
+        let cursorline_changed_flag = 0
+    end
+    let wh=winheight(0)
+    let i=0
+    let j=0
+    while i < wh / a:windiv
+        let t1=reltime()
+        let i = i + 1
+        if a:dir=="d"
+            if line('w$') == line('$')
+                break
+            endif
+            exec "normal \<C-E>j"
+        else
+            if line('w0') == 1
+                break
+            endif
+            exec "normal \<C-Y>k"
+        end
+        if j >= g:scroll_skip_line_size
+            let j = 0
+            redraw
+            while 1
+                let t2=reltime(t1,reltime())
+                if t2[1] > g:scroll_factor * a:factor
+                    break
+                endif
+            endwhile
+        else
+            let j = j + 1
+        endif
+    endwhile
+    if cursorline_changed_flag == 1
+        set cursorline
+    end
 endfunction
-nnoremap <silent> gl :LastTwoDigitMove<Cr>
+map <C-F> :call SmoothScroll("d",1, 1)<CR>
+map <C-B> :call SmoothScroll("u",1, 1)<CR>
 
 " help関係
 " カーソル下のキーワードでヘルプを実行する
@@ -797,6 +837,10 @@ augroup END
 " vimfiler用設定
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
+let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
+let g:vimfiler_external_copy_file_command = 'cp $src $dest'
+let g:vimfiler_external_delete_command = 'rm -r $srcs'
+let g:vimfiler_external_move_command = 'mv $srcs $dest'
 " Enable file operation commands.
 let g:vimfiler_safe_mode_by_default = 1
 
