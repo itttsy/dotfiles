@@ -110,22 +110,22 @@ hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compit
 " 操作に関する設定
 " Insertモードでキーバインドが効くようにする
 javascript <<EOM
-window.addEventListener(
-    'keypress',
-    function (event) {
-        function killEvent ()
-        (event.preventDefault(), event.stopPropagation());
-
-        if (liberator.mode === modes.COMMAND_LINE && modes.extended === modes.HINTS) {
+window.addEventListener('keypress',
+    function(event){
+        function killEvent (){
+            (event.preventDefault(), event.stopPropagation())
+        };
+        if (liberator.mode === modes.COMMAND_LINE && modes.extended === modes.HINTS){
             let key = events.toString(event);
-            if (/^<[CA]/(key))
-                killEvent();
+            if (/^<[CA]/(key)){
+                killEvent()
+            };
         }
-
-        if (liberator.mode === modes.INSERT && modes.extended === modes.MENU) {
+        if (liberator.mode === modes.INSERT && modes.extended === modes.MENU){
             let key = events.toString(event);
-            if (key == '<Space>')
-                return;
+            if (key == '<Space>'){
+                return
+            };
             let map = mappings.get(modes.INSERT, events.toString(event));
             if (map) {
                 killEvent();
@@ -208,45 +208,54 @@ lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
 " twittperator.js
 let g:twittperator_use_chirp = 1
 " 呟きに現在のページのタイトルとURLを追加
-abbrev -j .title      '"' + buffer.title + '"'
-abbrev #v             #vimperator
-abbrev -j .url        plugins.bitly.jmp(buffer.URL)
-abbrev -j .tu         abbreviations.get(modes.INSERT, '.title').text + ' - ' + plugins.bitly.jmp(buffer.URL)
-cabbrev -j .reply     let (e=doc.querySelector('.hentry.status'))('@' + e.getAttribute('class').match(/u-(\S+)/)[1] + '#' + e.getAttribute('id').match(/\d+/))
-cabbrev -j .rt        let (e=doc.querySelector('.hentry.status'))('RT @' + e.getAttribute('class').match(/u-(\S+)/)[1] + '#' + e.getAttribute('id').match(/\d+/) + ': ' + doc.querySelector('.entry-content').textContent.trim())
+cabbrev -javascript .ggl ggl(buffer.URI)
+cabbrev -javascript .url '"' + buffer.title + '"' + ' ' + ggl(buffer.URI)
+javascript <<EOM
+userContext.ggl = function getGoogleShortenURL(url, callback){
+    let uri = "https://www.googleapis.com/urlshortener/v1/url";
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", uri, !!callback);
+    if (callback){
+        xhr.onreadystatechange = function(){
+            if (xhr.readyState == 4 && xhr.status == 200){
+                callback(JSON.parse(xhr.responseText));
+            }
+        }
+    }
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify({ longUrl: url || buffer.URL }));
+    if (!callback){
+        return JSON.parse(xhr.responseText).id;
+    }
+}
+EOM
 
 "----------
 " JavaScriptに関する設定
 "----------
 " 戻るを拡張
 javascript <<EOM
-let (
-    back = mappings.getDefault(modes.NORMAL, 'H').action,
-    remove = mappings.getDefault(modes.NORMAL, 'd').action
-)
+let back   = mappings.getDefault(modes.NORMAL, 'H').action;
+let remove = mappings.getDefault(modes.NORMAL, 'd').action;
 mappings.addUserMap([modes.NORMAL], ['H'], 'exteded back',
-    function() (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
+    function(){
+        (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
+    }
 );
 EOM
 
 "----------
 " マウスオーバーするヒントモード
 javascript <<EOM
-hints.addMode(
-    'm',
-    'mouse over',
-    function (elem, count) {
+hints.addMode('m', 'mouse over',
+    function (elem, count){
         let evt = elem.ownerDocument.createEvent('MouseEvents');
-        evt.initMouseEvent(
-            'mouseover',
-            true, true,
-            elem.ownerDocument.defaultView,
-            0, 0, 0, 0, 0,
-            false, false, false, false, 0, null
-        );
+        evt.initMouseEvent('mouseover', true, true, elem.ownerDocument.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         elem.dispatchEvent(evt);
     },
-    function () options.get('hinttags').get()
+    function (){
+        options.get('hinttags').get()
+    }
 );
 EOM
 
@@ -258,9 +267,11 @@ hints.addMode('z', 'Enable a Flash object',
         elem.focus();
         var e = content.document.createEvent('MouseEvents');
         e.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-        elem.dispatchEvent( e );
+        elem.dispatchEvent(e);
     },
-    function() '//xhtml:div[@title]'
+    function(){
+        '//xhtml:div[@title]'
+    }
 );
 EOM
 
@@ -268,11 +279,12 @@ EOM
 " コマンドラインでbangをトグル
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
-    function() {
+    function(){
         let [,cmd,bang,args] = commands.parseCommand(commandline.command);
         bang = bang ? '' : '!';
         commandline.command = cmd + bang + ' ' + args;
-    });
+    }
+);
 EOM
 
 "----------
@@ -282,24 +294,24 @@ command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if 
 "----------
 " openに渡るコマンドがドメインやIPアドレスかを自動で判断する
 javascript <<EOM
-(function(){
-    liberator.registerObserver('enter',function(){
-        let tldStr = "(?:museum|travel|aero|arpa|coop|info|jobs|name|nvus|biz|com|edu|gov|int|mil|net|org|pro|xxx|ac|ad|ae|af|ag|ai|ak|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|ct|cu|cv|cx|cy|cz|dc|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fl|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hi|hk|hm|hn|hr|ht|hu|ia|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|ks|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mi|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|nd|ne|nf|ng|nh|ni|nj|nl|nm|no|np|nr|nu|ny|nz|oh|ok|om|or|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ri|ro|ru|rw|sa|sb|sc|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tx|tz|ua|ug|uk|um|us|ut|uy|uz|va|vc|ve|vg|vi|vn|vt|vu|wa|wf|wi|ws|wv|wy|ye|yt|yu|za|zm|zw)"
-        let regexp = new RegExp("^(?:[a-zA-Z0-9-.]+\\."+tldStr+"|[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(?:\/|$)","i");
-        plugins.libly.$U.around(
-        liberator,
-        'open',
-        function (next, args) {
-            let [urls, where, force] = args;
-            if (typeof urls == "string") {
-            if ( !/^(?:\.{0,2}|~)\//.test(urls) && /^[a-zA-Z0-9-.\/]+$/.test(urls) && !regexp.test(urls) ) {
-                args[0] = "google " + urls;
-            }
-            }
-            return next();
+eval(function(){
+    liberator.registerObserver('enter',
+        function(){
+            let tldStr = "(?:museum|travel|aero|arpa|coop|info|jobs|name|nvus|biz|com|edu|gov|int|mil|net|org|pro|xxx|ac|ad|ae|af|ag|ai|ak|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|ct|cu|cv|cx|cy|cz|dc|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fl|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hi|hk|hm|hn|hr|ht|hu|ia|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|ks|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mi|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|nd|ne|nf|ng|nh|ni|nj|nl|nm|no|np|nr|nu|ny|nz|oh|ok|om|or|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ri|ro|ru|rw|sa|sb|sc|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tx|tz|ua|ug|uk|um|us|ut|uy|uz|va|vc|ve|vg|vi|vn|vt|vu|wa|wf|wi|ws|wv|wy|ye|yt|yu|za|zm|zw)";
+            let regexp = new RegExp("^(?:[a-zA-Z0-9-.]+\\."+tldStr+"|[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(?:\/|$)","i");
+            plugins.libly.$U.around(liberator, 'open',
+                function (next, args){
+                    let [urls, where, force] = args;
+                    if (typeof urls == "string") {
+                        if ( !/^(?:\.{0,2}|~)\//.test(urls) && /^[a-zA-Z0-9-.\/]+$/.test(urls) && !regexp.test(urls) ){
+                            args[0] = "google " + urls;
+                        }
+                    }
+                    return next();
+                }
+            )
         }
-        )
-    })
+    )
 })();
 EOM
 
@@ -316,18 +328,20 @@ EOM
 "----------
 " INSERTモード時、<C-Space>で日本語入力をonにする
 javascript <<EOM
-(function () {
-    function activateIME(mode) {
+eval(function(){
+    function activateIME(mode){
         var cur = content.document.activeElement;
         var ps = content.document.createElement('input');
         ps.setAttribute('style','border:none;width:0px;position:fixed;');
         ps.style.imeMode = mode ? 'active' : 'inactive';
         content.document.body.appendChild(ps);
         ps.focus();
-        setTimeout(function(){
-            content.document.body.removeChild(ps);
-            cur.focus();
-        },10);
+        setTimeout(
+            function(){
+                content.document.body.removeChild(ps);
+                cur.focus();
+            },
+        10);
     }
     mappings.addUserMap([modes.INSERT], ['<C-Space>'], 'Activate Windows IME',
         function() activateIME(true));
@@ -339,50 +353,52 @@ EOM
 "----------
 " Insertモード時、C-1, ..., C-9,C-tが使えるようにする
 javascript <<EOM
-{for(let i = 0; i < 10; i++){
+for(let i = 0; i < 10; i++){
     mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT',
         function(){
             mappings.get(1, i + 'gt').execute();
-    });
+        }
+    );
 }
-[
-    ['t', 'tabopen'],
-].forEach(function([c, cmd]){
-    mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT',
-        function(){
-            liberator.execute(cmd);
-    });
-});
-}
+[['t', 'tabopen'], ].forEach(
+    function([c, cmd]){
+        mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT',
+            function(){
+                liberator.execute(cmd);
+            }
+        );
+    }
+);
 EOM
 
 "----------
 " guを使いやすくする
 javascript <<EOM
-(function(){
-    // thanks to http://trac.arantius.com/browser/extension/uppity/content/uppity.js
+eval(function(){
     let regexp = new RegExp('([a-z]+://)([^/]*)(/.*)');
     let goUpPath = function(path) {
-        if (!path) return;
-            path = path.replace(/\/$/,'').replace(/^\/+/,'');
-        if (path.indexOf('#')>0) {
+        if (!path){
+            return
+        };
+        path = path.replace(/\/$/,'').replace(/^\/+/,'');
+        if (path.indexOf('#')>0){
             return path.replace(/#.*/,'');
         }
-        if (path.indexOf('?')>0) {
+        if (path.indexOf('?')>0){
             return path.replace(/\?.*/,'');
         }
         path = path.replace(/\/+$/,'');
-        if (path.indexOf('/')>0) {
+        if (path.indexOf('/')>0){
             return path.replace(/\/[^\/]*$/,'/');
         }
     }
-    let goUpHost = function(host) {
+    let goUpHost = function(host){
         if (/^[0-9+.:]+$/.test(host)){
             return host;
-        }
+        };
         let hostSuffix='';
         let x=host.lastIndexOf(':');
-        if (x>0) {
+        if (x>0){
             hostSuffix = host.substr(x);
             host = host.substr(0,x);
         }
@@ -392,32 +408,31 @@ javascript <<EOM
     }
     mappings.addUserMap([modes.NORMAL], ["gu"], 'Smart Go to parent',
         function(count){
-            if (count < 1)
-                count = 1;
+            if (count < 1){
+                count = 1
+            };
             let url = buffer.URL;
             let [all,scheme,host,path] = regexp.exec(url);
             path = path.replace(/\/$/,'').replace(/^\/+/,'');
-            for (let i = 0; i < count; i++) {
-                if (path) {
-                if (path = goUpPath(path)) {
-                    url = scheme+host+'/'+path;
-                }
-                else {
-                    url = scheme+host+'/';
-                }
-                }
-                else {
+            for (let i = 0; i < count; i++){
+                if (path){
+                    if (path = goUpPath(path)){
+                        url = scheme+host+'/'+path;
+                    } else {
+                        url = scheme+host+'/';
+                    }
+                } else {
                     host = goUpHost(host);
                     url = scheme+host+'/';
                 }
             }
             if (url == buffer.URL) {
                 liberator.beep();
-            }
-            else
+            } else {
                 liberator.open(url);
-            },
-            { count: true }
+            }
+        },
+        { count: true }
     );
 })();
 EOM
@@ -438,9 +453,21 @@ let self = (function(){
         },
         {count: true}
     );
+    mappings.addUserMap([modes.NORMAL], ["<C-f>"], "Smooth page down",
+        function(count){
+            self.smoothScrollBy(650 * (count || 1));
+        },
+        {count: true}
+    );
+    mappings.addUserMap([modes.NORMAL], ["<C-b>"], "Smooth page up",
+        function(count){
+            self.smoothScrollBy(650 * -(count || 1));
+        },
+        {count: true}
+    );
 
     var PUBLICS = {
-        smoothScrollBy: function(moment) {
+        smoothScrollBy: function(moment){
             win = Buffer.findScrollableWindow();
             destY = win.scrollY + moment;
             clearTimeout(next);
@@ -453,18 +480,19 @@ let self = (function(){
     var win;
 
     function smoothScroll(moment) {
-        if (moment > 0)
+        if (moment > 0){
             moment = Math.floor(moment / 2);
-        else
+        } else {
             moment = Math.ceil(moment / 2);
+        }
         win.scrollBy(0, moment);
-        if (Math.abs(moment) < 1) {
+        if (Math.abs(moment) < 1){
             setTimeout(makeScrollTo(win.scrollX, destY), 20);
             destY = null;
             return;
         }
         next = setTimeout(function() smoothScroll(moment), 20);
-        }
+    }
 
     function makeScrollTo(x, y) function() win.scrollTo(x, y);
     return PUBLICS;
@@ -475,9 +503,9 @@ EOM
 " コマンドラインを外部エディタで編集
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
-    function() {
+    function(){
         io.withTempFiles(
-            function (file) {
+            function (file){
                 file.write(commandline.command);
                 editor.editFileExternally(file.path);
                 commandline.open(":", file.read(), modes.EX);
@@ -492,24 +520,24 @@ EOM
 " RichTextEditorのコンテンツを<C-S-i>で外部エディタで編集するプラグイン
 javascript <<EOM
 let nsIR = Ci.nsIInterfaceRequestor;
-
 let OUTPUT_SELECTION_ONLY = 1,
     OUTPUT_FORMATTED = 2,
     OUTPUT_RAW = 4,
     OUTPUT_BODYONLY = 8;
-
-mappings.add([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA],
-    ["<C-S-I>"], "edit window with externall editor",
-    function () {
-        if (config.isComposeWindow)
-        editWindowExternally(GetCurrentEditorElement().contentWindow, true);
-        else
-        editWindowExternally();
-    }, {});
-    function getEditingSession(win) {
-    if (!win)
+mappings.addUserMap([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA], ["<C-S-I>"], "edit window with externall editor",
+    function (){
+        if (config.isComposeWindow){
+            editWindowExternally(GetCurrentEditorElement().contentWindow, true);
+        } else {
+            editWindowExternally();
+        }
+    }, {}
+);
+function getEditingSession(win) {
+    if (!win){
         win = document.commandDispatcher.focusedWindow;
-    if (win instanceof Window) {
+    }
+    if (win instanceof Window){
         return es = win.QueryInterface(nsIR)
                     .getInterface(Ci.nsIWebNavigation)
                     .QueryInterface(nsIR)
@@ -517,58 +545,56 @@ mappings.add([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA],
     }
     return null;
 }
-
 function getEditorForWindow(win) {
-    if (!(win instanceof Window))
+    if (!(win instanceof Window)){
         return null;
+    }
     let es = getEditingSession(win);
-    if (es && es.windowIsEditable(win) &&
-        util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write")
+    if (es && es.windowIsEditable(win) && util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write"){
         return es.getEditorForWindow(win);
-
+    }
     return null;
 }
-
 function editWindowExternally (win, forceText) {
-    if (!options["editor"])
+    if (!options["editor"]){
         return;
-    if (!win)
+    }
+    if (!win){
         win = document.commandDispatcher.focusedWindow;
+    }
     let editor = getEditorForWindow(win);
-    if (!editor) {
+    if (!editor){
         commandline.echo("the window is not editable", commandline.HL_ERRORMSG, commandline.APPEND_TO_MESSAGES | commandline.DISALLOW_MULTILINE);
         return;
     }
     editor instanceof Ci.nsIPlaintextEditor;
     editor instanceof Ci.nsIHTMLEditor;
-
     let text = forceText ?
                 editor.outputToString("text/plain", OUTPUT_FORMATTED) :
                 editor.outputToString("text/html", OUTPUT_BODYONLY);
     try {
-        let res = io.withTempFiles (function (tmpFile) {
-        if (!tmpFile.write(text))
-            throw Error("Input contains characters not valid in the current file encoding");
-
-        modules.editor.editFileExternally(tmpFile.path);
-
-        let val = tmpFile.read();
-
-        editor.selectAll();
-        editor.selection.deleteFromDocument();
-        if (forceText) {
-            editor.insertText(val);
-        } else {
-            let doc = editor.document;
-            let htmlFragment = doc.implementation.createDocument(null, 'html', null);
-            let range = doc.createRange();
-            range.setStartAfter(doc.body);
-            doc.body.appendChild(range.createContextualFragment(val));
-        }
+        let res = io.withTempFiles (function(tmpFile){
+            if (!tmpFile.write(text)){
+                throw Error("Input contains characters not valid in the current file encoding");
+            }
+            modules.editor.editFileExternally(tmpFile.path);
+            let val = tmpFile.read();
+            editor.selectAll();
+            editor.selection.deleteFromDocument();
+            if (forceText){
+                editor.insertText(val);
+            } else {
+                let doc = editor.document;
+                let htmlFragment = doc.implementation.createDocument(null, 'html', null);
+                let range = doc.createRange();
+                range.setStartAfter(doc.body);
+                doc.body.appendChild(range.createContextualFragment(val));
+            }
         }, this);
-        if (res == false)
-        throw Error("Couldn't create temporary file");
-    } catch (e) {
+        if (res == false){
+            throw Error("Couldn't create temporary file");
+        }
+    } catch(e){
         liberator.echoerr(e);
     }
 }
@@ -577,19 +603,19 @@ EOM
 "----------
 " faviconをstatusbarに表示する
 javascript <<EOM
-(function() {
+eval(function(){
     var setFavicon = function(){
         var p = document.getElementById('page-proxy-favicon-clone');
         var b = document.getElementById('page-proxy-favicon');
-        if (!p) {
-        p = document.createElement('statusbarpanel');
-        p.setAttribute('id','page-proxy-favicon-clone');
-        p.appendChild(b.cloneNode(true));
-        document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
+        if (!p){
+            p = document.createElement('statusbarpanel');
+            p.setAttribute('id','page-proxy-favicon-clone');
+            p.appendChild(b.cloneNode(true));
+            document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
         }
-        if (p.childNodes.length > 0) {
-        var node = p.childNodes.item(0);
-        node.setAttribute('src', b.getAttribute('src'));
+        if (p.childNodes.length > 0){
+            var node = p.childNodes.item(0);
+            node.setAttribute('src', b.getAttribute('src'));
         }
     }
     getBrowser().addEventListener("load", function() setFavicon() , true);
@@ -612,13 +638,13 @@ EOM
 "----------
 " /vimperator/stylesの中の.cssファイルを読み込む
 javascript <<EOM
-(function(){
+eval(function(){
     let filter = new RegExp('^.*\.css$');
-    let dir = io.File('~/vimperator/styles')
-    if (dir.exists() && dir.isDirectory() && dir.isReadable()) {
+    let dir = io.File('~/vimperator/styles');
+    if (dir.exists() && dir.isDirectory() && dir.isReadable()){
         let files = dir.readDirectory(true);
-        files.forEach(function (file) {
-            if (filter.test(file.path)) {
+        files.forEach(function(file){
+            if (filter.test(file.path)){
                 io.source(file.path, false);
             }
         });
@@ -630,12 +656,10 @@ EOM
 " personas用の設定
 javascript <<EOM
 Cu.import("resource://gre/modules/LightweightThemeManager.jsm");
- 
 let prefs = Cc["@mozilla.org/preferences-service;1"]
               .getService(Ci.nsIPrefService)
               .getBranch("lightweightThemes.");
 let observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
- 
 function createLWTheme(obj){
     let buf = {
         id: null,
@@ -656,8 +680,9 @@ function createLWTheme(obj){
         case "previewURL":
         case "iconURL":
             let path = obj[key];
-            if (path.charAt(0) == "~")
-            path = io.File("~").path + path.substr(1);
+            if (path.charAt(0) == "~"){
+                path = io.File("~").path + path.substr(1);
+            };
             let uri = util.createURI(path);
             buf[key] = uri.spec;
             break;
@@ -665,87 +690,90 @@ function createLWTheme(obj){
             buf[key] = obj[key];
         }
     }
-    if (!buf.name)
+    if (!buf.name){
         buf.name = buf.id;
-
+    }
     return buf;
 }
-
 function appendThemes(aThemes){
-    if (!aThemes)
+    if (!aThemes){
         aThemes = liberator.globalVariables.lwt;
-    if (!(aThemes instanceof Array))
+    };
+    if (!(aThemes instanceof Array)){
         aThemes = [aThemes];
+    };
     let currentThemes = LightweightThemeManager.usedThemes;
     aThemes.forEach(function(theme){
         let t = createLWTheme(theme);
         if (t && t.id){
-        for (let i=0, len = currentThemes.length; i<len; i++){
-            if (currentThemes[i].id == t.id){
-            currentThemes.splice(i, 1);
-            break;
+            for (let i=0, len = currentThemes.length; i<len; i++){
+                if (currentThemes[i].id == t.id){
+                    currentThemes.splice(i, 1);
+                    break;
+                }
             }
-        }
         currentThemes.push(t);
         }
     });
     prefs.setCharPref("usedThemes", JSON.stringify(currentThemes));
     observerService.notifyObservers(null, "lightweight-theme-list-changed", null);
 }
-
 if (liberator.globalVariables.lwt instanceof Array){
     appendThemes(liberator.globalVariables.lwt);
 }
-
 function fileCompleter(c){
     return completion.runCompleter("file", c.filter).map(function(f) [f.path, f.leafName]);
 }
 let options = [
-["textcolor", ["-c", "-color"], commands.OPTION_STRING],
-["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
-["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
-["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
+    ["textcolor", ["-c", "-color"], commands.OPTION_STRING],
+    ["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
+    ["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
+    ["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
 ];
 commands.addUserCommand(['personas'], "Personas Theme",
-function(args){
-    let id = args[0];
-    if (args.bang){
-    LightweightThemeManager.forgetUsedTheme(id);
-    return;
-    }
-    let registeredThemer = LightweightThemeManager.getUsedTheme(id);
-    if (registeredThemer) {
-    LightweightThemeManager.currentTheme = registeredThemer;
-    } else {
-    let buf = {id: id};
-    options.forEach(function(opt){
-        if (args[opt[1][0]])
-        buf[opt[0]] = args[opt[1][0]];
-    });
-    let t = createLWTheme(buf);
-    if (t)
-        LightweightThemeManager.currentTheme = t;
-    }
-}, {
-    argCount: "1",
-    bang: true,
-    options: options.map(function(opt) opt.slice(1)),
-    completer: function(context, args){
-    context.format = {
-        title: ["Name","Description"],
-        keys: { text: "id", description: "name", icon: "iconURL" },
-        process: [
-        function name(item, text) <span sltyle="vertial-align: center">
-            <img src={item.icon}/><span>{item.item.id}</span>
-        </span>,
-        function desc(item, text) <>
-            <img src={item.item.previewURL} align="left" style="height:3em;"/>
-            <span>{item.item.name}<br/>{item.item.description}</span>
-        </>,
-        ]
-    }
-    context.completions = LightweightThemeManager.usedThemes;
-    }
-}, true);
+    function(args){
+        let id = args[0];
+        if (args.bang){
+            LightweightThemeManager.forgetUsedTheme(id);
+            return;
+        }
+        let registeredThemer = LightweightThemeManager.getUsedTheme(id);
+        if (registeredThemer) {
+            LightweightThemeManager.currentTheme = registeredThemer;
+        } else {
+            let buf = {id: id};
+            options.forEach(function(opt){
+                if (args[opt[1][0]]){
+                    buf[opt[0]] = args[opt[1][0]];
+                };
+            });
+            let t = createLWTheme(buf);
+            if (t){
+                LightweightThemeManager.currentTheme = t;
+            };
+        }
+    }, {
+        argCount: "1",
+        bang: true,
+        options: options.map(function(opt) opt.slice(1)),
+        completer: function(context, args){
+            context.format = {
+                title: ["Name","Description"],
+                keys: { text: "id", description: "name", icon: "iconURL" },
+                process: [
+                    function name(item, text) <span sltyle="vertial-align: center">
+                        <img src={item.icon}/><span>{item.item.id}</span>
+                    </span>,
+                    function desc(item, text) <>
+                        <img src={item.item.previewURL} align="left" style="height:3em;"/>
+                        <span>{item.item.name}<br/>{item.item.description}</span>
+                    </>,
+                ]
+            }
+            context.completions = LightweightThemeManager.usedThemes;
+        }
+    },
+    true
+);
 EOM
 
