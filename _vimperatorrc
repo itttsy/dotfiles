@@ -1,4 +1,5 @@
 " vim: set ft=vimperator:
+set all&
 mapclear
 cmapclear
 imapclear
@@ -11,9 +12,10 @@ set titlestring=Vimfox
 
 " メニュー/ツール/リンクを表示
 set guioptions=
+set noshowmode
 set defsearch=google
 
-" タブの非表示
+" タブの表示
 set showtabline=0
 
 " リンクのURIをコマンドラインに表示
@@ -34,7 +36,7 @@ set history=300
 set focuscontent
 
 " フォーム記入時にTextAreaモードを利用する
-set noinsertmode
+set insertmode
 
 " ページ全体で検索語を強調表示
 set hlsearch
@@ -59,6 +61,14 @@ set! ui.caretBlinkTime=1000
 
 " 最後のWindowを閉じてもFirefoxを終了しない
 set! browser.tabs.closeWindowWithLastTab=false
+
+" bookmarkletを利用可能にする
+set! browser.urlbar.filter.javascript=false
+
+" キャッシュをRAMに移動
+set! browser.cache.disk.enable=true
+set! browser.cache.memory.enable=true
+" set! browser.cache.memory.capacity=-1
 
 " その他
 set! config.trim_on_minimize=true
@@ -88,7 +98,10 @@ hi GradientRight                           background-color: #111;
 hi CompGroup            color: White;
 hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
 hi CompDesc             color: LightGray;
-hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 8pt; font-weight: normal;
+hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 10pt; font-weight: normal;
+hi StatusLineBroken     color: White;      background: rgba(128,0,0,0.7);    font-size: 10pt; font-weight: normal;
+hi StatusLineExtended   color: White;      background: rgba(0,128,0,0.7);    font-size: 10pt; font-weight: normal;
+hi StatusLineSecure     color: White;      background: rgba(0,0,128,0.7);    font-size: 10pt; font-weight: normal;
 hi Normal               color: White;      background: rgba(128,128,128,0.7); font-size: 10pt;
 hi ModeMsg              color: White;      background: rgba(128,128,128,0.7); font-size: 8pt;
 style -name personas chrome://* <<EOM
@@ -139,8 +152,10 @@ EOM
 
 " <C-h>で履歴を表示しないようにする
 noremap <C-h> <Nop>
+inoremap <C-h> <Nop>
 " <C-j>でダウンロード履歴を表示しないようにする
 noremap <C-j> <Nop>
+inoremap <C-j> <Nop>
 
 " Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
 inoremap <C-n> <Down>
@@ -151,6 +166,11 @@ inoremap <C-f> <ESC>f
 " eでecho表示
 noremap e :echo 
 
+" 移動する前の場所を記憶
+nnoremap gg mzgg
+nnoremap G  mzG
+nnoremap /  mz/
+
 " <A-p>/<A-n>で現在のタブの位置変更
 noremap <A-p> :tabmove! -1<CR>
 noremap <A-n> :tabmove! +1<CR>
@@ -160,6 +180,10 @@ cnoremap <C-r> <Up>
 
 " undo一覧から開く
 noremap U :undo<Space>
+
+" フレーム内移動
+nnoremap gh [f
+nnoremap gl ]f
 
 "----------
 " 検索用ブックマーク

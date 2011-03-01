@@ -136,7 +136,7 @@ if !has('gui_running')
     colorscheme less
 endif
 " 画面表示に関する設定
-set guioptions=aegip
+set guioptions=agip
 " 構文強調表示を有効にする
 if &t_Co > 2 || has("gui_running")
     syntax enable
@@ -159,7 +159,7 @@ set statusline=
     \%=%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}[%{tabpagenr()}/%{tabpagenr('$')}]\ %P
 
 " statusline
-" タブページのラベルを表示しない
+" タブページのラベルの表示
 set showtabline=0
 " ステータス行を常に表示
 set laststatus=2
@@ -351,6 +351,9 @@ set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
+" oとtをvimperator風にする
+AlterCommand o open
+AlterCommand t tabedit
 
 " 文字のない場所にもカーソルを持っていけるようにする
 set virtualedit& virtualedit+=all
@@ -410,19 +413,28 @@ function! s:open_junk_file()
     endif
 endfunction
 
+" コマンドの出力をキャプチャする
+command! -nargs=+ -complete=command Capture call s:cmd_capture(<q-args>)
+
+function! s:cmd_capture(q_args)
+    redir => output
+    silent execute a:q_args
+    redir END
+    let output = substitute(output, '^\n\+', '', '')
+
+    belowright new
+
+    silent file `=printf('[Capture: %s]', a:q_args)`
+    setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
+    call setline(1, split(output, '\n'))
+endfunction
+
 " タブページ毎にカレントディレクトリを設定する
 AlterCommand cd TabpageCD
 nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 
-command!
-\ -bar -complete=dir -nargs=?
-\ CD
-\ TabpageCD <args>
-command!
-\ -bar -complete=dir -nargs=?
-\ TabpageCD
-\ execute 'cd' fnameescape(expand(<q-args>))
-\ | let t:cwd = getcwd()
+command! -bar -complete=dir -nargs=? CD TabpageCD <args>
+command! -bar -complete=dir -nargs=? TabpageCD execute 'cd' fnameescape(expand(<q-args>)) | let t:cwd = getcwd()
 augroup TabpageCD
     autocmd!
     autocmd TabEnter *
@@ -522,7 +534,7 @@ set splitbelow
 set splitright
 "デフォルトの最小 window 高さを0に
 set winminheight=0
-" <C-h>、<C-j>、<C-k>、<C-l>で画面を移動する
+" <C-h>、<C-j>、<C-k>、<C-l>でウィンドウを移動する
 nnoremap <C-j> <C-W>j<C-W>_
 nnoremap <C-k> <C-W>k<C-W>_
 nnoremap <C-h> <C-W>h<C-W>_
@@ -602,6 +614,9 @@ nnoremap L :<C-u>bn<CR>
 nnoremap <Leader>b :<C-u>buffers<CR>
 
 " Tab関係
+" <C-p>、<C-n>でタブを移動
+nnoremap <C-p> :<C-u>tabprevious<CR>
+nnoremap <C-n> :<C-u>tabnext<CR>
 nnoremap [Tabbed] <Nop>
 nnoremap <C-t> <Nop>
 nmap <C-t> [Tabbed]
@@ -810,8 +825,8 @@ nnoremap tj <C-]>
 nnoremap tl :<C-u>tag<CR>
 " thで戻る
 nnoremap th :<C-u>pop<CR>
-" tlで履歴一覧
-nnoremap tl :<C-u>tags<CR>
+" tkで履歴一覧
+nnoremap tk :<C-u>tags<CR>
 
 "----------
 " Plug-in用設定
@@ -841,6 +856,7 @@ let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
 let g:vimfiler_external_copy_file_command = 'cp $src $dest'
 let g:vimfiler_external_delete_command = 'rm -r $srcs'
 let g:vimfiler_external_move_command = 'mv $srcs $dest'
+let g:vimfiler_split_command = 'vsplit_nicely'
 " Enable file operation commands.
 let g:vimfiler_safe_mode_by_default = 1
 
@@ -923,12 +939,12 @@ nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]<C-f> :<C-u>Unite -buffer-name=files file<CR>
-nnoremap <silent> [unite]m :<C-u>Unite file_mru<CR>
-nnoremap <silent> [unite]<C-m> :<C-u>Unite file_mru<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
 nnoremap <silent> [unite]<C-h> :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]<C-o> :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]c :<C-u>Unite command<CR>
+nnoremap <silent> [unite]<C-c> :<C-u>Unite command<CR>
 nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
 nnoremap <silent> [unite]<C-g> :<C-u>Unite grep<CR>
 augroup UniteSetting
@@ -958,6 +974,7 @@ nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR
 vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
 AlterCommand ma :<C-u>Ref alc
 AlterCommand mp :<C-u>Ref perldoc
+AlterCommand me :<C-u>Ref erlang
 
 " quickrun.vim用設定
 AlterCommand qr QuickRun
