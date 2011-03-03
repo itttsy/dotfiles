@@ -11,12 +11,10 @@ imapclear
 set titlestring=Vimfox
 
 " メニュー/ツール/リンクを表示
-set guioptions=
+set gui=tabs
+set notabnumbers
 set noshowmode
 set defsearch=google
-
-" タブの表示
-set showtabline=0
 
 " リンクのURIをコマンドラインに表示
 set showstatuslinks=2
@@ -25,7 +23,7 @@ set showstatuslinks=2
 set newtab=all
 
 " コマンド入力時にコマンド名を自動補完
-set wildoptions=auto
+set wildmode=list:full
 
 " URLのオートコンプリート
 set complete=
@@ -68,14 +66,13 @@ set! browser.urlbar.filter.javascript=false
 " キャッシュをRAMに移動
 set! browser.cache.disk.enable=true
 set! browser.cache.memory.enable=true
-" set! browser.cache.memory.capacity=-1
+set! browser.cache.memory.capacity=-1
 
 " その他
 set! config.trim_on_minimize=true
 set! browser.history_expire_days=30
 set! browser.history_expire_days_min=7
 set! browser.history_expire_sites=1000
-set! browser.cache.memory.capacity=32768
 set! browser.sessionstore.max_tabs_undo=5
 set! browser.sessionhistory.max_total_viewers=5
 set! browser.tabs.loadInBackground=false
@@ -93,15 +90,10 @@ set hintchars=;asdfghjkl
 " コマンドラインを見やすく
 hi Title                color: MintCream;
 hi CompTitle            color: MintCream;
-hi GradientLeft                            background-color: MintCream;
-hi GradientRight                           background-color: #111;
 hi CompGroup            color: White;
 hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
 hi CompDesc             color: LightGray;
 hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 10pt; font-weight: normal;
-hi StatusLineBroken     color: White;      background: rgba(128,0,0,0.7);    font-size: 10pt; font-weight: normal;
-hi StatusLineExtended   color: White;      background: rgba(0,128,0,0.7);    font-size: 10pt; font-weight: normal;
-hi StatusLineSecure     color: White;      background: rgba(0,0,128,0.7);    font-size: 10pt; font-weight: normal;
 hi Normal               color: White;      background: rgba(128,128,128,0.7); font-size: 10pt;
 hi ModeMsg              color: White;      background: rgba(128,128,128,0.7); font-size: 8pt;
 style -name personas chrome://* <<EOM
@@ -111,6 +103,23 @@ style -name personas chrome://* <<EOM
 #content tabpanels { background-color: transparent !important; }
 EOM
 autocmd LocationChange .* js getBrowser().mCurrentBrowser.collapsed = buffer.URL == "about:blank" ? true : false
+
+style -name panorama chrome://browser/content/tabview.html <<EOM
+#bg {
+ background-image: url(file:///C:/Dropbox/Media/Pictures/OmakeA.JPG) !important;
+ background-size: auto 900px !important;
+ background-position: top right !important;
+}
+.groupItem {
+ background-color: rgba(224,234,245,.5) !important;
+}
+.title-container>.name {
+ color: black !important;
+ font-weight: bold;
+ text-shadow: 1px 1px 2px pink;
+}
+#exit-button,#searchbutton { background-color: rgba(240,240,240,.5) !important; }
+EOM
 
 " コマンドラインの高さがおかしくなる現象を修正
 command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=e.parentNode){e.removeAttribute("width");e.removeAttribute("height");p.appendChild(p.removeChild(e));}
@@ -213,14 +222,28 @@ noremap mw :mr<Space>weather-yahoo<Space>
 
 " nextlink.js
 let g:nextlink_nositeinfo_act = "f"
-" let g:nextlink_prevmap = "[["
-" let g:nextlink_nextmap = "]]"
+let g:nextlink_prevmap = "{{"
+let g:nextlink_nextmap = "}}"
 
 " FeedSomeKeys3.js
 command! -nargs=+ lazy autocmd VimperatorEnter .* <args>
-" google.com
-lazy fmaps -u='mail\.google\.com/mail' u k j o <CR p n c ? x s y e m ! # h
-lazy fmaps -u='www\.google\.(com|co\.jp)/reader/' -events=vkeypress j k <Space> <S-Space> X O N P s,NO a,PO S,s v r F,f f,j F,k ? /
+" gmail
+command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
+command! lazyfmapsgmail -nargs=+ lazy fmaps -u 'https?://mail\.google\.com/mail' <args>
+lazyfmapsgmail gi gs gt gd ga gc *a *n *r *u *s *t u k j o p n c / q ? x s e m ! # r a N ] [ z . I U S E GL
+lazyfmapsgmail [,] ],[
+" googlereader
+command! -nargs=+ lazyfmapgooglereader  lazy fmap  -urls='http://www\.google\.co\.jp/reader/view' <args>
+command! -nargs=+ lazyfmapsgooglereader lazy fmaps -urls='http://www\.google\.co\.jp/reader/view' <args>
+lazyfmapsgooglereader -events=vkeypress <Space> <S-Space> N P X O
+lazyfmapsgooglereader -events=vkeypress v m A
+lazyfmapsgooglereader -events=vkeypress gh ga gs gS gu gt gT gd gf gF gc ge gp
+lazyfmapsgooglereader -events=vkeypress r u / a
+lazyfmapsgooglereader -events=vkeypress j,n k,p J,N K,P n,N p,P o,vn w,NO
+lazyfmapgooglereader  -events=keypress  ; <CR>
+lazyfmapgooglereader  -events=vkeypress , X
+lazyfmapgooglereader  -events=vkeypress . O
+lazyfmapsgooglereader -events=vkeypress <C-1>,1 <C-2>,2
 " twitter.com
 lazy fmaps -urls='^http://twitter\.com/' j k ?
 lazy fmaps -urls='^http://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
@@ -257,6 +280,12 @@ EOM
 "----------
 " JavaScriptに関する設定
 "----------
+" ワンライナーのための設定
+javascript <<EOM
+modules.__defineGetter__("doc", function() content.document.wrappedJSObject);
+modules.__defineGetter__("win", function() content.window.wrappedJSObject);
+EOM
+
 " 戻るを拡張
 javascript <<EOM
 let back   = mappings.getDefault(modes.NORMAL, 'H').action;
@@ -265,6 +294,20 @@ mappings.addUserMap([modes.NORMAL], ['H'], 'exteded back',
     function(){
         (gBrowser.sessionHistory.index > 0 ? back : remove)(-1)
     }
+);
+EOM
+" <C-c>で文字列をコピーまたはロードを止める
+javascript <<EOM
+mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text or stop loading',
+  function(){
+    var sel = window.content.window.getSelection().toString();
+    if (sel){
+      util.copyToClipboard(sel,true);
+    } else {
+      BrowserStop();
+      liberator.echo('Stopped loading !');
+    }
+  },{ rhs: 'Copy selected text or stop loading' }
 );
 EOM
 
@@ -348,31 +391,6 @@ mappings.addUserMap([modes.VISUAL], ['<C-g>'], 'Selection search',
     });
 EOM
 
-
-"----------
-" INSERTモード時、<C-Space>で日本語入力をonにする
-javascript <<EOM
-eval(function(){
-    function activateIME(mode){
-        var cur = content.document.activeElement;
-        var ps = content.document.createElement('input');
-        ps.setAttribute('style','border:none;width:0px;position:fixed;');
-        ps.style.imeMode = mode ? 'active' : 'inactive';
-        content.document.body.appendChild(ps);
-        ps.focus();
-        setTimeout(
-            function(){
-                content.document.body.removeChild(ps);
-                cur.focus();
-            },
-        10);
-    }
-    mappings.addUserMap([modes.INSERT], ['<C-Space>'], 'Activate Windows IME',
-        function() activateIME(true));
-    mappings.addUserMap([modes.INSERT], ['<C-q>'], 'Activate Windows IME',
-        function() activateIME(false));
-})();
-EOM
 
 "----------
 " Insertモード時、C-1, ..., C-9,C-tが使えるようにする
@@ -538,113 +556,6 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by extern
         );
     }
 );
-EOM
-
-"----------
-" RichTextEditorのコンテンツを<C-S-i>で外部エディタで編集するプラグイン
-javascript <<EOM
-let nsIR = Ci.nsIInterfaceRequestor;
-let OUTPUT_SELECTION_ONLY = 1,
-    OUTPUT_FORMATTED = 2,
-    OUTPUT_RAW = 4,
-    OUTPUT_BODYONLY = 8;
-mappings.addUserMap([modes.NORMAL, modes.INSERT, modes.VISUAL, modes.TEXTAREA], ["<C-S-I>"], "edit window with externall editor",
-    function (){
-        if (config.isComposeWindow){
-            editWindowExternally(GetCurrentEditorElement().contentWindow, true);
-        } else {
-            editWindowExternally();
-        }
-    }, {}
-);
-function getEditingSession(win) {
-    if (!win){
-        win = document.commandDispatcher.focusedWindow;
-    }
-    if (win instanceof Window){
-        return es = win.QueryInterface(nsIR)
-                    .getInterface(Ci.nsIWebNavigation)
-                    .QueryInterface(nsIR)
-                    .getInterface(Ci.nsIEditingSession);
-    }
-    return null;
-}
-function getEditorForWindow(win) {
-    if (!(win instanceof Window)){
-        return null;
-    }
-    let es = getEditingSession(win);
-    if (es && es.windowIsEditable(win) && util.computedStyle(win.document.body).getPropertyValue("-moz-user-modify") == "read-write"){
-        return es.getEditorForWindow(win);
-    }
-    return null;
-}
-function editWindowExternally (win, forceText) {
-    if (!options["editor"]){
-        return;
-    }
-    if (!win){
-        win = document.commandDispatcher.focusedWindow;
-    }
-    let editor = getEditorForWindow(win);
-    if (!editor){
-        commandline.echo("the window is not editable", commandline.HL_ERRORMSG, commandline.APPEND_TO_MESSAGES | commandline.DISALLOW_MULTILINE);
-        return;
-    }
-    editor instanceof Ci.nsIPlaintextEditor;
-    editor instanceof Ci.nsIHTMLEditor;
-    let text = forceText ?
-                editor.outputToString("text/plain", OUTPUT_FORMATTED) :
-                editor.outputToString("text/html", OUTPUT_BODYONLY);
-    try {
-        let res = io.withTempFiles (function(tmpFile){
-            if (!tmpFile.write(text)){
-                throw Error("Input contains characters not valid in the current file encoding");
-            }
-            modules.editor.editFileExternally(tmpFile.path);
-            let val = tmpFile.read();
-            editor.selectAll();
-            editor.selection.deleteFromDocument();
-            if (forceText){
-                editor.insertText(val);
-            } else {
-                let doc = editor.document;
-                let htmlFragment = doc.implementation.createDocument(null, 'html', null);
-                let range = doc.createRange();
-                range.setStartAfter(doc.body);
-                doc.body.appendChild(range.createContextualFragment(val));
-            }
-        }, this);
-        if (res == false){
-            throw Error("Couldn't create temporary file");
-        }
-    } catch(e){
-        liberator.echoerr(e);
-    }
-}
-EOM
-
-"----------
-" faviconをstatusbarに表示する
-javascript <<EOM
-eval(function(){
-    var setFavicon = function(){
-        var p = document.getElementById('page-proxy-favicon-clone');
-        var b = document.getElementById('page-proxy-favicon');
-        if (!p){
-            p = document.createElement('statusbarpanel');
-            p.setAttribute('id','page-proxy-favicon-clone');
-            p.appendChild(b.cloneNode(true));
-            document.getElementById('status-bar').insertBefore(p,document.getElementById('liberator-statusline'));
-        }
-        if (p.childNodes.length > 0){
-            var node = p.childNodes.item(0);
-            node.setAttribute('src', b.getAttribute('src'));
-        }
-    }
-    getBrowser().addEventListener("load", function() setFavicon() , true);
-    getBrowser().addEventListener("TabSelect", function() setFavicon() , true);
-})();
 EOM
 
 "----------

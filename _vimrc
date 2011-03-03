@@ -23,6 +23,13 @@ if g:loaded_vimrc == 0
     mapclear!
 endif
 
+" Windows/Linuxにおいて、.vimと$VIM/vimfilesの違いを吸収する
+if has('win32') || has('win64')
+    let $DOTVIM = $HOME . '/vimfiles'
+else
+    let $DOTVIM = $HOME . '/.vim'
+endif
+
 "----------
 " 初期設定
 " <Leader>に'\'の代わりに'<Space>'を使えるようにする
@@ -33,20 +40,32 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 
 set all&
 filetype plugin indent off
-" Vi互換ではなくする
-set nocompatible
 " 各種プラグインのロード
+source $DOTVIM/bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 call altercmd#load()
+" Vi互換ではなくする
+set nocompatible
 " ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
-filetype plugin indent off
+filetype plugin indent on
+" ヘルプドキュメントに利用する言語
+set helplang=ja,en
 
 "----------
 " 日本語用エンコード設定
-set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
-" ターミナル用のエンコーディング
-set termencoding=sjis
+" WindowsのターミナルのみShift_JIS対応
+if !has('gui_running') && has('win32') || has('win64')
+    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+    set termencoding=sjis
+else
+    set encoding=utf-8
+    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+    source $VIMRUNTIME/delmenu.vim
+    set langmenu=menu_ja_jp.utf-8.vim
+    source $VIMRUNTIME/menu.vim
+    set termencoding=utf-8
+endif
 
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
@@ -92,13 +111,6 @@ AlterCommand utf16be Utf16be
 
 "----------
 " プラットフォーム依存の問題の為の設定
-" Windows/Linuxにおいて、.vimと$VIM/vimfilesの違いを吸収する
-if has('win32') || has('win64')
-    let $DOTVIM = $HOME . '/vimfiles'
-else
-    let $DOTVIM = $HOME . '/.vim'
-endif
-
 " ファイル名に大文字小文字の区別がないシステム用の設定
 if filereadable($VIM . '/vimrc') && filereadable($VIM . '/ViMrC')
     set tags=./tags,tags
@@ -170,7 +182,7 @@ set showcmd
 " コマンドラインにメッセージが表示される閾値
 set report=1
 " Insertモード時にステータスラインの色を変更
-let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=darkgray ctermbg=white cterm=none'
+let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=7 ctermbg=8 cterm=none'
 if has('syntax')
     augroup InsertHook
         autocmd!
@@ -222,6 +234,52 @@ set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
 set scroll=5
+" <C-f>、<C-b>でスムーススクロールをする
+let g:scroll_factor = 5000
+let g:scroll_skip_line_size = 4
+function! SmoothScroll(dir, windiv, factor)
+    if &cursorline == 1
+        set nocursorline
+        let cursorline_changed_flag = 1
+    else
+        let cursorline_changed_flag = 0
+    end
+    let wh=winheight(0)
+    let i=0
+    let j=0
+    while i < wh / a:windiv
+        let t1=reltime()
+        let i = i + 1
+        if a:dir=="d"
+            if line('w$') == line('$')
+                break
+            endif
+            exec "normal \<C-E>j"
+        else
+            if line('w0') == 1
+                break
+            endif
+            exec "normal \<C-Y>k"
+        end
+        if j >= g:scroll_skip_line_size
+            let j = 0
+            redraw
+            while 1
+                let t2=reltime(t1,reltime())
+                if t2[1] > g:scroll_factor * a:factor
+                    break
+                endif
+            endwhile
+        else
+            let j = j + 1
+        endif
+    endwhile
+    if cursorline_changed_flag == 1
+        set cursorline
+    end
+endfunction
+map <C-F> :call SmoothScroll("d",1, 1)<CR>
+map <C-B> :call SmoothScroll("u",1, 1)<CR>
 
 " case arc
 " 対応する括弧にジャンプする
@@ -674,52 +732,6 @@ nnoremap gp ']
 nnoremap gc  `[v`]
 vnoremap gc :<C-u>normal gc<Enter>
 onoremap gc :<C-u>normal gc<Enter>
-" <C-f>、<C-b>でスムーススクロールをする
-let g:scroll_factor = 5000
-let g:scroll_skip_line_size = 4
-function! SmoothScroll(dir, windiv, factor)
-    if &cursorline == 1
-        set nocursorline
-        let cursorline_changed_flag = 1
-    else
-        let cursorline_changed_flag = 0
-    end
-    let wh=winheight(0)
-    let i=0
-    let j=0
-    while i < wh / a:windiv
-        let t1=reltime()
-        let i = i + 1
-        if a:dir=="d"
-            if line('w$') == line('$')
-                break
-            endif
-            exec "normal \<C-E>j"
-        else
-            if line('w0') == 1
-                break
-            endif
-            exec "normal \<C-Y>k"
-        end
-        if j >= g:scroll_skip_line_size
-            let j = 0
-            redraw
-            while 1
-                let t2=reltime(t1,reltime())
-                if t2[1] > g:scroll_factor * a:factor
-                    break
-                endif
-            endwhile
-        else
-            let j = j + 1
-        endif
-    endwhile
-    if cursorline_changed_flag == 1
-        set cursorline
-    end
-endfunction
-map <C-F> :call SmoothScroll("d",1, 1)<CR>
-map <C-B> :call SmoothScroll("u",1, 1)<CR>
 
 " help関係
 " カーソル下のキーワードでヘルプを実行する
@@ -925,27 +937,28 @@ nnoremap [unite] <Nop>
 nmap <C-u> [unite]
 
 nnoremap [unite]<Space> :<C-u>Unite<Space>
-nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap [unite]r       :<C-u>Unite ref/
+nnoremap [unite]<C-r>   :<C-u>Unite ref/
+nnoremap <silent> [unite]c     :<C-u>Unite command<CR>
+nnoremap <silent> [unite]u     :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
-nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]t     :<C-u>Unite -immediately tab:no-current<CR>
 nnoremap <silent> [unite]<C-t> :<C-u>Unite -immediately tab:no-current<CR>
-nnoremap <silent> [unite]w :<C-u>Unite -immediately window:no-current<CR>
+nnoremap <silent> [unite]w     :<C-u>Unite -immediately window:no-current<CR>
 nnoremap <silent> [unite]<C-w> :<C-u>Unite -immediately window:no-current<CR>
-nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> [unite]<C-r> :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> [unite]s :<C-u>Unite source<CR>
-nnoremap <silent> [unite]<C-s> :<C-u>Unite source<CR>
-nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
-nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
-nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
+nnoremap <silent> [unite]e     :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]<C-e> :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]<C-f> :<C-u>Unite -buffer-name=files file<CR>
-nnoremap <silent> [unite]h :<C-u>Unite help<CR>
+nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
+nnoremap <silent> [unite]<C-s> :<C-u>Unite source<CR>
+nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
 nnoremap <silent> [unite]<C-h> :<C-u>Unite help<CR>
-nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]o     :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]<C-o> :<C-u>Unite outline<CR>
-nnoremap <silent> [unite]c :<C-u>Unite command<CR>
-nnoremap <silent> [unite]<C-c> :<C-u>Unite command<CR>
-nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
+nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
 nnoremap <silent> [unite]<C-g> :<C-u>Unite grep<CR>
 augroup UniteSetting
     autocmd!
