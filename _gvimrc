@@ -5,7 +5,7 @@
 "----------
 " カラー設定
 " syntax enable
-colorscheme less
+colorscheme miku
 
 "----------
 " フォント設定
