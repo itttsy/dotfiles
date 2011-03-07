@@ -1,4 +1,4 @@
-" vim: set ft=vimperator:
+" vim: set ft=vim
 set all&
 mapclear
 cmapclear
@@ -106,9 +106,10 @@ autocmd LocationChange .* js getBrowser().mCurrentBrowser.collapsed = buffer.URL
 
 style -name panorama chrome://browser/content/tabview.html <<EOM
 #bg {
- background-image: url(file:///C:/Dropbox/Media/Pictures/OmakeA.JPG) !important;
+ background-image: url(file:///C:/Dropbox/Media/Pictures/Kuroneko.JPG) !important;
  background-size: auto 900px !important;
- background-position: top right !important;
+ background-repeat: norepeat !important;
+ background-position: top center !important;
 }
 .groupItem {
  background-color: rgba(224,234,245,.5) !important;
@@ -165,6 +166,9 @@ inoremap <C-h> <Nop>
 " <C-j>でダウンロード履歴を表示しないようにする
 noremap <C-j> <Nop>
 inoremap <C-j> <Nop>
+" <C-l>でURLを開かないようにする
+noremap <C-l> <Nop>
+inoremap <C-l> <Nop>
 
 " Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
 inoremap <C-n> <Down>

@@ -33,7 +33,7 @@ endif
 "----------
 " 初期設定
 " <Leader>に'\'の代わりに'<Space>'を使えるようにする
-let mapleader = ' '
+let mapleader   = ' '
 let g:mapleader = ' '
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
@@ -54,11 +54,12 @@ set helplang=ja,en
 
 "----------
 " 日本語用エンコード設定
-" WindowsのターミナルのみShift_JIS対応
 if !has('gui_running') && has('win32') || has('win64')
+" WindowsのターミナルのみShift_JIS対応
     set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
     set termencoding=sjis
 else
+" Windowsターミナル以外はUtf8対応
     set encoding=utf-8
     set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
     source $VIMRUNTIME/delmenu.vim
@@ -91,23 +92,17 @@ augroup END
 
 " 文字コードを指定して開き直す
 " Open in UTF-8 again.
-command! -bang -bar -complete=file -nargs=? Utf8 edit<bang> ++enc=utf-8 <args>
-AlterCommand utf8 Utf8
+command! -bang -bar -complete=file -nargs=? Utf8      edit<bang> ++enc=utf-8 <args>
 " Open in iso-2022-jp again.
 command! -bang -bar -complete=file -nargs=? Iso2022jp edit<bang> ++enc=iso-2022-jp <args>
-AlterCommand jis Iso2022jp
 " Open in Shift_JIS again.
-command! -bang -bar -complete=file -nargs=? Cp932 edit<bang> ++enc=cp932 <args>
-AlterCommand sjis Cp932
+command! -bang -bar -complete=file -nargs=? Cp932     edit<bang> ++enc=cp932 <args>
 " Open in EUC-jp again.
-command! -bang -bar -complete=file -nargs=? Euc edit<bang> ++enc=euc-jp <args>
-AlterCommand euc Euc
+command! -bang -bar -complete=file -nargs=? Euc       edit<bang> ++enc=euc-jp <args>
 " Open in UTF-16 again.
-command! -bang -bar -complete=file -nargs=? Utf16 edit<bang> ++enc=ucs-2le <args>
-AlterCommand unicode Utf16
+command! -bang -bar -complete=file -nargs=? Utf16     edit<bang> ++enc=ucs-2le <args>
 " Open in UTF-16BE again.
-command! -bang -bar -complete=file -nargs=? Utf16be edit<bang> ++enc=ucs-2 <args>
-AlterCommand utf16be Utf16be
+command! -bang -bar -complete=file -nargs=? Utf16be   edit<bang> ++enc=ucs-2 <args>
 
 "----------
 " プラットフォーム依存の問題の為の設定
@@ -145,7 +140,7 @@ endif
 "----------
 " GUI固有ではない画面表示の設定
 if !has('gui_running')
-    colorscheme less
+    colorscheme miku
 endif
 " 画面表示に関する設定
 set guioptions=agip
@@ -234,7 +229,7 @@ set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
 set scroll=5
-" <C-f>、<C-b>でスムーススクロールをする
+" <C-u>、<C-d>でスムーススクロールをする
 let g:scroll_factor = 5000
 let g:scroll_skip_line_size = 4
 function! SmoothScroll(dir, windiv, factor)
@@ -278,8 +273,8 @@ function! SmoothScroll(dir, windiv, factor)
         set cursorline
     end
 endfunction
-map <C-F> :call SmoothScroll("d",1, 1)<CR>
-map <C-B> :call SmoothScroll("u",1, 1)<CR>
+map <C-b> :call SmoothScroll("d",1, 1)<CR>
+map <C-u> :call SmoothScroll("u",1, 1)<CR>
 
 " case arc
 " 対応する括弧にジャンプする
@@ -297,7 +292,7 @@ set foldenable
 " マーカーで折り畳みを指定する
 set foldmethod=marker
 " 折り畳みを表示する
-set foldcolumn=2
+set foldcolumn=0
 " 行頭で h を押すと選択範囲に含まれるfoldを閉じる
 vnoremap <expr> h col('.') == 1 && foldlevel(line('.')) > 0 ? 'zcgv' : 'h'
 " 折畳上で l を押すと選択範囲に含まれるfoldを開く
@@ -376,6 +371,11 @@ set wildmenu
 set wildchar=<Tab>
 " Insertモード補完のポップアップに表示される項目数の最大値
 set pumheight=20
+" Vimperator設定ファイルのfiletypeをvimにする
+augroup VIMPERATOR
+    autocmd!
+    au BufRead,BufNewFile *vimperatorrc set filetype=vim
+augroup END
 
 " swap
 " スワップファイルを使用しない
@@ -391,10 +391,13 @@ endif
 set backup
 set backupdir=$DOTVIM/backup
 
-" persistent undo
+" undo
 " 無限Undoを使用する
 set undofile
 set undodir=$DOTVIM/tmp/undo
+" <C-b>/<C-f>でUndo/Redoする
+nnoremap <silent> <C-b> :<C-u>undo<CR>
+nnoremap <silent> <C-f> :<C-u>redo<CR>
 
 " misc
 " バッファを放棄したときに開放しない
@@ -409,9 +412,6 @@ set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
-" oとtをvimperator風にする
-AlterCommand o open
-AlterCommand t tabedit
 
 " 文字のない場所にもカーソルを持っていけるようにする
 set virtualedit& virtualedit+=all
@@ -421,7 +421,10 @@ endif
 
 " カレントディレクトリをファイルと同じディレクトリに移動する
 " set autochdir
-au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
+augroup AUTOCHDIR
+    autocmd!
+    au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
+augroup END
 
 " 現在編集中のバッファのファイル名を変更する
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
@@ -479,16 +482,13 @@ function! s:cmd_capture(q_args)
     silent execute a:q_args
     redir END
     let output = substitute(output, '^\n\+', '', '')
-
     belowright new
-
     silent file `=printf('[Capture: %s]', a:q_args)`
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     call setline(1, split(output, '\n'))
 endfunction
 
 " タブページ毎にカレントディレクトリを設定する
-AlterCommand cd TabpageCD
 nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
@@ -497,12 +497,12 @@ augroup TabpageCD
     autocmd!
     autocmd TabEnter *
     \ if exists('t:cwd') && !isdirectory(t:cwd)
-    \ | unlet t:cwd
-    \ | endif
-    \ | if !exists('t:cwd')
-    \ | let t:cwd = getcwd()
-    \ | endif
-    \ | execute 'cd' fnameescape(expand(t:cwd))
+    \| unlet t:cwd
+    \| endif
+    \| if !exists('t:cwd')
+    \| let t:cwd = getcwd()
+    \| endif
+    \| execute 'cd' fnameescape(expand(t:cwd))
 augroup END
 
 "----------
@@ -625,12 +625,12 @@ nmap [Swap]<C-l> <SID>swap_window_l
 
 nnoremap <silent> <SID>swap_window_next :<C-u>call <SID>swap_window_count(v:count1)<CR>
 nnoremap <silent> <SID>swap_window_prev :<C-u>call <SID>swap_window_count(-v:count1)<CR>
-nnoremap <silent> <SID>swap_window_j :<C-u>call <SID>swap_window_dir(v:count1, 'j')<CR>
-nnoremap <silent> <SID>swap_window_k :<C-u>call <SID>swap_window_dir(v:count1, 'k')<CR>
-nnoremap <silent> <SID>swap_window_h :<C-u>call <SID>swap_window_dir(v:count1, 'h')<CR>
-nnoremap <silent> <SID>swap_window_l :<C-u>call <SID>swap_window_dir(v:count1, 'l')<CR>
-nnoremap <silent> <SID>swap_window_t :<C-u>call <SID>swap_window_dir(v:count1, 't')<CR>
-nnoremap <silent> <SID>swap_window_b :<C-u>call <SID>swap_window_dir(v:count1, 'b')<CR>
+nnoremap <silent> <SID>swap_window_j    :<C-u>call <SID>swap_window_dir(v:count1, 'j')<CR>
+nnoremap <silent> <SID>swap_window_k    :<C-u>call <SID>swap_window_dir(v:count1, 'k')<CR>
+nnoremap <silent> <SID>swap_window_h    :<C-u>call <SID>swap_window_dir(v:count1, 'h')<CR>
+nnoremap <silent> <SID>swap_window_l    :<C-u>call <SID>swap_window_dir(v:count1, 'l')<CR>
+nnoremap <silent> <SID>swap_window_t    :<C-u>call <SID>swap_window_dir(v:count1, 't')<CR>
+nnoremap <silent> <SID>swap_window_b    :<C-u>call <SID>swap_window_dir(v:count1, 'b')<CR>
 
 function! s:modulo(n, m)
     let d = a:n * a:m < 0 ? 1 : 0
@@ -679,16 +679,16 @@ nnoremap [Tabbed] <Nop>
 nnoremap <C-t> <Nop>
 nmap <C-t> [Tabbed]
 
-nnoremap <silent> [Tabbed]s :<C-u>tabs<CR>
-nnoremap <silent> [Tabbed]n :<C-u>tabnext<CR>
+nnoremap <silent> [Tabbed]s       :<C-u>tabs<CR>
+nnoremap <silent> [Tabbed]n       :<C-u>tabnext<CR>
 nnoremap <silent> [Tabbed]<Space> :<C-u>tabnext<CR>
-nnoremap <silent> [Tabbed]p :<C-u>tabprevious<CR>
-nnoremap <silent> [Tabbed]c :<C-u>tabnew<CR>
-nnoremap <silent> [Tabbed]k :<C-u>tabclose<CR>
-nnoremap <silent> [Tabbed]o :<C-u>tabonly<CR>
-nnoremap <silent> [Tabbed]r :<C-u>TabRecent<Space>
-nnoremap <silent> [Tabbed]l :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
-nnoremap <silent> [Tabbed]h :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
+nnoremap <silent> [Tabbed]p       :<C-u>tabprevious<CR>
+nnoremap <silent> [Tabbed]c       :<C-u>tabnew<CR>
+nnoremap <silent> [Tabbed]k       :<C-u>tabclose<CR>
+nnoremap <silent> [Tabbed]o       :<C-u>tabonly<CR>
+nnoremap <silent> [Tabbed]r       :<C-u>TabRecent<Space>
+nnoremap <silent> [Tabbed]l       :<C-u>execute 'tabmove' min([tabpagenr() + v:count1 - 1, tabpagenr('$')])<CR>
+nnoremap <silent> [Tabbed]h       :<C-u>execute 'tabmove' max([tabpagenr() - v:count1 - 1, 0])<CR>
 " GNU screen風にタブを移動
 for i in range(10)
     execute 'nnoremap <silent>' ('[Tabbed]'.(i))  ((i).'gt')
@@ -700,8 +700,8 @@ function! s:move_window_into_tab_page(target_tabpagenr)
         return
     endif
     let original_tabnr = tabpagenr()
-    let target_bufnr = bufnr('')
-    let window_view = winsaveview()
+    let target_bufnr   = bufnr('')
+    let window_view    = winsaveview()
     if a:target_tabpagenr == 0
         tabnew
         tabmove
@@ -861,47 +861,36 @@ augroup NetrwCommand
     autocmd FileType netrw nmap <buffer> l <CR>
 augroup END
 
-" vimfiler用設定
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
-let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
-let g:vimfiler_external_copy_file_command = 'cp $src $dest'
-let g:vimfiler_external_delete_command = 'rm -r $srcs'
-let g:vimfiler_external_move_command = 'mv $srcs $dest'
-let g:vimfiler_split_command = 'vsplit_nicely'
-" Enable file operation commands.
-let g:vimfiler_safe_mode_by_default = 1
-
 " skk.vim用設定
-let g:skk_jisyo = $DOTVIM . '/dict/_skk-jisyo'
-let g:skk_large_jisyo = $DOTVIM . '/dict/SKK-JISYO.L'
-let g:skk_select_cand_keys = "ASDFGHJKL"
-let g:skk_egg_like_newline = 1
-let g:skk_marker_white = "'"
-let g:skk_marker_black = "\""
-let g:skk_use_color_cursor = 1
-let g:skk_cursor_hira_color = "Purple"
-let g:skk_cursor_kata_color = "Purple"
+let g:skk_jisyo              = $DOTVIM . '/dict/_skk-jisyo'
+let g:skk_large_jisyo        = $DOTVIM . '/dict/SKK-JISYO.L'
+let g:skk_select_cand_keys   = "ASDFGHJKL"
+let g:skk_egg_like_newline   = 1
+let g:skk_marker_white       = "'"
+let g:skk_marker_black       = "\""
+let g:skk_use_color_cursor   = 1
+let g:skk_cursor_hira_color  = "Purple"
+let g:skk_cursor_kata_color  = "Purple"
 let g:skk_cursor_zenei_color = "Purple"
 let g:skk_cursor_ascii_color = "Purple"
-let g:skk_sticky_key = ';'
-let g:skk_auto_save_jisyo = 1
+let g:skk_sticky_key         = ';'
+let g:skk_auto_save_jisyo    = 1
 
 " neocomplcache.vim用設定
-let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_enable_camel_case_completion = 1
-let g:neocomplcache_enable_underbar_completion = 1
-let g:neocomplcache_disable_auto_complete = 0
+let g:neocomplcache_enable_at_startup              = 1
+let g:neocomplcache_enable_smart_case              = 1
+let g:neocomplcache_enable_camel_case_completion   = 1
+let g:neocomplcache_enable_underbar_completion     = 1
+let g:neocomplcache_disable_auto_complete          = 0
 let g:neocomplcache_manual_completion_start_length = 0
-let g:neocomplcache_enable_auto_delimiter = 1
-let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_max_filename_width = 30
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_enable_quick_match = 1
-let g:neocomplcache_quick_match_patterns = { 'default' : '@' }
-let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_temporary_dir = $DOTVIM . '/tmp/neocon'
+let g:neocomplcache_enable_auto_delimiter          = 1
+let g:neocomplcache_min_syntax_length              = 3
+let g:neocomplcache_max_filename_width             = 30
+let g:neocomplcache_enable_smart_case              = 1
+let g:neocomplcache_enable_quick_match             = 1
+let g:neocomplcache_quick_match_patterns           = { 'default' : '@' }
+let g:neocomplcache_enable_auto_select             = 0
+let g:neocomplcache_temporary_dir                  = $DOTVIM . '/tmp/neocon'
 " Define dictionary.
 let g:neocomplcache_dictionary_filetype_lists = {
     \ 'default'  : '',
@@ -926,47 +915,34 @@ inoremap <expr><C-b> neocomplcache#cansel_popup()
 let g:echodoc_enable_at_startup = 1
 
 " unite.vim用設定
-AlterCommand unite Unite
-AlterCommand u Unite
-let g:unite_data_directory = $DOTVIM . '/unite'
+let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
 call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
 call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
 " The prefix key.
 nnoremap [unite] <Nop>
-nmap <C-u> [unite]
+nmap u [unite]
 
 nnoremap [unite]<Space> :<C-u>Unite<Space>
 nnoremap [unite]r       :<C-u>Unite ref/
-nnoremap [unite]<C-r>   :<C-u>Unite ref/
-nnoremap <silent> [unite]c     :<C-u>Unite command<CR>
-nnoremap <silent> [unite]u     :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
-nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
-nnoremap <silent> [unite]t     :<C-u>Unite -immediately tab:no-current<CR>
-nnoremap <silent> [unite]<C-t> :<C-u>Unite -immediately tab:no-current<CR>
-nnoremap <silent> [unite]w     :<C-u>Unite -immediately window:no-current<CR>
-nnoremap <silent> [unite]<C-w> :<C-u>Unite -immediately window:no-current<CR>
-nnoremap <silent> [unite]e     :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> [unite]<C-e> :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
-nnoremap <silent> [unite]<C-f> :<C-u>Unite -buffer-name=files file<CR>
-nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
-nnoremap <silent> [unite]<C-s> :<C-u>Unite source<CR>
-nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
-nnoremap <silent> [unite]<C-b> :<C-u>Unite buffer_tab<CR>
-nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
-nnoremap <silent> [unite]<C-h> :<C-u>Unite help<CR>
-nnoremap <silent> [unite]o     :<C-u>Unite outline<CR>
-nnoremap <silent> [unite]<C-o> :<C-u>Unite outline<CR>
-nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
-nnoremap <silent> [unite]<C-g> :<C-u>Unite grep<CR>
+nnoremap <silent> [unite]c :<C-u>Unite command<CR>
+nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]w :<C-u>Unite -immediately window:no-current<CR>
+nnoremap <silent> [unite]e :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
+nnoremap <silent> [unite]s :<C-u>Unite source<CR>
+nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]h :<C-u>Unite help<CR>
+nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
 augroup UniteSetting
     autocmd!
     autocmd FileType unite call s:unite_my_settings()
 augroup END
 function! s:unite_my_settings()
-    nmap <buffer> <ESC> <Plug>(unite_exit)
-    imap <buffer> jj <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
+    nmap <buffer> <ESC>          <Plug>(unite_exit)
+    imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     nmap <buffer> <silent> <C-n> <Plug>(unite_loop_cursor_down)
     nmap <buffer> <silent> <C-p> <Plug>(unite_loop_cursor_up)
@@ -976,21 +952,16 @@ function! s:unite_my_settings()
 endfunction
 
 " ref.vim用設定
-AlterCommand ref Ref
-let g:ref_cache_dir = $DOTVIM . '/tmp/ref'
-let g:ref_use_vimproc = 1
-let g:ref_alc_encoding = "Shift_JIS"
+let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
+let g:ref_use_vimproc   = 1
+let g:ref_alc_encoding  = "Shift_JIS"
 let g:ref_alc_use_cache = 1
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
 vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
 nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR>
 vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
-AlterCommand ma :<C-u>Ref alc
-AlterCommand mp :<C-u>Ref perldoc
-AlterCommand me :<C-u>Ref erlang
 
 " quickrun.vim用設定
-AlterCommand qr QuickRun
 nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 " Windows用Perl設定
@@ -998,6 +969,29 @@ if executable('Perl') && (has('win32') || has('win64'))
     let g:quickrun_config.perl = {'output_encode': 'sjis'}
 endif
 
+" AlterCommand.vim
+" 文字コードを指定して開き直す
+AlterCommand utf8 Utf8
+AlterCommand jis Iso2022jp
+AlterCommand sjis Cp932
+AlterCommand euc Euc
+AlterCommand unicode Utf16
+AlterCommand utf16be Utf16be
+" oとtをvimperator風にする
+AlterCommand o open
+AlterCommand t tabedit
+" タブページ毎にカレントディレクトリを設定する
+AlterCommand cd TabpageCD
+" Unite.vim
+AlterCommand unite Unite
+AlterCommand u Unite
+" ref.vim
+AlterCommand ref Ref
+AlterCommand ma :<C-u>Ref alc
+AlterCommand mp :<C-u>Ref perldoc
+AlterCommand me :<C-u>Ref erlang
+" quickrun.vim
+AlterCommand qr QuickRun
 
 set secure
 
