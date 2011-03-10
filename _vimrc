@@ -3,22 +3,19 @@
 " 初期処理
 " バージョンの管理
 if v:version < 702
-  echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
-  finish
+    echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
+    finish
 endif
 for feat in ['multi_byte', 'iconv', 'syntax', 'autocmd']
-  if !has(feat)
-    echoerr 'Error: vimrc: Require the feature "' . feat . '"'
-    finish
-  endif
+    if !has(feat)
+        echoerr 'Error: vimrc: Require the feature "' . feat . '"'
+        finish
+    endif
 endfor
 unlet feat
 
 " Vimの初期処理の管理
-if !exists('g:loaded_vimrc')
-    let g:loaded_vimrc = 0
-endif
-if g:loaded_vimrc == 0
+if has('vim_starting')
     mapclear
     mapclear!
 endif
@@ -44,7 +41,6 @@ filetype plugin indent off
 source $DOTVIM/bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
-call altercmd#load()
 " Vi互換ではなくする
 set nocompatible
 " ファイルタイプの検出、ファイルタイププラグインを使う、インデントファイルを使う
@@ -273,7 +269,7 @@ function! SmoothScroll(dir, windiv, factor)
         set cursorline
     end
 endfunction
-map <C-b> :call SmoothScroll("d",1, 1)<CR>
+map <C-d> :call SmoothScroll("d",1, 1)<CR>
 map <C-u> :call SmoothScroll("u",1, 1)<CR>
 
 " case arc
@@ -324,17 +320,16 @@ set helplang=ja,en
 " 行連結コマンドにおいて空白を挿入しない
 set nojoinspaces
 " 全角スペースを表示する
-function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
-  silent! match ZenkakuSpace /　/
-endfunction
-
 if has('syntax')
   augroup ZenkakuSpace
     autocmd!
     autocmd VimEnter,BufEnter * call ZenkakuSpace()
   augroup END
 endif
+function! ZenkakuSpace()
+  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
+  silent! match ZenkakuSpace /　/
+endfunction
 
 "----------
 " マウスに関する設定
@@ -371,11 +366,6 @@ set wildmenu
 set wildchar=<Tab>
 " Insertモード補完のポップアップに表示される項目数の最大値
 set pumheight=20
-" Vimperator設定ファイルのfiletypeをvimにする
-augroup VIMPERATOR
-    autocmd!
-    au BufRead,BufNewFile *vimperatorrc set filetype=vim
-augroup END
 
 " swap
 " スワップファイルを使用しない
@@ -473,10 +463,10 @@ function! s:open_junk_file()
         execute 'edit ' . l:filename
     endif
 endfunction
+nnoremap <Leader>j :<C-u>JunkFile<CR>
 
 " コマンドの出力をキャプチャする
 command! -nargs=+ -complete=command Capture call s:cmd_capture(<q-args>)
-
 function! s:cmd_capture(q_args)
     redir => output
     silent execute a:q_args
@@ -523,7 +513,7 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
 "Escの2回押しでハイライト消去
-nmap <ESC><ESC> :nohlsearch<CR><ESC>
+nmap <silent> <ESC><ESC> :<C-u>nohlsearch<CR><ESC>
 
 "----------
 " バイナリの編集に関する設定
@@ -829,18 +819,6 @@ nnoremap <Leader>m :<C-u>marks<CR>
 nnoremap <Leader>q :<C-u>registers<CR>
 
 "----------
-" マップ定義 - ヘルプコマンド用キーマップ
-nnoremap t <Nop>
-" tjでジャンプ
-nnoremap tj <C-]>
-" tlで進む
-nnoremap tl :<C-u>tag<CR>
-" thで戻る
-nnoremap th :<C-u>pop<CR>
-" tkで履歴一覧
-nnoremap tk :<C-u>tags<CR>
-
-"----------
 " Plug-in用設定
 " Kaoriya版でのプラグイン
 if has('Kaoriya')
@@ -929,7 +907,7 @@ nnoremap <silent> [unite]c :<C-u>Unite command<CR>
 nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
 nnoremap <silent> [unite]w :<C-u>Unite -immediately window:no-current<CR>
-nnoremap <silent> [unite]e :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]q :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]s :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
@@ -970,29 +948,31 @@ if executable('Perl') && (has('win32') || has('win64'))
 endif
 
 " AlterCommand.vim
+silent! call altercmd#load()
+if exists('*altercmd#load')
 " 文字コードを指定して開き直す
-AlterCommand utf8 Utf8
-AlterCommand jis Iso2022jp
-AlterCommand sjis Cp932
-AlterCommand euc Euc
-AlterCommand unicode Utf16
-AlterCommand utf16be Utf16be
+    AlterCommand utf8 Utf8
+    AlterCommand jis Iso2022jp
+    AlterCommand sjis Cp932
+    AlterCommand euc Euc
+    AlterCommand unicode Utf16
+    AlterCommand utf16be Utf16be
 " oとtをvimperator風にする
-AlterCommand o open
-AlterCommand t tabedit
+    AlterCommand o open
+    AlterCommand t tabedit
 " タブページ毎にカレントディレクトリを設定する
-AlterCommand cd TabpageCD
+    AlterCommand cd TabpageCD
 " Unite.vim
-AlterCommand unite Unite
-AlterCommand u Unite
+    AlterCommand unite Unite
+    AlterCommand u Unite
 " ref.vim
-AlterCommand ref Ref
-AlterCommand ma :<C-u>Ref alc
-AlterCommand mp :<C-u>Ref perldoc
-AlterCommand me :<C-u>Ref erlang
+    AlterCommand ref Ref
+    AlterCommand ma :<C-u>Ref alc
+    AlterCommand mp :<C-u>Ref perldoc
+    AlterCommand me :<C-u>Ref erlang
 " quickrun.vim
-AlterCommand qr QuickRun
+    AlterCommand qr QuickRun
+endif
+
 
 set secure
-
-let g:loaded_vimrc = 1
