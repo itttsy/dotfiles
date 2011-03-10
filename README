@@ -1,6 +1,5 @@
 vim plugin I use
     echodoc
-    eregex.vim
     neocomplcache
     skk.vim
     unite.vim
@@ -10,34 +9,29 @@ vim plugin I use
     unite-qf
     unite-tag
     vim-altercmd
-    vimfiler
     vim-operator-replace
     vim-operator-user
+    vim-pathogen
     vimproc
     vim-quickrun
     vim-ref
     vim-surround
-    vim-textobj-diff
-    vim-textobj-indent
+    vim-textobj-function
+    vim-textobj-plugins
     vim-textobj-syntax
     vim-textobj-user
-#   vimshell
-    zoom.vim
 vimperator plugin I use
     _libly.js
     auto_detect_link.js
     auto-focus-frame.js
     autopagerize_controll.js
-    bitly.js
     caret-hint.js
     cookieManager.js
     copy.js
     feedSomeKeys_3.js
-    gcal.js
-    goo.gl.js
     lo.js
-    maine_coon.js
     multi_requester.js
+    nextlink.js
     opener.js
     pluginManager.js
     prevent_focus_ietab.js
@@ -46,5 +40,6 @@ vimperator plugin I use
     statusbar_panel.js
     tabsort.js
     twittperator.js
+    usi.js
     x-hint.js
     zoom-em-all.js
