@@ -745,6 +745,8 @@ xnoremap <Tab> >
 xnoremap <S-Tab> <
 " Visualモードの*で選択範囲を検索する
 vnoremap <silent> * "vy/\V<C-r>=substitute(escape(@v,'\/'),"\n",'\\n','g')<CR><CR>
+"ビジュアルモード時vで行末まで選択
+vnoremap v $h
 
 "----------
 " マップ定義 - Insertモード
@@ -798,18 +800,6 @@ cnoremap <C-l> <C-d>
 cnoremap <A-h> <S-Left>
 " <A-l>で次の言葉に移動する
 cnoremap <A-l> <S-Right>
-
-"----------
-" マップ定義 - テキストオブジェクト用キーマップ
-onoremap aa a>
-vnoremap aa a>
-onoremap ia i>
-vnoremap ia i>
-
-onoremap ar a]
-vnoremap ar a]
-onoremap ir i]
-vnoremap ir i]
 
 "----------
 " マップ定義 - レジスタ用キーマップ
@@ -889,9 +879,6 @@ inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
 inoremap <expr><C-y> neocomplcache#close_popup()
 inoremap <expr><C-b> neocomplcache#cansel_popup()
 
-" echodoc用設定
-let g:echodoc_enable_at_startup = 1
-
 " unite.vim用設定
 let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
@@ -900,7 +887,6 @@ call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM .
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap u [unite]
-
 nnoremap [unite]<Space> :<C-u>Unite<Space>
 nnoremap [unite]r       :<C-u>Unite ref/
 nnoremap <silent> [unite]c :<C-u>Unite command<CR>
@@ -929,6 +915,9 @@ function! s:unite_my_settings()
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
 endfunction
 
+" echodoc用設定
+let g:echodoc_enable_at_startup = 1
+
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
@@ -946,6 +935,37 @@ let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 if executable('Perl') && (has('win32') || has('win64'))
     let g:quickrun_config.perl = {'output_encode': 'sjis'}
 endif
+
+" textobj用設定
+onoremap aa a>
+vnoremap aa a>
+onoremap ia i>
+vnoremap ia i>
+
+onoremap ar a]
+vnoremap ar a]
+onoremap ir i]
+vnoremap ir i]
+
+omap aF <Plug>(textobj-function-a)
+vmap aF <Plug>(textobj-function-a)
+omap iF <Plug>(textobj-function-i)
+vmap iF <Plug>(textobj-function-i)
+
+omap ay <Plug>(textobj-syntax-a)
+vmap ay <Plug>(textobj-syntax-a)
+omap iy <Plug>(textobj-syntax-i)
+vmap iy <Plug>(textobj-syntax-i)
+
+" surround.vim用設定
+if exists('*SurroundRegister')
+    call SurroundRegister('g', 'jk', "「\r」")
+    call SurroundRegister('g', 'jK', "『\r』")
+    call SurroundRegister('g', 'js', "【\r】")
+endif
+
+" operator-replace用設定
+map _ <Plug>(operator-replace)
 
 " AlterCommand.vim
 silent! call altercmd#load()
