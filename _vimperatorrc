@@ -1,4 +1,4 @@
-" vim: set ft=vim
+" vim: set ft=javascript
 set all&
 mapclear
 cmapclear
@@ -13,7 +13,7 @@ set titlestring=Vimfox
 " メニュー/ツール/リンクを表示
 set gui=tabs
 set notabnumbers
-set noshowmode
+set noscrollbars
 set defsearch=google
 
 " リンクのURIをコマンドラインに表示
@@ -22,13 +22,8 @@ set showstatuslinks=2
 " 全て同じウィンドウに開く
 set newtab=all
 
-" コマンド入力時にコマンド名を自動補完
-set wildmode=list:full
-
 " URLのオートコンプリート
-set complete=
-autocmd VimperatorEnter ".*" :set complete+=lS
-set history=300
+set complete=lS
 
 " テキストボックスに勝手にフォーカスしない
 set focuscontent
@@ -67,6 +62,10 @@ set! browser.urlbar.filter.javascript=false
 set! browser.cache.disk.enable=true
 set! browser.cache.memory.enable=true
 set! browser.cache.memory.capacity=-1
+
+" セッションマネージャ
+set! extensions.sessionmanager.startup=2
+set! extensions.sessionmanager.resume_session="backup.session"
 
 " その他
 set! config.trim_on_minimize=true
@@ -107,8 +106,8 @@ autocmd LocationChange .* js getBrowser().mCurrentBrowser.collapsed = buffer.URL
 style -name panorama chrome://browser/content/tabview.html <<EOM
 #bg {
  background-image: url(file:///C:/Dropbox/Media/Pictures/Kuroneko.JPG) !important;
- background-size: auto 900px !important;
- background-repeat: norepeat !important;
+ background-size: 100% 100% !important;
+ background-repeat: no-repeat !important;
  background-position: top center !important;
 }
 .groupItem {
@@ -161,14 +160,16 @@ window.addEventListener('keypress',
 EOM
 
 " <C-h>で履歴を表示しないようにする
-noremap <C-h> <Nop>
+nnoremap <C-h> <Nop>
 inoremap <C-h> <Nop>
 " <C-j>でダウンロード履歴を表示しないようにする
-noremap <C-j> <Nop>
-inoremap <C-j> <Nop>
+nnoremap <C-j> <CR>
+inoremap <C-j> <CR>
+cnoremap <C-j> <CR>
 " <C-l>でURLを開かないようにする
-noremap <C-l> <Nop>
-inoremap <C-l> <Nop>
+nnoremap <C-l> <Nop>
+" <C-k>で検索ページを表示しないようにする
+nnoremap <C-k> <Nop>
 
 " Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
 inoremap <C-n> <Down>
@@ -176,8 +177,17 @@ inoremap <C-p> <Up>
 " Insertモードからヒントモードに移行する
 inoremap <C-f> <ESC>f
 
+" コマンドモードで<C-i>の挙動を変更する
+cnoremap <C-i> <Tab>
+cnoremap <S-C-i> <S-Tab>
+
 " eでecho表示
-noremap e :echo 
+noremap e :<C-u>echo<Space>
+noremap E :<C-u>echo!<Space>
+" pでpanorama表示
+noremap p :<C-u>panorama
+" yで非Ascii文字列のURLでyankする
+nnoremap y :<C-u>javascript util.copyToClipboard(buffer.URL);<CR>:echo "Yanked " + util.readFromClipboard();<CR>
 
 " 移動する前の場所を記憶
 nnoremap gg mzgg
@@ -185,18 +195,18 @@ nnoremap G  mzG
 nnoremap /  mz/
 
 " <A-p>/<A-n>で現在のタブの位置変更
-noremap <A-p> :tabmove! -1<CR>
-noremap <A-n> :tabmove! +1<CR>
+noremap <A-p> :<C-u>tabmove! -1<CR>
+noremap <A-n> :<C-u>tabmove! +1<CR>
 
 " <C-r>で履歴を表示
 cnoremap <C-r> <Up>
 
 " undo一覧から開く
-noremap U :undo<Space>
+noremap U :<C-u>undo<Space>
 
 " フレーム内移動
-nnoremap gh [f
-nnoremap gl ]f
+nnoremap > [f
+nnoremap < ]f
 
 "----------
 " 検索用ブックマーク
@@ -215,14 +225,17 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 "----------
 " プラグインに関する設定
 " lo.js
-noremap w :lo<Space>
+noremap w :<C-u>lo<Space>
+
+" statusline-toolbar.js
+autocmd VimperatorEnter ".*" :set statustoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button
 
 " multi_requester.js
-noremap ma :mr<Space>alc<Space>
-noremap mt :mr<Space>twitter-search-pcod-no-jp<Space>
-noremap mg :mr<Space>goo<Space>
-noremap me :mr<Space>answers<Space>
-noremap mw :mr<Space>weather-yahoo<Space>
+noremap ma :<C-u>mr<Space>alc<Space>
+noremap mt :<C-u>mr<Space>twitter-search-pcod-no-jp<Space>
+noremap mg :<C-u>mr<Space>goo<Space>
+noremap me :<C-u>mr<Space>answers<Space>
+noremap mw :<C-u>mr<Space>weather-yahoo<Space>
 
 " nextlink.js
 let g:nextlink_nositeinfo_act = "f"
@@ -249,8 +262,8 @@ lazyfmapgooglereader  -events=vkeypress , X
 lazyfmapgooglereader  -events=vkeypress . O
 lazyfmapsgooglereader -events=vkeypress <C-1>,1 <C-2>,2
 " twitter.com
-lazy fmaps -urls='^http://twitter\.com/' j k ?
-lazy fmaps -urls='^http://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
+lazy fmaps -urls='^https?://twitter\.com/' j k ?
+lazy fmaps -urls='^https?://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
 " rememberthemilk.com
 lazy fmaps -u='https?://www\.rememberthemilk\.com/home/' j k m i c t ? d F,f G,g S,s L,l Y,y H,h M,m <Del> <C-S-Left> <C-S-Right>
 " tumblr.com
