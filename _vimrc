@@ -269,6 +269,7 @@ function! SmoothScroll(dir, windiv, factor)
         set cursorline
     end
 endfunction
+
 map <C-d> :call SmoothScroll("d",1, 1)<CR>
 map <C-u> :call SmoothScroll("u",1, 1)<CR>
 
@@ -299,6 +300,7 @@ function! s:fold_current_expand()
     silent! %foldclose!
     normal! zvzz
 endfunc
+
 nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 
 " カレントウィンドウにのみ罫線を引く
@@ -320,16 +322,17 @@ set helplang=ja,en
 " 行連結コマンドにおいて空白を挿入しない
 set nojoinspaces
 " 全角スペースを表示する
+function! ZenkakuSpace()
+  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
+  silent! match ZenkakuSpace /　/
+endfunction
+
 if has('syntax')
   augroup ZenkakuSpace
     autocmd!
     autocmd VimEnter,BufEnter * call ZenkakuSpace()
   augroup END
 endif
-function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
-  silent! match ZenkakuSpace /　/
-endfunction
 
 "----------
 " マウスに関する設定
@@ -425,10 +428,6 @@ vnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
 command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
 
 " 内容が空の.txtファイルを保存したら自動で削除する
-augroup BUFWRITE_POSTDELETE
-    autocmd!
-    autocmd BufWritePost *.txt call BufWritePostDelete()
-augroup END
 function! BufWritePostDelete()
     let crlen = 0
     if &binary == 0
@@ -438,6 +437,11 @@ function! BufWritePostDelete()
         call delete(expand('%:p'))
     endif
 endfunction
+
+augroup BUFWRITE_POSTDELETE
+    autocmd!
+    autocmd BufWritePost *.txt call BufWritePostDelete()
+augroup END
 
 " 存在しないディレクトリを自動で作成する
 augroup vimrc-auto-mkdir
@@ -463,6 +467,7 @@ function! s:open_junk_file()
         execute 'edit ' . l:filename
     endif
 endfunction
+
 nnoremap <Leader>j :<C-u>JunkFile<CR>
 
 " コマンドの出力をキャプチャする
@@ -479,8 +484,6 @@ function! s:cmd_capture(q_args)
 endfunction
 
 " タブページ毎にカレントディレクトリを設定する
-nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
-
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
 command! -bar -complete=dir -nargs=? TabpageCD execute 'cd' fnameescape(expand(<q-args>)) | let t:cwd = getcwd()
 augroup TabpageCD
@@ -494,6 +497,8 @@ augroup TabpageCD
     \| endif
     \| execute 'cd' fnameescape(expand(t:cwd))
 augroup END
+
+nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 
 "----------
 " 検索に関する設定
@@ -535,11 +540,6 @@ command! -nargs=? -complete=file Diff if '<args>'=='' | browse vertical diffspli
 
 "----------
 " Sticky Shiftを実現する
-let g:sticky_us_keyboard = 0
-inoremap <expr> ; <SID>sticky_func()
-cnoremap <expr> ; <SID>sticky_func()
-snoremap <expr> ; <SID>sticky_func()
-
 function! s:sticky_func()
     let l:sticky_table = {
         \'0' : {
@@ -575,6 +575,11 @@ function! s:sticky_func()
     endif
 endfunction
 
+let g:sticky_us_keyboard = 0
+inoremap <expr> ; <SID>sticky_func()
+cnoremap <expr> ; <SID>sticky_func()
+snoremap <expr> ; <SID>sticky_func()
+
 "----------
 " マップ定義 - Normalモード
 " Window関係
@@ -603,25 +608,6 @@ nnoremap <SID>(split-to-h) :<C-u>execute 'topleft'    (v:count == 0 ? '' : v:cou
 nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:count) 'vsplit'<CR>
 
 " ウィンドウを入れ替える
-nnoremap [Swap] <Nop>
-nmap <C-s> [Swap]
-
-nmap [Swap]<C-n> <SID>swap_window_next
-nmap [Swap]<C-p> <SID>swap_window_prev
-nmap [Swap]<C-j> <SID>swap_window_j
-nmap [Swap]<C-k> <SID>swap_window_k
-nmap [Swap]<C-h> <SID>swap_window_h
-nmap [Swap]<C-l> <SID>swap_window_l
-
-nnoremap <silent> <SID>swap_window_next :<C-u>call <SID>swap_window_count(v:count1)<CR>
-nnoremap <silent> <SID>swap_window_prev :<C-u>call <SID>swap_window_count(-v:count1)<CR>
-nnoremap <silent> <SID>swap_window_j    :<C-u>call <SID>swap_window_dir(v:count1, 'j')<CR>
-nnoremap <silent> <SID>swap_window_k    :<C-u>call <SID>swap_window_dir(v:count1, 'k')<CR>
-nnoremap <silent> <SID>swap_window_h    :<C-u>call <SID>swap_window_dir(v:count1, 'h')<CR>
-nnoremap <silent> <SID>swap_window_l    :<C-u>call <SID>swap_window_dir(v:count1, 'l')<CR>
-nnoremap <silent> <SID>swap_window_t    :<C-u>call <SID>swap_window_dir(v:count1, 't')<CR>
-nnoremap <silent> <SID>swap_window_b    :<C-u>call <SID>swap_window_dir(v:count1, 'b')<CR>
-
 function! s:modulo(n, m)
     let d = a:n * a:m < 0 ? 1 : 0
     return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
@@ -652,6 +638,25 @@ function! s:swap_window(curwin, targetwin)
         execute curbuf 'buffer'
     endif
 endfunction
+
+nnoremap [Swap] <Nop>
+nmap <C-s> [Swap]
+
+nmap [Swap]<C-n> <SID>swap_window_next
+nmap [Swap]<C-p> <SID>swap_window_prev
+nmap [Swap]<C-j> <SID>swap_window_j
+nmap [Swap]<C-k> <SID>swap_window_k
+nmap [Swap]<C-h> <SID>swap_window_h
+nmap [Swap]<C-l> <SID>swap_window_l
+
+nnoremap <silent> <SID>swap_window_next :<C-u>call <SID>swap_window_count(v:count1)<CR>
+nnoremap <silent> <SID>swap_window_prev :<C-u>call <SID>swap_window_count(-v:count1)<CR>
+nnoremap <silent> <SID>swap_window_j    :<C-u>call <SID>swap_window_dir(v:count1, 'j')<CR>
+nnoremap <silent> <SID>swap_window_k    :<C-u>call <SID>swap_window_dir(v:count1, 'k')<CR>
+nnoremap <silent> <SID>swap_window_h    :<C-u>call <SID>swap_window_dir(v:count1, 'h')<CR>
+nnoremap <silent> <SID>swap_window_l    :<C-u>call <SID>swap_window_dir(v:count1, 'l')<CR>
+nnoremap <silent> <SID>swap_window_t    :<C-u>call <SID>swap_window_dir(v:count1, 't')<CR>
+nnoremap <silent> <SID>swap_window_b    :<C-u>call <SID>swap_window_dir(v:count1, 'b')<CR>
 
 " Buffer関係
 " Hで前のバッファを表示
@@ -712,6 +717,7 @@ function! s:move_window_into_tab_page(target_tabpagenr)
     endif
     execute target_tabpagenr 'tabnext'
 endfunction
+
 nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
 
 " 移動関係
@@ -829,6 +835,36 @@ augroup NetrwCommand
     autocmd FileType netrw nmap <buffer> l <CR>
 augroup END
 
+" vimfiler用設定
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
+let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
+let g:vimfiler_external_copy_file_command = 'cp $src $dest'
+let g:vimfiler_external_delete_command = 'rm -r $srcs'
+let g:vimfiler_external_move_command = 'mv $srcs $dest'
+" Enable file operation commands.
+let g:vimfiler_safe_mode_by_default = 1
+
+" vimshell用設定
+let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+let g:vimshell_use_ckw = 0
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_enable_smart_case = 1
+let g:vimshell_split_height = 50
+
+if has('win32') || has('win64')
+    let g:vimshell_prompt = $USERNAME."% "
+else
+    let g:vimshell_prompt = $USER."% "
+endif
+
+augroup VimShell
+    autocmd!
+    autocmd FileType vimshell
+        \ call vimshell#altercmd#define('i', 'iexe')
+        \| call vimshell#altercmd#define('ll', 'ls -l')
+augroup END
+
 " skk.vim用設定
 let g:skk_jisyo              = $DOTVIM . '/dict/_skk-jisyo'
 let g:skk_large_jisyo        = $DOTVIM . '/dict/SKK-JISYO.L'
@@ -900,11 +936,9 @@ nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]h :<C-u>Unite help<CR>
 nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
-augroup UniteSetting
-    autocmd!
-    autocmd FileType unite call s:unite_my_settings()
-augroup END
+
 function! s:unite_my_settings()
+    highlight uniteSource__FileMru_Time term=none cterm=none ctermfg=15 ctermbg=3 guifg=#ffffff guibg=#20b2aa
     nmap <buffer> <ESC>          <Plug>(unite_exit)
     imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
@@ -914,6 +948,11 @@ function! s:unite_my_settings()
     imap <buffer> <silent> <C-w> <Plug>(unite_delete_backward_path)
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
 endfunction
+
+augroup UniteSetting
+    autocmd!
+    autocmd FileType unite call s:unite_my_settings()
+augroup END
 
 " echodoc用設定
 let g:echodoc_enable_at_startup = 1
@@ -931,10 +970,6 @@ vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR
 " quickrun.vim用設定
 nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
-" Windows用Perl設定
-if executable('Perl') && (has('win32') || has('win64'))
-    let g:quickrun_config.perl = {'output_encode': 'sjis'}
-endif
 
 " textobj用設定
 onoremap aa a>
@@ -947,10 +982,20 @@ vnoremap ar a]
 onoremap ir i]
 vnoremap ir i]
 
-omap aF <Plug>(textobj-function-a)
-vmap aF <Plug>(textobj-function-a)
-omap iF <Plug>(textobj-function-i)
-vmap iF <Plug>(textobj-function-i)
+omap af <Plug>(textobj-function-a)
+vmap af <Plug>(textobj-function-a)
+omap if <Plug>(textobj-function-i)
+vmap if <Plug>(textobj-function-i)
+
+omap ab <Plug>(textobj-between-a)
+vmap ab <Plug>(textobj-between-a)
+omap ib <Plug>(textobj-between-i)
+vmap ib <Plug>(textobj-between-i)
+
+omap ac <Plug>(textobj-comment-a)
+vmap ac <Plug>(textobj-comment-a)
+omap ic <Plug>(textobj-comment-i)
+vmap ic <Plug>(textobj-comment-i)
 
 omap ay <Plug>(textobj-syntax-a)
 vmap ay <Plug>(textobj-syntax-a)
@@ -982,6 +1027,10 @@ if exists('*altercmd#load')
     AlterCommand t tabedit
 " タブページ毎にカレントディレクトリを設定する
     AlterCommand cd TabpageCD
+" VimShell
+    AlterCommand vsh VimShell
+    AlterCommand vshp VimShellPop
+    AlterCommand vshe VimShellExecute
 " Unite.vim
     AlterCommand unite Unite
     AlterCommand u Unite

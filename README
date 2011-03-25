@@ -9,12 +9,14 @@ vim plugin I use
     unite-qf
     unite-tag
     vim-altercmd
+    vimfiler
     vim-operator-replace
     vim-operator-user
     vim-pathogen
     vimproc
     vim-quickrun
     vim-ref
+    vimshell
     vim-surround
     vim-textobj-function
     vim-textobj-plugins
