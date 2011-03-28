@@ -52,8 +52,8 @@ set helplang=ja,en
 " 日本語用エンコード設定
 if !has('gui_running') && has('win32') || has('win64')
 " WindowsのターミナルのみShift_JIS対応
-    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
     set termencoding=sjis
+    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
 else
 " Windowsターミナル以外はUtf8対応
     set encoding=utf-8
@@ -61,7 +61,12 @@ else
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
-    set termencoding=utf-8
+" WindowsのGUI版に関してもターミナルはShift_JIS
+    if has('win32') || has('win64')
+        set termencoding=sjis
+    else
+        set termencoding=utf-8
+    endif
 endif
 
 " modeline内にfencを指定されている場合の対応
@@ -124,6 +129,7 @@ endif
 
 " helptagsの生成
 helptags $DOTVIM/doc
+set notagbsearch
 
 "----------
 " IME切り替えの為の設定
@@ -857,13 +863,6 @@ if has('win32') || has('win64')
 else
     let g:vimshell_prompt = $USER."% "
 endif
-
-augroup VimShell
-    autocmd!
-    autocmd FileType vimshell
-        \ call vimshell#altercmd#define('i', 'iexe')
-        \| call vimshell#altercmd#define('ll', 'ls -l')
-augroup END
 
 " skk.vim用設定
 let g:skk_jisyo              = $DOTVIM . '/dict/_skk-jisyo'

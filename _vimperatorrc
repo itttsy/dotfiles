@@ -228,7 +228,7 @@ silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evern
 noremap w :<C-u>lo<Space>
 
 " statusline-toolbar.js
-autocmd VimperatorEnter ".*" :set statustoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button
+autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button
 
 " multi_requester.js
 noremap ma :<C-u>mr<Space>alc<Space>
