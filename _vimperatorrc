@@ -80,7 +80,7 @@ set! browser.tabs.loadInBackground=false
 " 視覚に関する設定
 
 " ヒントモードの文字を見やすく
-hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9;
+hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9; text-transform: uppercase;
 hi HintActive background-color: greenyellow; border: 0.5px oldlace dotted; -moz-border-radius: 3px; padding: 0.1em; font-weight: bold;
 
 " ヒントモードに使う文字の指定
@@ -195,8 +195,8 @@ nnoremap G  mzG
 nnoremap /  mz/
 
 " <A-p>/<A-n>で現在のタブの位置変更
-noremap <A-p> :<C-u>tabmove! -1<CR>
-noremap <A-n> :<C-u>tabmove! +1<CR>
+noremap <A-p> :<C-u>tabmove! -1<CR><ESC>
+noremap <A-n> :<C-u>tabmove! +1<CR><ESC>
 
 " <C-r>で履歴を表示
 cnoremap <C-r> <Up>
