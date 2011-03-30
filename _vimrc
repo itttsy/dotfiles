@@ -50,10 +50,14 @@ set helplang=ja,en
 
 "----------
 " 日本語用エンコード設定
-if !has('gui_running') && has('win32') || has('win64')
-" WindowsのターミナルのみShift_JIS対応
-    set termencoding=sjis
+if has('win32') || has('win64')
+" WindowsはShift_JIS対応
+    set fileencoding=cp932
     set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+    source $VIMRUNTIME/delmenu.vim
+    set langmenu=menu_ja_jp.cp932.vim
+    source $VIMRUNTIME/menu.vim
+    set termencoding=cp932
 else
 " Windowsターミナル以外はUtf8対応
     set encoding=utf-8
@@ -61,12 +65,7 @@ else
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
-" WindowsのGUI版に関してもターミナルはShift_JIS
-    if has('win32') || has('win64')
-        set termencoding=sjis
-    else
-        set termencoding=utf-8
-    endif
+    set termencoding=utf-8
 endif
 
 " modeline内にfencを指定されている場合の対応
@@ -92,17 +91,11 @@ augroup ModelineFileEncoding
 augroup END
 
 " 文字コードを指定して開き直す
-" Open in UTF-8 again.
 command! -bang -bar -complete=file -nargs=? Utf8      edit<bang> ++enc=utf-8 <args>
-" Open in iso-2022-jp again.
 command! -bang -bar -complete=file -nargs=? Iso2022jp edit<bang> ++enc=iso-2022-jp <args>
-" Open in Shift_JIS again.
 command! -bang -bar -complete=file -nargs=? Cp932     edit<bang> ++enc=cp932 <args>
-" Open in EUC-jp again.
 command! -bang -bar -complete=file -nargs=? Euc       edit<bang> ++enc=euc-jp <args>
-" Open in UTF-16 again.
 command! -bang -bar -complete=file -nargs=? Utf16     edit<bang> ++enc=ucs-2le <args>
-" Open in UTF-16BE again.
 command! -bang -bar -complete=file -nargs=? Utf16be   edit<bang> ++enc=ucs-2 <args>
 
 "----------
@@ -329,16 +322,14 @@ set helplang=ja,en
 set nojoinspaces
 " 全角スペースを表示する
 function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
-  silent! match ZenkakuSpace /　/
+    highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
+    silent! match ZenkakuSpace /　/
 endfunction
 
-if has('syntax')
-  augroup ZenkakuSpace
+augroup ZenkakuSpace
     autocmd!
     autocmd VimEnter,BufEnter * call ZenkakuSpace()
-  augroup END
-endif
+augroup END
 
 "----------
 " マウスに関する設定
@@ -370,8 +361,18 @@ augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
 augroup END
+" オムニ補完用設定
+augroup Omni
+    autocmd!
+    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+augroup END
 " コマンドライン補完を拡張モードで行う
 set wildmenu
+set wildmode=full
 set wildchar=<Tab>
 " Insertモード補完のポップアップに表示される項目数の最大値
 set pumheight=20
@@ -451,14 +452,14 @@ augroup END
 
 " 存在しないディレクトリを自動で作成する
 augroup vimrc-auto-mkdir
-  autocmd!
-  autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
-  function! s:auto_mkdir(dir, force)
-    if !isdirectory(a:dir) && (a:force ||
-    \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
-      call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
-    endif
-  endfunction
+    autocmd!
+    autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+    function! s:auto_mkdir(dir, force)
+        if !isdirectory(a:dir) && (a:force ||
+        \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
+        call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+        endif
+    endfunction
 augroup END
 
 " 使い捨て用のファイルを生成する
@@ -724,7 +725,7 @@ function! s:move_window_into_tab_page(target_tabpagenr)
     execute target_tabpagenr 'tabnext'
 endfunction
 
-nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<Cr>
+nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<CR>
 
 " 移動関係
 " 最後に編集された位置に移動
@@ -767,7 +768,7 @@ inoremap <C-t> <C-v><Tab>
 " <C-d>をDelにする
 inoremap <C-d> <Del>
 " <C-p>でクリップボードの内容を貼り付ける
-imap <C-p> <Esc>"*pa
+imap <C-y> <Esc>"*pa
 " <C-a>で先頭に移動する
 inoremap <silent><C-a> <C-o>^
 " <C-e>で最後に移動する
@@ -783,8 +784,8 @@ inoremap <A-j> <Down>
 " <C-u>でundoする
 inoremap <C-u> <C-g>u<C-u>
 inoremap <C-w> <C-g>u<C-w>
-" <C-g><C-u>で直下の単語を大文字に変換する
-inoremap <C-g><C-u> <ESC>gUiw`]a
+" <C-Space>でオムニ補完を利用する
+inoremap <C-Space> <C-x><C-o>
 " 括弧を入力したときにカーソルを真ん中へ
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
@@ -841,29 +842,6 @@ augroup NetrwCommand
     autocmd FileType netrw nmap <buffer> l <CR>
 augroup END
 
-" vimfiler用設定
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
-let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
-let g:vimfiler_external_copy_file_command = 'cp $src $dest'
-let g:vimfiler_external_delete_command = 'rm -r $srcs'
-let g:vimfiler_external_move_command = 'mv $srcs $dest'
-" Enable file operation commands.
-let g:vimfiler_safe_mode_by_default = 1
-
-" vimshell用設定
-let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-let g:vimshell_use_ckw = 0
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
-let g:vimshell_enable_smart_case = 1
-let g:vimshell_split_height = 50
-
-if has('win32') || has('win64')
-    let g:vimshell_prompt = $USERNAME."% "
-else
-    let g:vimshell_prompt = $USER."% "
-endif
-
 " skk.vim用設定
 let g:skk_jisyo              = $DOTVIM . '/dict/_skk-jisyo'
 let g:skk_large_jisyo        = $DOTVIM . '/dict/SKK-JISYO.L'
@@ -900,12 +878,10 @@ let g:neocomplcache_dictionary_filetype_lists = {
     \ 'perl'     : $DOTVIM . '/dict/perl.dict',
     \ 'java'     : $DOTVIM . '/dict/java.dict',
 \ }
-imap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
-smap <expr><C-l> <Plug>(neocomplcache_snippets_expand)
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-k> neocomplcache#complete_common_string() 
-" SuperTab風snippets
-imap <expr>] neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\]"
+" ]でsnippet補完
+imap <expr>] neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : "\]"
 " <CR>, <C-h>, <BS>, <Space>でポップアップも消す
 inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
 inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
@@ -953,9 +929,6 @@ augroup UniteSetting
     autocmd FileType unite call s:unite_my_settings()
 augroup END
 
-" echodoc用設定
-let g:echodoc_enable_at_startup = 1
-
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
@@ -969,78 +942,12 @@ vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR
 " quickrun.vim用設定
 nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
-
-" textobj用設定
-onoremap aa a>
-vnoremap aa a>
-onoremap ia i>
-vnoremap ia i>
-
-onoremap ar a]
-vnoremap ar a]
-onoremap ir i]
-vnoremap ir i]
-
-omap af <Plug>(textobj-function-a)
-vmap af <Plug>(textobj-function-a)
-omap if <Plug>(textobj-function-i)
-vmap if <Plug>(textobj-function-i)
-
-omap ab <Plug>(textobj-between-a)
-vmap ab <Plug>(textobj-between-a)
-omap ib <Plug>(textobj-between-i)
-vmap ib <Plug>(textobj-between-i)
-
-omap ac <Plug>(textobj-comment-a)
-vmap ac <Plug>(textobj-comment-a)
-omap ic <Plug>(textobj-comment-i)
-vmap ic <Plug>(textobj-comment-i)
-
-omap ay <Plug>(textobj-syntax-a)
-vmap ay <Plug>(textobj-syntax-a)
-omap iy <Plug>(textobj-syntax-i)
-vmap iy <Plug>(textobj-syntax-i)
-
-" surround.vim用設定
-if exists('*SurroundRegister')
-    call SurroundRegister('g', 'jk', "「\r」")
-    call SurroundRegister('g', 'jK', "『\r』")
-    call SurroundRegister('g', 'js', "【\r】")
+" Windows用Perl設定
+if executable('Perl') && (has('win32') || has('win64'))
+    let g:quickrun_config.perl = {'output_encode': 'cp932'}
 endif
 
-" operator-replace用設定
-map _ <Plug>(operator-replace)
-
-" AlterCommand.vim
-silent! call altercmd#load()
-if exists('*altercmd#load')
-" 文字コードを指定して開き直す
-    AlterCommand utf8 Utf8
-    AlterCommand jis Iso2022jp
-    AlterCommand sjis Cp932
-    AlterCommand euc Euc
-    AlterCommand unicode Utf16
-    AlterCommand utf16be Utf16be
-" oとtをvimperator風にする
-    AlterCommand o open
-    AlterCommand t tabedit
-" タブページ毎にカレントディレクトリを設定する
-    AlterCommand cd TabpageCD
-" VimShell
-    AlterCommand vsh VimShell
-    AlterCommand vshp VimShellPop
-    AlterCommand vshe VimShellExecute
-" Unite.vim
-    AlterCommand unite Unite
-    AlterCommand u Unite
-" ref.vim
-    AlterCommand ref Ref
-    AlterCommand ma :<C-u>Ref alc
-    AlterCommand mp :<C-u>Ref perldoc
-    AlterCommand me :<C-u>Ref erlang
-" quickrun.vim
-    AlterCommand qr QuickRun
-endif
-
+" echodoc用設定
+let g:echodoc_enable_at_startup = 1
 
 set secure

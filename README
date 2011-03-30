@@ -1,27 +1,17 @@
 vim plugin I use
     echodoc
     neocomplcache
+    perlomni.vim
     skk.vim
     unite.vim
     unite-grep
     unite-help
     unite-outline
-    unite-qf
-    unite-tag
-    vim-altercmd
-    vimfiler
-    vim-operator-replace
-    vim-operator-user
     vim-pathogen
     vimproc
     vim-quickrun
     vim-ref
-    vimshell
     vim-surround
-    vim-textobj-function
-    vim-textobj-plugins
-    vim-textobj-syntax
-    vim-textobj-user
 vimperator plugin I use
     _libly.js
     auto_detect_link.js
