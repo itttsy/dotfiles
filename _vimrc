@@ -20,7 +20,7 @@ if has('vim_starting')
     mapclear!
 endif
 
-" Windows/Linuxにおいて、.vimと$VIM/vimfilesの違いを吸収する
+" Windows/Linuxにおいて、.vimとvimfilesの違いを吸収する
 if has('win32') || has('win64')
     let $DOTVIM = $HOME . '/vimfiles'
 else
@@ -360,15 +360,6 @@ set complete& complete+=k
 augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
-augroup END
-" オムニ補完用設定
-augroup Omni
-    autocmd!
-    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 augroup END
 " コマンドライン補完を拡張モードで行う
 set wildmenu
@@ -784,6 +775,8 @@ inoremap <A-j> <Down>
 " <C-u>でundoする
 inoremap <C-u> <C-g>u<C-u>
 inoremap <C-w> <C-g>u<C-w>
+" ]を入力した際に、対応する括弧が見つからない場合は補完キーとする
+inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " <C-Space>でオムニ補完を利用する
 inoremap <C-Space> <C-x><C-o>
 " 括弧を入力したときにカーソルを真ん中へ
@@ -880,8 +873,9 @@ let g:neocomplcache_dictionary_filetype_lists = {
 \ }
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-k> neocomplcache#complete_common_string() 
-" ]でsnippet補完
-imap <expr>] neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : "\]"
+" <C-l>でsnippet補完
+imap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
+smap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
 " <CR>, <C-h>, <BS>, <Space>でポップアップも消す
 inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
 inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
@@ -898,8 +892,8 @@ call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM .
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap u [unite]
-nnoremap [unite]<Space> :<C-u>Unite<Space>
-nnoremap [unite]r       :<C-u>Unite ref/
+nnoremap [unite]<Space>    :<C-u>Unite<Space>
+nnoremap [unite]r          :<C-u>Unite ref/
 nnoremap <silent> [unite]c :<C-u>Unite command<CR>
 nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
