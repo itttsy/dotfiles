@@ -2,8 +2,8 @@
 
 " 初期処理
 " バージョンの管理
-if v:version < 702
-    echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
+if v:version < 703
+    echoerr 'Error: vimrc: Require the Vim 7.3 or later.'
     finish
 endif
 for feat in ['multi_byte', 'iconv', 'syntax', 'autocmd']
@@ -38,7 +38,7 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 set all&
 filetype plugin indent off
 " 各種プラグインのロード
-source $DOTVIM/bundle/vim-pathogen/autoload/pathogen.vim
+source $DOTVIM/bundle/pathogen.vim/plugin/pathogen.vim
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 " Vi互換ではなくする
@@ -52,16 +52,16 @@ set helplang=ja,en
 " 日本語用エンコード設定
 if has('win32') || has('win64')
 " WindowsはShift_JIS対応
-    set fileencoding=cp932
-    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+    set encoding=cp932
+    set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.cp932.vim
     source $VIMRUNTIME/menu.vim
     set termencoding=cp932
 else
-" Windowsターミナル以外はUtf8対応
+" Windows以外はUtf8対応
     set encoding=utf-8
-    set fileencodings=utf-8,cp932,euc-jp,iso-2022-jp
+    set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
@@ -91,12 +91,10 @@ augroup ModelineFileEncoding
 augroup END
 
 " 文字コードを指定して開き直す
-command! -bang -bar -complete=file -nargs=? Utf8      edit<bang> ++enc=utf-8 <args>
-command! -bang -bar -complete=file -nargs=? Iso2022jp edit<bang> ++enc=iso-2022-jp <args>
-command! -bang -bar -complete=file -nargs=? Cp932     edit<bang> ++enc=cp932 <args>
-command! -bang -bar -complete=file -nargs=? Euc       edit<bang> ++enc=euc-jp <args>
-command! -bang -bar -complete=file -nargs=? Utf16     edit<bang> ++enc=ucs-2le <args>
-command! -bang -bar -complete=file -nargs=? Utf16be   edit<bang> ++enc=ucs-2 <args>
+command! -bang -bar -complete=file -nargs=? Utf8 edit<bang> ++enc=utf-8 <args>
+command! -bang -bar -complete=file -nargs=? Jis  edit<bang> ++enc=iso-2022-jp <args>
+command! -bang -bar -complete=file -nargs=? Sjis edit<bang> ++enc=cp932 <args>
+command! -bang -bar -complete=file -nargs=? Euc  edit<bang> ++enc=euc-jp <args>
 
 "----------
 " プラットフォーム依存の問題の為の設定
@@ -135,7 +133,7 @@ endif
 "----------
 " GUI固有ではない画面表示の設定
 if !has('gui_running')
-    colorscheme miku
+    colorscheme default
 endif
 " 画面表示に関する設定
 set guioptions=agip
@@ -144,35 +142,36 @@ if &t_Co > 2 || has("gui_running")
     syntax enable
     set hlsearch
 endif
-" 長い行について折り返す
+" 長い行についての折り返し
 set wrap
-" 現在のモードを表示する
+" 現在のモードの表示
 set showmode
-" 行番号を表示する
+" 行番号の表示
 set number
-" カーソルが何行目何列目にあるか表示しない
+" カーソルが何行目何列目にあるかの表示
 set noruler
 
 " title
-" ウィンドウのタイトルを表示する
+" ウィンドウのタイトルの表示
 set title
+
+" statusline
+" ステータスラインの表示
 set statusline=
     \%<%{expand('%:p')}\ %m%r%h%w
     \%=%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']'}[%{tabpagenr()}/%{tabpagenr('$')}]\ %P
-
-" statusline
 " タブページのラベルの表示
 set showtabline=0
-" ステータス行を常に表示
+" ステータス行の表示
 set laststatus=2
 " コマンドラインに使われる画面上の行数
 set cmdheight=1
-" コマンドを画面最下行に表示する
+" コマンドを画面最下行の表示
 set showcmd
 " コマンドラインにメッセージが表示される閾値
 set report=1
 " Insertモード時にステータスラインの色を変更
-let g:hi_insert = 'highlight StatusLine guifg=white guibg=darkgray gui=none ctermfg=7 ctermbg=8 cterm=none'
+let g:hi_insert = 'highlight StatusLine gui=reverse cterm=reverse'
 if has('syntax')
     augroup InsertHook
         autocmd!
@@ -200,7 +199,7 @@ function! s:GetHighlight(hi)
 endfunction
 
 " gui
-" ビープ音にビジュアルベルを使用する
+" ビープ音にビジュアルベルの使用
 set visualbell
 " Vimを終了したときにコンソール画面を復元しない
 set norestorescreen
@@ -208,18 +207,31 @@ set t_ti=
 set t_te=
 
 " cursor
-" Insertモードでautoindent、改行を超えてバックスペースを働かせる
+" Insertモードでautoindent、改行を超えたバックスペースの設定
 set backspace=2
 
 " listchars
-" タブ文字や行末を表示する
+" タブ文字や行末の表示
 set list
-" タブ文字や行末に表示する文字を指定する
+" タブ文字や行末に表示する文字の指定
 set listchars=tab:>_,extends:>,precedes:<,eol:_,trail:~
 
 " fillchars
-" ステータス行と垂直分割の区切りを埋める文字を指定する
+" ステータス行と垂直分割の区切りを埋める文字の指定
 set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
+
+" ZenkakuSpace
+" 全角スペースの表示
+scriptencoding utf-8
+function! ZenkakuSpace()
+    highlight ZenkakuSpace cterm=underline ctermbg=2 gui=underline guibg=#2f4f4f
+    silent! match ZenkakuSpace /　/
+endfunction
+
+augroup ZenkakuSpace
+    autocmd!
+    autocmd VimEnter,BufEnter * call ZenkakuSpace()
+augroup END
 
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
@@ -273,21 +285,21 @@ map <C-d> :call SmoothScroll("d",1, 1)<CR>
 map <C-u> :call SmoothScroll("u",1, 1)<CR>
 
 " case arc
-" 対応する括弧にジャンプする
+" 対応する括弧へのジャンプ
 set showmatch
-" 対応する括弧にジャンプしている時間
+" 対応する括弧にジャンプする時間
 set matchtime=3
-" ジャンプ中に文字を入力するとカーソルがすぐに元の場所に戻る
+" ジャンプ中に文字を入力する際のカーソルの移動
 set cpoptions& cpoptions-=m
 " 対応する括弧のペアの追加
 set matchpairs& matchpairs+=<:>
 
 " fold
-" 折り畳みを使用する
+" 折り畳みの設定
 set foldenable
-" マーカーで折り畳みを指定する
+" マーカーでの折り畳みの指定
 set foldmethod=marker
-" 折り畳みを表示する
+" 折り畳みの表示
 set foldcolumn=0
 " 行頭で h を押すと選択範囲に含まれるfoldを閉じる
 vnoremap <expr> h col('.') == 1 && foldlevel(line('.')) > 0 ? 'zcgv' : 'h'
@@ -312,24 +324,14 @@ augroup END
 " misc
 " ファイルフォーマットの設定
 set fileformats=unix,dos,mac
-" マルチバイト文字の幅の扱いを指定する
+" マルチバイト文字の幅の扱いの指定
 set ambiwidth=double
 " Diffモード用の設定
 set diffopt=filler,vertical
-" ヘルプ用言語設定
+" ヘルプ用言語の設定
 set helplang=ja,en
-" 行連結コマンドにおいて空白を挿入しない
+" 行連結コマンドにおいての空白の挿入
 set nojoinspaces
-" 全角スペースを表示する
-function! ZenkakuSpace()
-    highlight ZenkakuSpace cterm=underline ctermfg=lightblue gui=underline
-    silent! match ZenkakuSpace /　/
-endfunction
-
-augroup ZenkakuSpace
-    autocmd!
-    autocmd VimEnter,BufEnter * call ZenkakuSpace()
-augroup END
 
 "----------
 " マウスに関する設定
@@ -342,16 +344,16 @@ endif
 "----------
 " 編集に関する設定
 " indent
-" 新しい行を開始したときに新しい行のインデントを適切に設定する
+" 新しい行を開始したときに新しい行のインデントの設定
 set autoindent
 set smartindent
-" Insertモードでタブ文字を挿入するときに代わりに適切な数の空白を使う
+" Insertモードでタブ文字を挿入するときの空白の設定
 set expandtab
 set smarttab
 set tabstop=8
 set softtabstop=4
 set shiftwidth=4
-" インデントをshiftwidthの値の整数倍にまとめる
+" インデントをshiftwidthの値の整数倍にまとめる設定
 set shiftround
 
 " completion
@@ -361,7 +363,7 @@ augroup DictFile
     autocmd!
     autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
 augroup END
-" コマンドライン補完を拡張モードで行う
+" コマンドライン補完を拡張モードで行う設定
 set wildmenu
 set wildmode=full
 set wildchar=<Tab>
@@ -369,7 +371,7 @@ set wildchar=<Tab>
 set pumheight=20
 
 " swap
-" スワップファイルを使用しない
+" スワップファイル
 set noswapfile
 set updatecount=0
 if has('unix')
@@ -378,12 +380,12 @@ if has('unix')
 endif
 
 " backup
-" バックアップファイルを使用する
-set backup
-set backupdir=$DOTVIM/backup
+" バックアップファイル
+set nobackup
+set backupdir=$DOTVIM/tmp/backup
 
 " undo
-" 無限Undoを使用する
+" 無限Undo
 set undofile
 set undodir=$DOTVIM/tmp/undo
 " <C-b>/<C-f>でUndo/Redoする
@@ -391,9 +393,9 @@ nnoremap <silent> <C-b> :<C-u>undo<CR>
 nnoremap <silent> <C-f> :<C-u>redo<CR>
 
 " misc
-" バッファを放棄したときに開放しない
+" バッファを放棄したときのファイルの開放の設定
 set hidden
-" フォーマットオプションを指定する
+" フォーマットオプションの設定
 set formatoptions& formatoptions+=mM
 " 数の増減に関する設定
 set nrformats& nrformats-=octal
@@ -404,28 +406,28 @@ set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
 
-" 文字のない場所にもカーソルを持っていけるようにする
+" 文字のない場所にカーソルを移動
 set virtualedit& virtualedit+=all
 if has('virtualedit') && &virtualedit =~# '\<all\>'
     nnoremap <expr> p (col('.') >= col('$') ? '$' : '') . 'p'
 endif
 
-" カレントディレクトリをファイルと同じディレクトリに移動する
+" カレントディレクトリをファイルと同じディレクトリに移動
 " set autochdir
 augroup AUTOCHDIR
     autocmd!
     au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
 augroup END
 
-" 現在編集中のバッファのファイル名を変更する
+" 現在編集中のバッファのファイル名の変更
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
 
-" 縦に連番を入力する
+" 縦に連番の入力
 nnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
 vnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
 command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
 
-" 内容が空の.txtファイルを保存したら自動で削除する
+" 内容が空の.txtファイルを保存した際の自動削除
 function! BufWritePostDelete()
     let crlen = 0
     if &binary == 0
@@ -441,7 +443,7 @@ augroup BUFWRITE_POSTDELETE
     autocmd BufWritePost *.txt call BufWritePostDelete()
 augroup END
 
-" 存在しないディレクトリを自動で作成する
+" 存在しないディレクトリの自動作成
 augroup vimrc-auto-mkdir
     autocmd!
     autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
@@ -453,7 +455,7 @@ augroup vimrc-auto-mkdir
     endfunction
 augroup END
 
-" 使い捨て用のファイルを生成する
+" 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
     let l:junk_dir = $DOTVIM . '/vim_junk' . strftime('/%Y/%m')
@@ -468,7 +470,7 @@ endfunction
 
 nnoremap <Leader>j :<C-u>JunkFile<CR>
 
-" コマンドの出力をキャプチャする
+" コマンドの出力のキャプチャ
 command! -nargs=+ -complete=command Capture call s:cmd_capture(<q-args>)
 function! s:cmd_capture(q_args)
     redir => output
@@ -481,7 +483,7 @@ function! s:cmd_capture(q_args)
     call setline(1, split(output, '\n'))
 endfunction
 
-" タブページ毎にカレントディレクトリを設定する
+" タブページ毎のカレントディレクトリの設定
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
 command! -bar -complete=dir -nargs=? TabpageCD execute 'cd' fnameescape(expand(<q-args>)) | let t:cwd = getcwd()
 augroup TabpageCD
@@ -500,17 +502,17 @@ nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 
 "----------
 " 検索に関する設定
-" 検索コマンドを打ち込んでいる間に、打ち込んでいるところまでのパターンマッチを行なう
+" インクリメンタルサーチ
 set incsearch
-" 検索において大文字と小文字を区別しない
+" 大文字と小文字の区別
 set ignorecase
-" 検索において大文字を含んでいたらignorecaseを上書きする
+" 大文字を含んでいた場合ignorecaseを上書きする設定
 set smartcase
-" 検索がファイル末尾まで進んだらファイル先頭から再び検索する
+" 検索がファイル末尾まで進んだらファイル先頭から再び検索する設定
 set wrapscan
-" 検索パターン入力中は/で\/を入力する
+" 検索パターン入力中は/で\/を入力する設定
 cnoremap <expr> / getcmdtype() == '/' ? '\/' : '/'
-" 検索パターン入力中は?で\?を入力する
+" 検索パターン入力中は?で\?を入力する設定
 cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 " fを利用するときにIMEをオフにする
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
@@ -537,7 +539,7 @@ command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | d
 command! -nargs=? -complete=file Diff if '<args>'=='' | browse vertical diffsplit|else| vertical diffsplit <args>|endif
 
 "----------
-" Sticky Shiftを実現する
+" Sticky Shift
 function! s:sticky_func()
     let l:sticky_table = {
         \'0' : {
@@ -583,7 +585,7 @@ snoremap <expr> ; <SID>sticky_func()
 " Window関係
 set splitbelow
 set splitright
-"デフォルトの最小 window 高さを0に
+"デフォルトの最小ウィンドウの高さ
 set winminheight=0
 " <C-h>、<C-j>、<C-k>、<C-l>でウィンドウを移動する
 nnoremap <C-j> <C-W>j<C-W>_
@@ -605,7 +607,7 @@ nnoremap <SID>(split-to-k) :<C-u>execute 'aboveleft'  (v:count == 0 ? '' : v:cou
 nnoremap <SID>(split-to-h) :<C-u>execute 'topleft'    (v:count == 0 ? '' : v:count) 'vsplit'<CR>
 nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:count) 'vsplit'<CR>
 
-" ウィンドウを入れ替える
+" ウィンドウの入れ替え
 function! s:modulo(n, m)
     let d = a:n * a:m < 0 ? 1 : 0
     return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
@@ -722,15 +724,15 @@ nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<CR>
 " 最後に編集された位置に移動
 nnoremap gb '[
 nnoremap gp ']
-" 最後に変更されたテキストを選択する
+" 最後に変更されたテキストを選択
 nnoremap gc  `[v`]
 vnoremap gc :<C-u>normal gc<Enter>
 onoremap gc :<C-u>normal gc<Enter>
 
 " help関係
-" カーソル下のキーワードでヘルプを実行する
+" カーソル下のキーワードでヘルプを実行
 nnoremap <silent> g<C-h> :<C-u>help<Space><C-r><C-w><CR>
-" ヘルプをgrepする
+" ヘルプのgrep
 nnoremap grh :<C-u>Hg<Space>
 
 " misc
@@ -747,7 +749,7 @@ xnoremap <CR> c
 xnoremap <Tab> >
 " <S-Tab>をunindentにする
 xnoremap <S-Tab> <
-" Visualモードの*で選択範囲を検索する
+" Visualモードの*で選択範囲を検索
 vnoremap <silent> * "vy/\V<C-r>=substitute(escape(@v,'\/'),"\n",'\\n','g')<CR><CR>
 "ビジュアルモード時vで行末まで選択
 vnoremap v $h
@@ -758,28 +760,28 @@ vnoremap v $h
 inoremap <C-t> <C-v><Tab>
 " <C-d>をDelにする
 inoremap <C-d> <Del>
-" <C-p>でクリップボードの内容を貼り付ける
-imap <C-y> <Esc>"*pa
-" <C-a>で先頭に移動する
+" <C-v>でクリップボードの内容を貼り付け
+imap <C-v> <Esc>"*pa
+" <C-a>で先頭に移動
 inoremap <silent><C-a> <C-o>^
-" <C-e>で最後に移動する
+" <C-e>で最後に移動
 inoremap <silent><C-e> <C-o>$
-" <A-h>で前文字に移動する
+" <A-h>で前文字に移動
 inoremap <A-h> <Left>
-" <A-l>で次文字に移動する
+" <A-l>で次文字に移動
 inoremap <A-l> <Right>
-" <A-k>で前行に移動する
+" <A-k>で前行に移動
 inoremap <A-k> <Up>
-" <A-j>で次行に移動する
+" <A-j>で次行に移動
 inoremap <A-j> <Down>
 " <C-u>でundoする
 inoremap <C-u> <C-g>u<C-u>
 inoremap <C-w> <C-g>u<C-w>
 " ]を入力した際に、対応する括弧が見つからない場合は補完キーとする
 inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
-" <C-Space>でオムニ補完を利用する
+" <C-Space>でオムニ補完を利用
 inoremap <C-Space> <C-x><C-o>
-" 括弧を入力したときにカーソルを真ん中へ
+" 括弧を入力したときにカーソルを中心にする
 inoremap () ()<LEFT>
 inoremap [] []<LEFT>
 inoremap {} {}<LEFT>
@@ -791,20 +793,20 @@ inoremap '' ''<LEFT>
 " マップ定義 - Command-lineモード
 " <C-d>をDelにする
 cnoremap <C-d> <Del>
-" <C-a>で先頭に移動する
+" <C-a>で先頭に移動
 cnoremap <C-a> <Home>
-" <C-e>で最後に移動する
+" <C-e>で最後に移動
 cnoremap <C-e> <End>
 " <C-n>, <C-p>でコマンド履歴
 cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
-" <C-s>でコマンド履歴を表示する
+" <C-s>でコマンド履歴を表示
 cnoremap <C-s> <C-f>
 " <C-l>で補完履歴をリスト
 cnoremap <C-l> <C-d>
-" <A-h>で前の言葉に移動する
+" <A-h>で前の言葉に移動
 cnoremap <A-h> <S-Left>
-" <A-l>で次の言葉に移動する
+" <A-l>で次の言葉に移動
 cnoremap <A-l> <S-Right>
 
 "----------
@@ -876,7 +878,7 @@ inoremap <expr><C-k> neocomplcache#complete_common_string()
 " <C-l>でsnippet補完
 imap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
 smap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
-" <CR>, <C-h>, <BS>, <Space>でポップアップも消す
+" <CR>, <C-h>, <BS>, <Space>でポップアップの消去
 inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
 inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
 inoremap <expr><BS> neocomplcache#smart_close_popup() . "\<C-h>"
@@ -907,7 +909,7 @@ nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
 
 function! s:unite_my_settings()
-    highlight uniteSource__FileMru_Time term=none cterm=none ctermfg=15 ctermbg=3 guifg=#ffffff guibg=#20b2aa
+    highlight uniteSource__FileMru_Time term=none cterm=none ctermfg=15 ctermbg=5 guifg=#ffffff guibg=#20b2aa
     nmap <buffer> <ESC>          <Plug>(unite_exit)
     imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
@@ -926,8 +928,10 @@ augroup END
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
-let g:ref_alc_encoding  = "Shift_JIS"
 let g:ref_alc_use_cache = 1
+if has('win32') || has('win64')
+    let g:ref_alc_encoding  = "Shift_JIS"
+endif
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
 vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
 nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR>
