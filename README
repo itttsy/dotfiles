@@ -27,6 +27,7 @@ vimperator plugin I use
     opener.js
     pluginManager.js
     prevent_focus_ietab.js
+    prevent-pseudo-domain.js
     session-manager.js
     spatial-navigation.js
     statusbar_panel.js

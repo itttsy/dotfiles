@@ -68,6 +68,7 @@ set! extensions.sessionmanager.startup=2
 set! extensions.sessionmanager.resume_session="backup.session"
 
 " その他
+set! network.http.pilelining=true
 set! config.trim_on_minimize=true
 set! browser.history_expire_days=30
 set! browser.history_expire_days_min=7
@@ -171,12 +172,6 @@ nnoremap <C-l> <Nop>
 " <C-k>で検索ページを表示しないようにする
 nnoremap <C-k> <Nop>
 
-" Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
-inoremap <C-n> <Down>
-inoremap <C-p> <Up>
-" Insertモードからヒントモードに移行する
-inoremap <C-f> <ESC>f
-
 " コマンドモードで<C-i>の挙動を変更する
 cnoremap <C-i> <Tab>
 cnoremap <S-C-i> <S-Tab>
@@ -209,26 +204,12 @@ nnoremap > [f
 nnoremap < ]f
 
 "----------
-" 検索用ブックマーク
-silent bmark -title="Google US Search" -tags=keyword -keyword=gs https://www.google.com/search?q=%s
-silent bmark -title="Twitter Search" -tags=keyword -keyword=ts http://search.twitter.com/search?q=%s
-silent bmark -title="Wolfram|Alpha" -tags=keyword -keyword=wa http://www.wolframalpha.com/input/?i=%s
-silent bmark -title="Delicious Search" -tags=keyword -keyword=ds http://delicious.com/search?p=%s
-silent bmark -title="Wikipedia(ja)" -tags=keyword -keyword=wk http://ja.wikipedia.org/wiki/Special:Search?search=%s
-silent bmark -title="NewYorkTimes" -tags=keyword -keyword=nt http://query.nytimes.com/search/sitesearch?query=%s
-
-" ウェブアプリ操作系ブックマーク
-silent bmark -title="Add Calendar Event" -tags=keyword -keyword=cal http://www.google.com/calendar/event?ctext=+%s+&action=TEMPLATE&pprop=HowCreated%3AQUICKADD
-silent bmark -title="Add Task to RTM" -tags=keyword -keyword=rtm http://twitter.com/home?status=d+rtm+%s
-silent bmark -title="Evernote Search" -tags=keyword -keyword=en http://www.evernote.com/search?q=%s
-
-"----------
 " プラグインに関する設定
 " lo.js
 noremap w :<C-u>lo<Space>
 
 " statusline-toolbar.js
-autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button
+autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button,identity-box
 
 " multi_requester.js
 noremap ma :<C-u>mr<Space>alc<Space>
@@ -238,14 +219,19 @@ noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
 
 " nextlink.js
+let g:nextlink_followlink = "true"
 let g:nextlink_nositeinfo_act = "f"
 let g:nextlink_prevmap = "{{"
 let g:nextlink_nextmap = "}}"
 
 " FeedSomeKeys3.js
-command! -nargs=+ lazy autocmd VimperatorEnter .* <args>
-" gmail
 command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
+" Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
+lazy fmap -modes=i -events=keydown,keypress <C-p> <Up>
+lazy fmap -modes=i -events=keydown,keypress <C-n> <Down>
+" Insertモードからヒントモードに移行する
+lazy fmap -modes=i -events=keydown,keypress <C-f> <ESC>f
+" gmail
 command! lazyfmapsgmail -nargs=+ lazy fmaps -u 'https?://mail\.google\.com/mail' <args>
 lazyfmapsgmail gi gs gt gd ga gc *a *n *r *u *s *t u k j o p n c / q ? x s e m ! # r a N ] [ z . I U S E GL
 lazyfmapsgmail [,] ],[
@@ -374,30 +360,6 @@ EOM
 "----------
 " 選択範囲のリンクを開くコマンド
 command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if (content.window.getSelection().containsNode(a, true))]
-
-"----------
-" openに渡るコマンドがドメインやIPアドレスかを自動で判断する
-javascript <<EOM
-eval(function(){
-    liberator.registerObserver('enter',
-        function(){
-            let tldStr = "(?:museum|travel|aero|arpa|coop|info|jobs|name|nvus|biz|com|edu|gov|int|mil|net|org|pro|xxx|ac|ad|ae|af|ag|ai|ak|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|ct|cu|cv|cx|cy|cz|dc|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fl|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hi|hk|hm|hn|hr|ht|hu|ia|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|ks|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mi|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|nd|ne|nf|ng|nh|ni|nj|nl|nm|no|np|nr|nu|ny|nz|oh|ok|om|or|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ri|ro|ru|rw|sa|sb|sc|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tx|tz|ua|ug|uk|um|us|ut|uy|uz|va|vc|ve|vg|vi|vn|vt|vu|wa|wf|wi|ws|wv|wy|ye|yt|yu|za|zm|zw)";
-            let regexp = new RegExp("^(?:[a-zA-Z0-9-.]+\\."+tldStr+"|[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(?:\/|$)","i");
-            plugins.libly.$U.around(liberator, 'open',
-                function (next, args){
-                    let [urls, where, force] = args;
-                    if (typeof urls == "string") {
-                        if ( !/^(?:\.{0,2}|~)\//.test(urls) && /^[a-zA-Z0-9-.\/]+$/.test(urls) && !regexp.test(urls) ){
-                            args[0] = "google " + urls;
-                        }
-                    }
-                    return next();
-                }
-            )
-        }
-    )
-})();
-EOM
 
 "----------
 " VISUALモードからGoogle検索
@@ -577,13 +539,9 @@ EOM
 
 "----------
 " statusbarのiconの間隔を狭める
-style -name statusbar chrome://* <<EOM
-#status-bar statusbarpanel {
-    padding: 1px !important;
-}
-statusbarpanel > * {
-    margin: 0 !important;
-    padding:0 !important;
+style -name liberator-statusline chrome://* <<EOM
+#liberator-statusline {
+    -moz-box-align: center;
 }
 EOM
 

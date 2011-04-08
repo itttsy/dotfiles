@@ -2,8 +2,13 @@
 
 " 初期処理
 " バージョンの管理
+<<<<<<< HEAD
 if v:version < 703
     echoerr 'Error: vimrc: Require the Vim 7.3 or later.'
+=======
+if v:version < 702
+    echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
+>>>>>>> 4358fb5e99519cfecbb7d32a49d78aa93714c6e2
     finish
 endif
 for feat in ['multi_byte', 'iconv', 'syntax', 'autocmd']
@@ -236,7 +241,11 @@ augroup END
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
 set scroll=5
+<<<<<<< HEAD
 " <C-u>、<C-d>でスムーススクロールをする
+=======
+" <C-f>、<C-b>でスムーススクロールをする
+>>>>>>> 4358fb5e99519cfecbb7d32a49d78aa93714c6e2
 let g:scroll_factor = 5000
 let g:scroll_skip_line_size = 4
 function! SmoothScroll(dir, windiv, factor)
@@ -280,10 +289,17 @@ function! SmoothScroll(dir, windiv, factor)
         set cursorline
     end
 endfunction
+<<<<<<< HEAD
 
 map <C-d> :call SmoothScroll("d",1, 1)<CR>
 map <C-u> :call SmoothScroll("u",1, 1)<CR>
 
+=======
+
+map <C-f> :call SmoothScroll("d",1, 1)<CR>
+map <C-b> :call SmoothScroll("u",1, 1)<CR>
+
+>>>>>>> 4358fb5e99519cfecbb7d32a49d78aa93714c6e2
 " case arc
 " 対応する括弧へのジャンプ
 set showmatch
@@ -378,6 +394,7 @@ if has('unix')
     set nofsync
     set swapsync=
 endif
+<<<<<<< HEAD
 
 " backup
 " バックアップファイル
@@ -391,6 +408,23 @@ set undodir=$DOTVIM/tmp/undo
 " <C-b>/<C-f>でUndo/Redoする
 nnoremap <silent> <C-b> :<C-u>undo<CR>
 nnoremap <silent> <C-f> :<C-u>redo<CR>
+=======
+
+" backup
+" バックアップファイル
+set nobackup
+set backupdir=$DOTVIM/tmp/backup
+
+" undo
+" 無限Undo
+if v:version > 702
+    set undofile
+    set undodir=$DOTVIM/tmp/undo
+endif
+" <C-u>/<C-r>でUndo/Redoする
+nnoremap <silent> <C-u> :<C-u>undo<CR>
+nnoremap <silent> <C-r> :<C-u>redo<CR>
+>>>>>>> 4358fb5e99519cfecbb7d32a49d78aa93714c6e2
 
 " misc
 " バッファを放棄したときのファイルの開放の設定
@@ -909,7 +943,11 @@ nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
 
 function! s:unite_my_settings()
+<<<<<<< HEAD
     highlight uniteSource__FileMru_Time term=none cterm=none ctermfg=15 ctermbg=5 guifg=#ffffff guibg=#20b2aa
+=======
+    highlight link uniteSource__FileMru_Time Pmenu
+>>>>>>> 4358fb5e99519cfecbb7d32a49d78aa93714c6e2
     nmap <buffer> <ESC>          <Plug>(unite_exit)
     imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
