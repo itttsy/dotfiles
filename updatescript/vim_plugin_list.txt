@@ -1,0 +1,12 @@
+echodoc
+neocomplcache
+pathogen.vim
+perlomni.vim
+skk.vim
+unite.vim
+unite-grep
+unite-help
+unite-outline
+vim-quickrun
+vim-ref
+vim-surround
