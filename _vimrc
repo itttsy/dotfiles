@@ -133,7 +133,7 @@ endif
 "----------
 " GUI固有ではない画面表示の設定
 if !has('gui_running')
-    colorscheme default
+    colorscheme mrkn256
 endif
 " 画面表示に関する設定
 set guioptions=agip

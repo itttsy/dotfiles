@@ -1,15 +1,17 @@
 " vim:set ts=8 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
-" :ReloadVimrcコマンドの追加
-" command! ReloadGVimrc source $MYVIMRC
 
 "----------
 " カラー設定
-" syntax enable
-colorscheme miku
 
 "----------
 " フォント設定
-set guifont=VL_Gothic:h10:cDEFAULT
+if has('win32') || has('win64')
+    set guifont=VL_Gothic:h10:cDEFAULT
+elseif has('mac')
+    set guifont=VL_Gothic:h14
+else
+    set guifont=cDEFAULT
+endif
 set linespace=1
 
 "----------
@@ -25,12 +27,4 @@ set mousehide
 "----------
 " 印刷に関する設定
 set printfont=VL_Gothic:h12:cDEFAULT
-
-"----------
-" Pluginに関する設定
-" Kaoriya版でウィンドウを半透明にする
-" if has('Kaoriya')
-"     gui
-"     set transparency=224
-" endif
 
