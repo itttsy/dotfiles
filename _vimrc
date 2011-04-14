@@ -891,8 +891,6 @@ inoremap <expr><C-b> neocomplcache#cansel_popup()
 " unite.vim用設定
 let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
-call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
-call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
 " The prefix key.
 nnoremap [unite] <Nop>
 nmap u [unite]
@@ -920,6 +918,13 @@ function! s:unite_my_settings()
     nmap <buffer> <silent> <C-u> <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
     imap <buffer> <silent> <C-w> <Plug>(unite_delete_backward_path)
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
+    call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
+    call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
+    " デフォルトでは ignorecase と smartcase を使う
+    call unite#set_buffer_name_option('default', 'ignorecase', 1)
+    call unite#set_buffer_name_option('default', 'smartcase', 1)
+    " ファイル選択時は smartcase を使わない
+    call unite#set_buffer_name_option('files', 'smartcase', 0)
 endfunction
 
 augroup UniteSetting
