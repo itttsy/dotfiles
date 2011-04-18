@@ -26,6 +26,8 @@ if has('win32') || has('win64')
 else
     let $DOTVIM = $HOME . '/.vim'
 endif
+" Vimで利用するディクショナリファイルや一時ファイルの場所を指定
+let $MISCVIM = $HOME . '/misc'
 
 "----------
 " 初期設定
@@ -361,7 +363,7 @@ set shiftround
 set complete& complete+=k
 augroup DictFile
     autocmd!
-    autocmd FileType * execute printf("setlocal dict=$DOTVIM/dict/%s.dict", &filetype)
+    autocmd FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
 augroup END
 " コマンドライン補完を拡張モードで行う設定
 set wildmenu
@@ -460,7 +462,7 @@ augroup END
 " 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
-    let l:junk_dir = $DOTVIM . '/vim_junk' . strftime('/%Y/%m')
+    let l:junk_dir = $MISCVIM . '/vim_junk' . strftime('/%Y/%m')
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
@@ -840,8 +842,8 @@ augroup NetrwCommand
 augroup END
 
 " skk.vim用設定
-let g:skk_jisyo              = $DOTVIM . '/dict/_skk-jisyo'
-let g:skk_large_jisyo        = $DOTVIM . '/dict/SKK-JISYO.L'
+let g:skk_jisyo              = $MISCVIM . '/dict/_skk-jisyo'
+let g:skk_large_jisyo        = $MISCVIM . '/dict/SKK-JISYO.L'
 let g:skk_select_cand_keys   = "ASDFGHJKL"
 let g:skk_egg_like_newline   = 1
 let g:skk_marker_white       = "'"
@@ -872,8 +874,8 @@ let g:neocomplcache_temporary_dir                  = $DOTVIM . '/tmp/neocon'
 " Define dictionary.
 let g:neocomplcache_dictionary_filetype_lists = {
     \ 'default'  : '',
-    \ 'perl'     : $DOTVIM . '/dict/perl.dict',
-    \ 'java'     : $DOTVIM . '/dict/java.dict',
+    \ 'perl'     : $MISCVIM . '/dict/perl.dict',
+    \ 'java'     : $MISCVIM . '/dict/java.dict',
 \ }
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-k> neocomplcache#complete_common_string() 
@@ -919,7 +921,7 @@ function! s:unite_my_settings()
     imap <buffer> <silent> <C-w> <Plug>(unite_delete_backward_path)
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
     call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
-    call unite#set_substitute_pattern('files', '^@', substitute(substitute($DOTVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
+    call unite#set_substitute_pattern('files', '^@', substitute(substitute($MISCVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
     " デフォルトでは ignorecase と smartcase を使う
     call unite#set_buffer_name_option('default', 'ignorecase', 1)
     call unite#set_buffer_name_option('default', 'smartcase', 1)
@@ -935,7 +937,7 @@ augroup END
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
-let g:ref_alc_use_cache = 1
+let g:ref_alc_use_cache = 0
 if has('win32') || has('win64')
     let g:ref_alc_encoding  = "Shift_JIS"
 endif
