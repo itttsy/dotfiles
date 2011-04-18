@@ -462,7 +462,7 @@ augroup END
 " 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
-    let l:junk_dir = $MISCVIM . '/vim_junk' . strftime('/%Y/%m')
+    let l:junk_dir = $MISCVIM . '/junk' . strftime('/%Y/%m')
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
@@ -921,7 +921,7 @@ function! s:unite_my_settings()
     imap <buffer> <silent> <C-w> <Plug>(unite_delete_backward_path)
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
     call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
-    call unite#set_substitute_pattern('files', '^@', substitute(substitute($MISCVIM . "/vim_junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
+    call unite#set_substitute_pattern('files', '^@', substitute(substitute($MISCVIM . "/junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
     " デフォルトでは ignorecase と smartcase を使う
     call unite#set_buffer_name_option('default', 'ignorecase', 1)
     call unite#set_buffer_name_option('default', 'smartcase', 1)
