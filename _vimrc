@@ -283,8 +283,8 @@ function! SmoothScroll(dir, windiv, factor)
     end
 endfunction
 
-map <C-f> :call SmoothScroll("d",1, 1)<CR>
-map <C-b> :call SmoothScroll("u",1, 1)<CR>
+noremap <C-f> :call SmoothScroll("d",1, 1)<CR>
+noremap <C-b> :call SmoothScroll("u",1, 1)<CR>
 
 " case arc
 " 対応する括弧へのジャンプ
@@ -393,8 +393,8 @@ if v:version > 702
     set undodir=$DOTVIM/tmp/undo
 endif
 " <C-u>/<C-r>でUndo/Redoする
-nnoremap <silent> <C-u> :<C-u>undo<CR>
-nnoremap <silent> <C-r> :<C-u>redo<CR>
+nnoremap <silent> <C-u> :undo<CR>
+nnoremap <silent> <C-r> :redo<CR>
 
 " misc
 " バッファを放棄したときのファイルの開放の設定
@@ -427,8 +427,8 @@ augroup END
 command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
 
 " 縦に連番の入力
-nnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
-vnoremap <silent> co :<C-u>ContinuousNumber <C-a><CR>
+nnoremap <silent> co :ContinuousNumber <C-a><CR>
+vnoremap <silent> co :ContinuousNumber <C-a><CR>
 command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
 
 " 内容が空の.txtファイルを保存した際の自動削除
@@ -664,16 +664,16 @@ nnoremap <silent> <SID>swap_window_b    :<C-u>call <SID>swap_window_dir(v:count1
 
 " Buffer関係
 " Hで前のバッファを表示
-nnoremap H :<C-u>bp<CR>
+nnoremap H :bprevious<CR>
 " Lで次のバッファを表示
-nnoremap L :<C-u>bn<CR>
+nnoremap L :bnext<CR>
 " <Leader>bで現在のバッファを表示
 nnoremap <Leader>b :<C-u>buffers<CR>
 
 " Tab関係
 " <C-p>、<C-n>でタブを移動
-nnoremap <C-p> :<C-u>tabprevious<CR>
-nnoremap <C-n> :<C-u>tabnext<CR>
+nnoremap <C-p> :tabprevious<CR>
+nnoremap <C-n> :tabnext<CR>
 nnoremap [Tabbed] <Nop>
 nnoremap <C-t> <Nop>
 nmap <C-t> [Tabbed]
