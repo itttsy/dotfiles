@@ -219,7 +219,6 @@ noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
 
 " nextlink.js
-let g:nextlink_followlink = "true"
 let g:nextlink_nositeinfo_act = "f"
 let g:nextlink_prevmap = "{{"
 let g:nextlink_nextmap = "}}"
@@ -231,25 +230,12 @@ lazy fmap -modes=i -events=keydown,keypress <C-p> <Up>
 lazy fmap -modes=i -events=keydown,keypress <C-n> <Down>
 " Insertモードからヒントモードに移行する
 lazy fmap -modes=i -events=keydown,keypress <C-f> <ESC>f
-" gmail
-command! lazyfmapsgmail -nargs=+ lazy fmaps -u 'https?://mail\.google\.com/mail' <args>
-lazyfmapsgmail gi gs gt gd ga gc *a *n *r *u *s *t u k j o p n c / q ? x s e m ! # r a N ] [ z . I U S E GL
-lazyfmapsgmail [,] ],[
-" googlereader
-command! -nargs=+ lazyfmapgooglereader  lazy fmap  -urls='http://www\.google\.co\.jp/reader/view' <args>
-command! -nargs=+ lazyfmapsgooglereader lazy fmaps -urls='http://www\.google\.co\.jp/reader/view' <args>
-lazyfmapsgooglereader -events=vkeypress <Space> <S-Space> N P X O
-lazyfmapsgooglereader -events=vkeypress v m A
-lazyfmapsgooglereader -events=vkeypress gh ga gs gS gu gt gT gd gf gF gc ge gp
-lazyfmapsgooglereader -events=vkeypress r u / a
-lazyfmapsgooglereader -events=vkeypress j,n k,p J,N K,P n,N p,P o,vn w,NO
-lazyfmapgooglereader  -events=keypress  ; <CR>
-lazyfmapgooglereader  -events=vkeypress , X
-lazyfmapgooglereader  -events=vkeypress . O
-lazyfmapsgooglereader -events=vkeypress <C-1>,1 <C-2>,2
+" google
+lazy fmaps -u='mail\.google\.(com|co\.jp)/mail/' u k j o <CR> p n c ? x s y e m ! # h
+lazy fmaps -u='www\.google\.(com|co\.jp)/reader/' -events=vkeypress j k <Space> <S-Space> X O N P s,NO a,PO S,s v r F,f f,j F,k ? /
 " twitter.com
-lazy fmaps -urls='^https?://twitter\.com/' j k ?
-lazy fmaps -urls='^https?://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
+lazy fmaps -u='^https?://twitter\.com/' j k ?
+lazy fmaps -u='^https?://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
 " rememberthemilk.com
 lazy fmaps -u='https?://www\.rememberthemilk\.com/home/' j k m i c t ? d F,f G,g S,s L,l Y,y H,h M,m <Del> <C-S-Left> <C-S-Right>
 " tumblr.com
