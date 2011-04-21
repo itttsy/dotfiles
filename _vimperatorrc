@@ -73,7 +73,7 @@ set! config.trim_on_minimize=true
 set! browser.history_expire_days=30
 set! browser.history_expire_days_min=7
 set! browser.history_expire_sites=1000
-set! browser.sessionstore.max_tabs_undo=5
+set! browser.sessionstore.max_tabs_undo=30
 set! browser.sessionhistory.max_total_viewers=5
 set! browser.tabs.loadInBackground=false
 
@@ -200,8 +200,8 @@ cnoremap <C-r> <Up>
 noremap U :<C-u>undo<Space>
 
 " フレーム内移動
-nnoremap > [f
-nnoremap < ]f
+nnoremap < [f
+nnoremap > ]f
 
 "----------
 " プラグインに関する設定
@@ -209,7 +209,7 @@ nnoremap < ]f
 noremap w :<C-u>lo<Space>
 
 " statusline-toolbar.js
-autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,btn_sessionmanager,ietab-button,identity-box
+autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,ietab-button,identity-box
 
 " multi_requester.js
 noremap ma :<C-u>mr<Space>alc<Space>
@@ -237,7 +237,7 @@ lazy fmaps -u='www\.google\.(com|co\.jp)/reader/' -events=vkeypress j k <Space> 
 lazy fmaps -u='^https?://twitter\.com/' j k ?
 lazy fmaps -u='^https?://twitter\.com/' -events=vkeydown n m t r gh gr gp gf gm
 " rememberthemilk.com
-lazy fmaps -u='https?://www\.rememberthemilk\.com/home/' j k m i c t ? d F,f G,g S,s L,l Y,y H,h M,m <Del> <C-S-Left> <C-S-Right>
+lazy fmaps -u='https?://www\.rememberthemilk\.com/home/' j k m i c t ? F,f G,g S,s L,l Y,y H,h M,m <Del> <C-S-Left> <C-S-Right>
 " tumblr.com
 lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
 
