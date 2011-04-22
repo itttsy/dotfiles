@@ -411,6 +411,8 @@ set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
+" zip、jar、xpiファイルを直接読み書きすることを可能にする設定
+au BufReadCmd *.jar,*.xpi call zip#Browse(expand("<amatch>"))
 
 " 文字のない場所にカーソルを移動
 set virtualedit& virtualedit+=all
@@ -423,6 +425,12 @@ endif
 augroup AUTOCHDIR
     autocmd!
     au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
+augroup END
+
+" QuickFixウィンドウで、lで指定行を開く
+augroup QuickFixSetting
+    autocmd!
+    autocmd FileType qf nnoremap <buffer> l <CR>
 augroup END
 
 " 現在編集中のバッファのファイル名の変更
@@ -456,7 +464,7 @@ augroup vimrc-auto-mkdir
     function! s:auto_mkdir(dir, force)
         if !isdirectory(a:dir) && (a:force ||
         \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
-        call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+            call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
         endif
     endfunction
 augroup END
@@ -488,6 +496,40 @@ function! s:cmd_capture(q_args)
     setlocal buftype=nofile bufhidden=unload noswapfile nobuflisted
     call setline(1, split(output, '\n'))
 endfunction
+
+" 開いているファイル内の関数へジャンプする
+function! Navi()
+    if &ft ==? "c" || &ft ==? "cpp"
+        vimgrep /^[^ \t#/\\*]\+[0-9A-Za-z_ :\t\\*]\+([^;]*$/j %
+    elseif &ft ==? "perl"
+        vimgrep /^\s*sub\s/j %
+    elseif &ft ==? "ruby"
+        vimgrep /^\s*\(class\|module\|def\|alias\)\s/j %
+    elseif &ft ==? "python"
+        vimgrep /^\s*\(class\|def\)\s/j %
+    elseif &ft ==? "javascript"
+        vimgrep /^\s*function\s\|[a-zA-Z_$][a-zA-Z0-9_$]*\s*[=:]\s*function\s*(/j %
+    elseif &ft ==? "sh"
+        vimgrep /^\s*\(\h\w*\s*()\|function\s\+\h\w*\)/j %
+    elseif &ft ==? "html"
+        vimgrep /\c^\s*\(<h[1-6]\|<head\|<body\|<form\)/j %
+    elseif &ft ==? ""
+        "Text ( 1. 2. ,etc )
+        vimgrep /^\s*\d\+\./j %
+    elseif &ft ==? "java"
+        vimgrep /^\s*[^#/\*=]\+[0-9a-zA-Z_ \t\*,.()]\+{[^;]*$/j %
+    elseif &ft ==? "diff"
+        "diff (unified format)
+        vimgrep /^@@[0-9 \t,+-]\+@@$/j %
+    else
+        echo "This filetype is not supported."
+    endif
+    cw
+endfunction
+
+nnoremap g<Space> :<C-u>call Navi()<CR>
+nnoremap go :<C-u>copen<CR>
+nnoremap gc :<C-u>cclose<CR>
 
 " タブページ毎のカレントディレクトリの設定
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
@@ -601,12 +643,14 @@ nnoremap <C-l> <C-W>l<C-W>_
 nnoremap <C-w><Space> <C-w>w<C-W>_
 " 画面を再描画する
 nnoremap <C-z> <C-l>
+" sを利用しない
+nnoremap s <Nop>
 
 " 画面分割用のキーマップ
-nmap spj <SID>(split-to-j)
-nmap spk <SID>(split-to-k)
-nmap sph <SID>(split-to-h)
-nmap spl <SID>(split-to-l)
+nmap sj <SID>(split-to-j)
+nmap sk <SID>(split-to-k)
+nmap sh <SID>(split-to-h)
+nmap sl <SID>(split-to-l)
 
 nnoremap <SID>(split-to-j) :<C-u>execute 'belowright' (v:count == 0 ? '' : v:count) 'split'<CR><C-w>_
 nnoremap <SID>(split-to-k) :<C-u>execute 'aboveleft'  (v:count == 0 ? '' : v:count) 'split'<CR><C-w>_
@@ -731,9 +775,9 @@ nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<CR>
 nnoremap gb '[
 nnoremap gp ']
 " 最後に変更されたテキストを選択
-nnoremap gc  `[v`]
-vnoremap gc :<C-u>normal gc<Enter>
-onoremap gc :<C-u>normal gc<Enter>
+nnoremap gl  `[v`]
+vnoremap gl :<C-u>normal gc<Enter>
+onoremap gl :<C-u>normal gc<Enter>
 
 " help関係
 " カーソル下のキーワードでヘルプを実行
