@@ -342,6 +342,8 @@ if has('mouse')
     set guioptions+=a
     set ttymouse=xterm
 endif
+" ダブルクリックで指定単語をハイライトする
+nnoremap <2-LeftMouse> g*
 
 "----------
 " 編集に関する設定
@@ -958,3 +960,5 @@ endif
 let g:echodoc_enable_at_startup = 1
 
 set secure
+
+
