@@ -40,7 +40,7 @@ nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
 set all&
 filetype plugin indent off
 " 各種プラグインのロード
-source $DOTVIM/bundle/pathogen.vim/plugin/pathogen.vim
+source $DOTVIM/bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 " Vi互換ではなくする
