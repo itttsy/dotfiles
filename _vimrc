@@ -566,7 +566,7 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
 "Escの2回押しでハイライト消去
-nmap <silent> <ESC><ESC> :<C-u>nohlsearch<CR><ESC>
+nnoremap <silent> <ESC><ESC> :<C-u>nohlsearch<CR><ESC>
 
 "----------
 " バイナリの編集に関する設定
