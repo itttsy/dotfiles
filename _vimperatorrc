@@ -209,7 +209,7 @@ nnoremap > ]f
 noremap w :<C-u>lo<Space>
 
 " statusline-toolbar.js
-autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,fireftp-button,firessh-button,ietab-button,identity-box
+autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,ietab-button,identity-box
 
 " multi_requester.js
 noremap ma :<C-u>mr<Space>alc<Space>
