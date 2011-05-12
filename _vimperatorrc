@@ -22,6 +22,9 @@ set showstatuslinks=2
 " 全て同じウィンドウに開く
 set newtab=all
 
+" アニメーション
+set animations
+
 " URLのオートコンプリート
 set complete=lS
 
@@ -93,9 +96,9 @@ hi CompTitle            color: MintCream;
 hi CompGroup            color: White;
 hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
 hi CompDesc             color: LightGray;
-hi StatusLine           color: White;      background: rgba(0,0,0,0.7);    font-size: 10pt; font-weight: normal;
-hi Normal               color: White;      background: rgba(128,128,128,0.7); font-size: 10pt;
-hi ModeMsg              color: White;      background: rgba(128,128,128,0.7); font-size: 8pt;
+hi StatusLine           color: White;      background: rgba(0,0,0,0.9);    font-size: 10pt; font-weight: normal;
+hi Normal               color: White;      background: rgba(128,128,128,0.9); font-size: 10pt;
+hi ModeMsg              color: White;      background: rgba(128,128,128,0.9); font-size: 8pt;
 style -name personas chrome://* <<EOM
 #main-window { background-repeat: repeat-y !important;}
 #browser-bottombox { background-image: none !important; }

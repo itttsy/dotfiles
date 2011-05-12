@@ -20,14 +20,18 @@ if has('vim_starting')
     mapclear!
 endif
 
+" WindowsかMacかを判断する
+let g:is_win = has('win32') || has('win64')
+let g:is_mac = !g:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
+
 " Windows/Linuxにおいて、.vimとvimfilesの違いを吸収する
-if has('win32') || has('win64')
+if is_win
     let $DOTVIM = $HOME . '/vimfiles'
 else
     let $DOTVIM = $HOME . '/.vim'
 endif
 " Vimで利用するディクショナリファイルや一時ファイルの場所を指定
-let $MISCVIM = $HOME . '/misc'
+let $MISCVIM = $HOME . '/misc/vim'
 
 "----------
 " 初期設定
@@ -52,7 +56,7 @@ set helplang=ja,en
 
 "----------
 " 日本語用エンコード設定
-if has('win32') || has('win64')
+if is_win
 " WindowsはShift_JIS対応
     set encoding=cp932
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
@@ -111,12 +115,12 @@ if !has('gui_running') && has('xterm_clipboard')
 endif
 
 " WinではPATHに$VIMが含まれていないときにexeを見つけ出せないので修正
-if has('win32') && $PATH !~? '\(^\|;\)' . escape($VIM, '\\') . '\(;\|$\)'
+if is_win && $PATH !~? '\(^\|;\)' . escape($VIM, '\\') . '\(;\|$\)'
     let $PATH = $VIM . ';' . $PATH
 endif
 
 " Macではデフォルトの'iskeyword'がcp932に対応しきれていないので修正
-if has('mac')
+if is_mac
     set iskeyword=@,48-57,_,128-167,224-235
 endif
 
@@ -394,9 +398,10 @@ if v:version > 702
     set undofile
     set undodir=$DOTVIM/tmp/undo
 endif
-" <C-u>/<C-r>でUndo/Redoする
-nnoremap <silent> <C-u> :undo<CR>
-nnoremap <silent> <C-r> :redo<CR>
+
+" vimfinfo
+" infoファイル
+set viminfo+=n$DOTVIM/tmp/_viminfo
 
 " misc
 " バッファを放棄したときのファイルの開放の設定
@@ -787,9 +792,9 @@ nnoremap grh :<C-u>Hg<Space>
 
 " misc
 " ファイルタイプを変更
-nmap <Leader>ew :<C-u>set fileformat=dos<CR>
-nmap <Leader>ea :<C-u>set fileformat=mac<CR>
-nmap <Leader>eu :<C-u>set fileformat=unix<CR>
+nmap <Leader>ew :<C-u>setlocal fileformat=dos<CR>
+nmap <Leader>ea :<C-u>setlocal fileformat=mac<CR>
+nmap <Leader>eu :<C-u>setlocal fileformat=unix<CR>
 
 "----------
 " マップ定義 - Visualモード
@@ -941,24 +946,25 @@ let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
 " The prefix key.
 nnoremap [unite] <Nop>
-nmap u [unite]
-nnoremap [unite]<Space>    :<C-u>Unite<Space>
-nnoremap [unite]r          :<C-u>Unite ref/
-nnoremap <silent> [unite]c :<C-u>Unite command<CR>
-nnoremap <silent> [unite]u :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
-nnoremap <silent> [unite]t :<C-u>Unite -immediately tab:no-current<CR>
-nnoremap <silent> [unite]w :<C-u>Unite -immediately window:no-current<CR>
-nnoremap <silent> [unite]q :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file<CR>
-nnoremap <silent> [unite]s :<C-u>Unite source<CR>
-nnoremap <silent> [unite]b :<C-u>Unite buffer_tab<CR>
-nnoremap <silent> [unite]h :<C-u>Unite help<CR>
-nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
-nnoremap <silent> [unite]g :<C-u>Unite grep<CR>
+nmap <C-u> [unite]
+nnoremap [unite]<Space>        :<C-u>Unite<Space>
+nnoremap [unite]r              :<C-u>Unite ref/
+nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]c     :<C-u>Unite command<CR>
+nnoremap <silent> [unite]<C-t> :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]<C-w> :<C-u>Unite -immediately window:no-current<CR>
+nnoremap <silent> [unite]q     :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
+nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
+nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
+nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
+nnoremap <silent> [unite]o     :<C-u>Unite outline<CR>
+nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
 
 function! s:unite_my_settings()
     highlight link uniteSource__FileMru_Time Pmenu
     nmap <buffer> <ESC>          <Plug>(unite_exit)
+    imap <buffer> <silent> <C-c> <Plug>(unite_exit)
     imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
     nmap <buffer> <silent> <C-n> <Plug>(unite_loop_cursor_down)
@@ -967,7 +973,7 @@ function! s:unite_my_settings()
     imap <buffer> <silent> <C-w> <Plug>(unite_delete_backward_path)
     nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('right')
     call unite#set_substitute_pattern('files', '\*\*\+', '*', -1)
-    call unite#set_substitute_pattern('files', '^@', substitute(substitute($MISCVIM . "/junk",  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
+    call unite#set_substitute_pattern('files', '^@', substitute(substitute($MISCVIM,  '\\', '/', 'g'), ' ', '\\\\ ', 'g'), -100)
     " デフォルトでは ignorecase と smartcase を使う
     call unite#set_buffer_name_option('default', 'ignorecase', 1)
     call unite#set_buffer_name_option('default', 'smartcase', 1)
@@ -984,7 +990,7 @@ augroup END
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
 let g:ref_alc_use_cache = 0
-if has('win32') || has('win64')
+if is_win
     let g:ref_alc_encoding  = "Shift_JIS"
 endif
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
@@ -996,7 +1002,7 @@ vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR
 nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 " Windows用Perl設定
-if executable('Perl') && (has('win32') || has('win64'))
+if executable('Perl') && is_win
     let g:quickrun_config.perl = {'output_encode': 'cp932'}
 endif
 
