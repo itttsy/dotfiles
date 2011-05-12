@@ -96,7 +96,7 @@ hi CompTitle            color: MintCream;
 hi CompGroup            color: White;
 hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
 hi CompDesc             color: LightGray;
-hi StatusLine           color: White;      background: rgba(0,0,0,0.9);    font-size: 10pt; font-weight: normal;
+hi StatusLine           color: White;      background: rgba(128,128,128,0.9); font-size: 10pt; font-weight: normal;
 hi Normal               color: White;      background: rgba(128,128,128,0.9); font-size: 10pt;
 hi ModeMsg              color: White;      background: rgba(128,128,128,0.9); font-size: 8pt;
 style -name personas chrome://* <<EOM
@@ -527,10 +527,11 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by extern
 EOM
 
 "----------
-" statusbarのiconの間隔を狭める
-style -name liberator-statusline chrome://* <<EOM
-#liberator-statusline {
-    -moz-box-align: center;
+" application-barの背景の色をstatusbarと統一する
+style -name toolbar-background chrome://* <<EOM
+#liberator-customize-toolbar {
+    padding-left: 5px !important;
+    -moz-appearance: none !important;
 }
 EOM
 
