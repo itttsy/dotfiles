@@ -10,11 +10,17 @@ imapclear
 " ブラウザタイトルの変更
 set titlestring=Vimfox
 
+" カラースキームの変更
+colorscheme miku
+
 " メニュー/ツール/リンクを表示
 set gui=tabs
 set notabnumbers
 set noscrollbars
 set defsearch=google
+
+" ステータスバーの表示
+set status=input,location,history,tabcount,position
 
 " リンクのURIをコマンドラインに表示
 set showstatuslinks=2
@@ -82,48 +88,8 @@ set! browser.tabs.loadInBackground=false
 
 "----------
 " 視覚に関する設定
-
-" ヒントモードの文字を見やすく
-hi Hint font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9; text-transform: uppercase;
-hi HintActive background-color: greenyellow; border: 0.5px oldlace dotted; -moz-border-radius: 3px; padding: 0.1em; font-weight: bold;
-
 " ヒントモードに使う文字の指定
 set hintchars=;asdfghjkl
-
-" コマンドラインを見やすく
-hi Title                color: MintCream;
-hi CompTitle            color: MintCream;
-hi CompGroup            color: White;
-hi CompItem[selected]   color: DodgerBlue; background-color: MintCream;
-hi CompDesc             color: LightGray;
-hi StatusLine           color: White;      background: rgba(128,128,128,0.9); font-size: 10pt; font-weight: normal;
-hi Normal               color: White;      background: rgba(128,128,128,0.9); font-size: 10pt;
-hi ModeMsg              color: White;      background: rgba(128,128,128,0.9); font-size: 8pt;
-style -name personas chrome://* <<EOM
-#main-window { background-repeat: repeat-y !important;}
-#browser-bottombox { background-image: none !important; }
-#liberator-multiline-output, #liberator-completions { background: transparent !important; }
-#content tabpanels { background-color: transparent !important; }
-EOM
-autocmd LocationChange .* js getBrowser().mCurrentBrowser.collapsed = buffer.URL == "about:blank" ? true : false
-
-style -name panorama chrome://browser/content/tabview.html <<EOM
-#bg {
- background-image: url(file:///C:/Dropbox/Media/Pictures/Kuroneko.JPG) !important;
- background-size: 100% 100% !important;
- background-repeat: no-repeat !important;
- background-position: top center !important;
-}
-.groupItem {
- background-color: rgba(224,234,245,.5) !important;
-}
-.title-container>.name {
- color: black !important;
- font-weight: bold;
- text-shadow: 1px 1px 2px pink;
-}
-#exit-button,#searchbutton { background-color: rgba(240,240,240,.5) !important; }
-EOM
 
 " コマンドラインの高さがおかしくなる現象を修正
 command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=e.parentNode){e.removeAttribute("width");e.removeAttribute("height");p.appendChild(p.removeChild(e));}
