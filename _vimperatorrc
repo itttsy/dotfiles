@@ -44,7 +44,7 @@ set insertmode
 set hlsearch
 
 " ビープ音を鳴らさずビジュアルベルを使用
-set visualbell
+set novisualbell
 
 " テキストボックスにエディタを利用する
 set editor="gvim -f -c ':set fenc=utf8'"
