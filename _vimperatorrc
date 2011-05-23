@@ -149,7 +149,7 @@ cnoremap <S-C-i> <S-Tab>
 noremap e :<C-u>echo<Space>
 noremap E :<C-u>echo!<Space>
 " pでpanorama表示
-noremap p :<C-u>panorama
+noremap p :<C-u>panorama<Space>
 " yで非Ascii文字列のURLでyankする
 nnoremap y :<C-u>javascript util.copyToClipboard(buffer.URL);<CR>:echo "Yanked " + util.readFromClipboard();<CR>
 
