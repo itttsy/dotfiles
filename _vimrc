@@ -21,17 +21,17 @@ if has('vim_starting')
 endif
 
 " WindowsかMacかを判断する
-let g:is_win = has('win32') || has('win64')
-let g:is_mac = !g:is_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
+let s:chk_win = has('win32') || has('win64')
+let s:chk_mac = !s:chk_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
 
 " Windows/Linuxにおいて、.vimとvimfilesの違いを吸収する
-if is_win
+if s:chk_win
     let $DOTVIM = $HOME . '/vimfiles'
 else
     let $DOTVIM = $HOME . '/.vim'
 endif
 " Vimで利用するディクショナリファイルや一時ファイルの場所を指定
-let $MISCVIM = $HOME . '/misc/vim'
+let $MISCVIM = $HOME . '/misc'
 
 "----------
 " 初期設定
@@ -56,14 +56,13 @@ set helplang=ja,en
 
 "----------
 " 日本語用エンコード設定
-if is_win
+if s:chk_win
 " WindowsはShift_JIS対応
     set encoding=cp932
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.cp932.vim
     source $VIMRUNTIME/menu.vim
-    set termencoding=cp932
 else
 " Windows以外はUtf8対応
     set encoding=utf-8
@@ -71,7 +70,6 @@ else
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
-    set termencoding=utf-8
 endif
 
 " modeline内にfencを指定されている場合の対応
@@ -115,14 +113,23 @@ if !has('gui_running') && has('xterm_clipboard')
 endif
 
 " WinではPATHに$VIMが含まれていないときにexeを見つけ出せないので修正
-if is_win && $PATH !~? '\(^\|;\)' . escape($VIM, '\\') . '\(;\|$\)'
+if s:chk_win && $PATH !~? '\(^\|;\)' . escape($VIM, '\\') . '\(;\|$\)'
     let $PATH = $VIM . ';' . $PATH
 endif
 
 " Macではデフォルトの'iskeyword'がcp932に対応しきれていないので修正
-if is_mac
+if s:chk_mac
     set iskeyword=@,48-57,_,128-167,224-235
 endif
+
+" Vimで編集したファイルをMacのQuickLookで見られるようにする
+au BufWritePost * call SetUTF8Xattr(expand("<afile>"))
+function! SetUTF8Xattr(file)
+    let isutf8 = &fileencoding == "utf-8" || ( &fileencoding == "" && &encoding == "utf-8")
+    if s:chk_mac
+        call system("xattr -w com.apple.TextEncoding 'utf-8;134217984' '" . a:file . "'")
+    endif
+endfunction
 
 " helptagsの生成
 helptags $DOTVIM/doc
@@ -369,7 +376,7 @@ set shiftround
 set complete& complete+=k
 augroup DictFile
     autocmd!
-    autocmd FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
+    autocmd FileType * execute printf("setlocal dict=$MISCVIM/vim/dict/%s.dict", &filetype)
 augroup END
 " コマンドライン補完を拡張モードで行う設定
 set wildmenu
@@ -477,7 +484,7 @@ augroup END
 " 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
-    let l:junk_dir = $MISCVIM . '/junk' . strftime('/%Y/%m')
+    let l:junk_dir = $MISCVIM . '/vim/junk' . strftime('/%Y/%m')
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
@@ -571,7 +578,7 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
 "Escの2回押しでハイライト消去
-nnoremap <silent> <ESC><ESC> :<C-u>nohlsearch<CR><ESC>
+nnoremap <silent> <Leader><Leader> :<C-u>nohlsearch<CR><ESC>
 
 "----------
 " バイナリの編集に関する設定
@@ -640,22 +647,19 @@ set splitbelow
 set splitright
 "デフォルトの最小ウィンドウの高さ
 set winminheight=0
-" <C-h>、<C-j>、<C-k>、<C-l>でウィンドウを移動する
-nnoremap <C-j> <C-W>j<C-W>_
-nnoremap <C-k> <C-W>k<C-W>_
-nnoremap <C-h> <C-W>h<C-W>_
-nnoremap <C-l> <C-W>l<C-W>_
-nnoremap <C-w><Space> <C-w>w<C-W>_
+" <C-w><Space>または<Tab>で次のウィンドウに移動する
+nnoremap <C-w><Space> <C-w>w
+nnoremap <Tab> <C-w>w<C-w>_
 " 画面を再描画する
 nnoremap <C-z> <C-l>
 " sを利用しない
 nnoremap s <Nop>
 
 " 画面分割用のキーマップ
-nmap sj <SID>(split-to-j)
-nmap sk <SID>(split-to-k)
-nmap sh <SID>(split-to-h)
-nmap sl <SID>(split-to-l)
+nmap <C-w>sj <SID>(split-to-j)
+nmap <C-w>sk <SID>(split-to-k)
+nmap <C-w>sh <SID>(split-to-h)
+nmap <C-w>sl <SID>(split-to-l)
 
 nnoremap <SID>(split-to-j) :<C-u>execute 'belowright' (v:count == 0 ? '' : v:count) 'split'<CR><C-w>_
 nnoremap <SID>(split-to-k) :<C-u>execute 'aboveleft'  (v:count == 0 ? '' : v:count) 'split'<CR><C-w>_
@@ -695,6 +699,7 @@ function! s:swap_window(curwin, targetwin)
 endfunction
 
 nnoremap [Swap] <Nop>
+nnoremap <C-s> <Nop>
 nmap <C-s> [Swap]
 
 nmap [Swap]<C-n> <SID>swap_window_next
@@ -893,8 +898,8 @@ augroup NetrwCommand
 augroup END
 
 " skk.vim用設定
-let g:skk_jisyo              = $MISCVIM . '/dict/_skk-jisyo'
-let g:skk_large_jisyo        = $MISCVIM . '/dict/SKK-JISYO.L'
+let g:skk_jisyo              = $MISCVIM . '/vim/dict/_skk-jisyo'
+let g:skk_large_jisyo        = $MISCVIM . '/vim/dict/SKK-JISYO.L'
 let g:skk_select_cand_keys   = "ASDFGHJKL"
 let g:skk_egg_like_newline   = 1
 let g:skk_marker_white       = "'"
@@ -925,8 +930,8 @@ let g:neocomplcache_temporary_dir                  = $DOTVIM . '/tmp/neocon'
 " Define dictionary.
 let g:neocomplcache_dictionary_filetype_lists = {
     \ 'default'  : '',
-    \ 'perl'     : $MISCVIM . '/dict/perl.dict',
-    \ 'java'     : $MISCVIM . '/dict/java.dict',
+    \ 'perl'     : $MISCVIM . '/vim/dict/perl.dict',
+    \ 'java'     : $MISCVIM . '/vim/dict/java.dict',
 \ }
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-k> neocomplcache#complete_common_string() 
@@ -946,6 +951,7 @@ let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
 " The prefix key.
 nnoremap [unite] <Nop>
+nnoremap <C-u> <Nop>
 nmap <C-u> [unite]
 nnoremap [unite]<Space>        :<C-u>Unite<Space>
 nnoremap [unite]r              :<C-u>Unite ref/
@@ -990,7 +996,7 @@ augroup END
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
 let g:ref_alc_use_cache = 0
-if is_win
+if s:chk_win
     let g:ref_alc_encoding  = "Shift_JIS"
 endif
 nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
@@ -1002,7 +1008,7 @@ vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR
 nnoremap qr :<C-u>QuickRun<Space>-args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 " Windows用Perl設定
-if executable('Perl') && is_win
+if executable('Perl') && s:chk_win
     let g:quickrun_config.perl = {'output_encode': 'cp932'}
 endif
 
