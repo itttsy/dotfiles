@@ -995,12 +995,6 @@ augroup END
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
-let g:ref_alc_use_cache = 0
-if s:chk_win
-    let g:ref_alc_encoding  = "Shift_JIS"
-endif
-nnoremap <silent> ma :<C-u>call ref#jump('normal', 'alc', {'noenter': 1})<CR>
-vnoremap <silent> ma :<C-u>call ref#jump('visual', 'alc', {'noenter': 1})<CR>
 nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR>
 vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
 

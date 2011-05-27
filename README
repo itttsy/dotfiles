@@ -1,7 +1,6 @@
 vim plugin I use
     echodoc
     neocomplcache
-    perlomni.vim
     skk.vim
     unite.vim
     unite-grep
@@ -16,21 +15,15 @@ vimperator plugin I use
     _libly.js
     auto_detect_link.js
     auto-focus-frame.js
-    autopagerize_controll.js
-    caret-hint.js
     cookieManager.js
-    copy.js
     feedSomeKeys_3.js
     lo.js
     multi_requester.js
-    nextlink.js
     opener.js
     pluginManager.js
-    prevent_focus_ietab.js
     prevent-pseudo-domain.js
     session-manager.js
-    spatial-navigation.js
-    statusbar_panel.js
+    statusline-toolbar.js
     tabsort.js
     twittperator.js
     usi.js

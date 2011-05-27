@@ -80,6 +80,7 @@ set! extensions.sessionmanager.resume_session="backup.session"
 set! network.http.pilelining=true
 set! config.trim_on_minimize=true
 set! browser.history_expire_days=30
+set! browser.ctrlTab.previews=true
 set! browser.history_expire_days_min=7
 set! browser.history_expire_sites=1000
 set! browser.sessionstore.max_tabs_undo=30
@@ -141,10 +142,6 @@ nnoremap <C-l> <Nop>
 " <C-k>で検索ページを表示しないようにする
 nnoremap <C-k> <Nop>
 
-" コマンドモードで<C-i>の挙動を変更する
-cnoremap <C-i> <Tab>
-cnoremap <S-C-i> <S-Tab>
-
 " eでecho表示
 noremap e :<C-u>echo<Space>
 noremap E :<C-u>echo!<Space>
@@ -152,6 +149,8 @@ noremap E :<C-u>echo!<Space>
 noremap p :<C-u>panorama<Space>
 " yで非Ascii文字列のURLでyankする
 nnoremap y :<C-u>javascript util.copyToClipboard(buffer.URL);<CR>:echo "Yanked " + util.readFromClipboard();<CR>
+" Uでundo一覧から開く
+noremap U :<C-u>undo<Space>
 
 " 移動する前の場所を記憶
 nnoremap gg mzgg
@@ -162,15 +161,21 @@ nnoremap /  mz/
 noremap <A-p> :<C-u>tabmove! -1<CR><ESC>
 noremap <A-n> :<C-u>tabmove! +1<CR><ESC>
 
-" <C-r>で履歴を表示
-cnoremap <C-r> <Up>
-
-" undo一覧から開く
-noremap U :<C-u>undo<Space>
-
 " フレーム内移動
 nnoremap < [f
 nnoremap > ]f
+
+" コマンドモードで<C-i>の挙動を変更する
+cnoremap <C-t> <Tab>
+cnoremap <S-C-t> <S-Tab>
+" <C-r>で履歴を表示
+cnoremap <C-r> <Up>
+
+" Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
+inoremap <C-p> <Up>
+inoremap <C-n> <Down>
+" Insertモードからヒントモードに移行する
+inoremap <C-f> <ESC>f
 
 "----------
 " プラグインに関する設定
@@ -187,18 +192,8 @@ noremap mg :<C-u>mr<Space>goo<Space>
 noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
 
-" nextlink.js
-let g:nextlink_nositeinfo_act = "f"
-let g:nextlink_prevmap = "{{"
-let g:nextlink_nextmap = "}}"
-
 " FeedSomeKeys3.js
 command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
-" Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
-lazy fmap -modes=i -events=keydown,keypress <C-p> <Up>
-lazy fmap -modes=i -events=keydown,keypress <C-n> <Down>
-" Insertモードからヒントモードに移行する
-lazy fmap -modes=i -events=keydown,keypress <C-f> <ESC>f
 " google
 lazy fmaps -u='mail\.google\.(com|co\.jp)/mail/' u k j o <CR> p n c ? x s y e m ! # h
 lazy fmaps -u='www\.google\.(com|co\.jp)/reader/' -events=vkeypress j k <Space> <S-Space> X O N P s,NO a,PO S,s v r F,f f,j F,k ? /
@@ -254,6 +249,7 @@ mappings.addUserMap([modes.NORMAL], ['H'], 'exteded back',
     }
 );
 EOM
+
 " <C-c>で文字列をコピーまたはロードを止める
 javascript <<EOM
 mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text or stop loading',
@@ -270,37 +266,6 @@ mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text o
 EOM
 
 "----------
-" マウスオーバーするヒントモード
-javascript <<EOM
-hints.addMode('m', 'mouse over',
-    function (elem, count){
-        let evt = elem.ownerDocument.createEvent('MouseEvents');
-        evt.initMouseEvent('mouseover', true, true, elem.ownerDocument.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        elem.dispatchEvent(evt);
-    },
-    function (){
-        options.get('hinttags').get()
-    }
-);
-EOM
-
-"----------
-" flash blockにヒントモード追加
-javascript <<EOM
-hints.addMode('z', 'Enable a Flash object',
-    function(elem){
-        elem.focus();
-        var e = content.document.createEvent('MouseEvents');
-        e.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-        elem.dispatchEvent(e);
-    },
-    function(){
-        '//xhtml:div[@title]'
-    }
-);
-EOM
-
-"----------
 " コマンドラインでbangをトグル
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
@@ -308,41 +273,6 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
         let [,cmd,bang,args] = commands.parseCommand(commandline.command);
         bang = bang ? '' : '!';
         commandline.command = cmd + bang + ' ' + args;
-    }
-);
-EOM
-
-"----------
-" 選択範囲のリンクを開くコマンド
-command! sopen js [buffer.followLink(a) for (a in util.evaluateXPath("//a")) if (content.window.getSelection().containsNode(a, true))]
-
-"----------
-" VISUALモードからGoogle検索
-javascript <<EOM
-mappings.addUserMap([modes.VISUAL], ['<C-g>'], 'Selection search',
-    function(){
-        BrowserSearch.loadSearch(getBrowserSelection(), true);
-    });
-EOM
-
-
-"----------
-" Insertモード時、C-1, ..., C-9,C-tが使えるようにする
-javascript <<EOM
-for(let i = 0; i < 10; i++){
-    mappings.addUserMap([modes.INSERT], ['<C-' + i + '>'], 'tab operation - keep tabs INSERT',
-        function(){
-            mappings.get(1, i + 'gt').execute();
-        }
-    );
-}
-[['t', 'tabopen'], ].forEach(
-    function([c, cmd]){
-        mappings.addUserMap([modes.INSERT], ['<C-' + c + '>'], 'tab operation - keep tabs INSERT',
-            function(){
-                liberator.execute(cmd);
-            }
-        );
     }
 );
 EOM
@@ -516,130 +446,5 @@ eval(function(){
         });
     }
 })();
-EOM
-
-"----------
-" personas用の設定
-javascript <<EOM
-Cu.import("resource://gre/modules/LightweightThemeManager.jsm");
-let prefs = Cc["@mozilla.org/preferences-service;1"]
-              .getService(Ci.nsIPrefService)
-              .getBranch("lightweightThemes.");
-let observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-function createLWTheme(obj){
-    let buf = {
-        id: null,
-        name: null,
-        accentcolor: "-moz-diag",
-        textcolor: "-moz-diagtext",
-        description: "custom personas",
-        author: "",
-        headerURL: "",
-        footerURL: "",
-        previewURL: "",
-        iconURL: "",
-    };
-    for (let key in obj){
-        switch(key){
-        case "headerURL":
-        case "footerURL":
-        case "previewURL":
-        case "iconURL":
-            let path = obj[key];
-            if (path.charAt(0) == "~"){
-                path = io.File("~").path + path.substr(1);
-            };
-            let uri = util.createURI(path);
-            buf[key] = uri.spec;
-            break;
-        default:
-            buf[key] = obj[key];
-        }
-    }
-    if (!buf.name){
-        buf.name = buf.id;
-    }
-    return buf;
-}
-function appendThemes(aThemes){
-    if (!aThemes){
-        aThemes = liberator.globalVariables.lwt;
-    };
-    if (!(aThemes instanceof Array)){
-        aThemes = [aThemes];
-    };
-    let currentThemes = LightweightThemeManager.usedThemes;
-    aThemes.forEach(function(theme){
-        let t = createLWTheme(theme);
-        if (t && t.id){
-            for (let i=0, len = currentThemes.length; i<len; i++){
-                if (currentThemes[i].id == t.id){
-                    currentThemes.splice(i, 1);
-                    break;
-                }
-            }
-        currentThemes.push(t);
-        }
-    });
-    prefs.setCharPref("usedThemes", JSON.stringify(currentThemes));
-    observerService.notifyObservers(null, "lightweight-theme-list-changed", null);
-}
-if (liberator.globalVariables.lwt instanceof Array){
-    appendThemes(liberator.globalVariables.lwt);
-}
-function fileCompleter(c){
-    return completion.runCompleter("file", c.filter).map(function(f) [f.path, f.leafName]);
-}
-let options = [
-    ["textcolor", ["-c", "-color"], commands.OPTION_STRING],
-    ["accentcolor", ["-a", "-accent"], commands.OPTION_STRING],
-    ["headerURL", ["-h", "-header"], commands.OPTION_STRING, null, fileCompleter],
-    ["footerURL", ["-f", "-footer"], commands.OPTION_STRING, null, fileCompleter],
-];
-commands.addUserCommand(['personas'], "Personas Theme",
-    function(args){
-        let id = args[0];
-        if (args.bang){
-            LightweightThemeManager.forgetUsedTheme(id);
-            return;
-        }
-        let registeredThemer = LightweightThemeManager.getUsedTheme(id);
-        if (registeredThemer) {
-            LightweightThemeManager.currentTheme = registeredThemer;
-        } else {
-            let buf = {id: id};
-            options.forEach(function(opt){
-                if (args[opt[1][0]]){
-                    buf[opt[0]] = args[opt[1][0]];
-                };
-            });
-            let t = createLWTheme(buf);
-            if (t){
-                LightweightThemeManager.currentTheme = t;
-            };
-        }
-    }, {
-        argCount: "1",
-        bang: true,
-        options: options.map(function(opt) opt.slice(1)),
-        completer: function(context, args){
-            context.format = {
-                title: ["Name","Description"],
-                keys: { text: "id", description: "name", icon: "iconURL" },
-                process: [
-                    function name(item, text) <span sltyle="vertial-align: center">
-                        <img src={item.icon}/><span>{item.item.id}</span>
-                    </span>,
-                    function desc(item, text) <>
-                        <img src={item.item.previewURL} align="left" style="height:3em;"/>
-                        <span>{item.item.name}<br/>{item.item.description}</span>
-                    </>,
-                ]
-            }
-            context.completions = LightweightThemeManager.usedThemes;
-        }
-    },
-    true
-);
 EOM
 
