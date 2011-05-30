@@ -146,7 +146,7 @@ endif
 "----------
 " GUI固有ではない画面表示の設定
 if !has('gui_running')
-    colorscheme mrkn256
+    colorscheme miku
 endif
 " 画面表示に関する設定
 set guioptions=agip
@@ -841,13 +841,6 @@ inoremap <C-w> <C-g>u<C-w>
 inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
 " <C-Space>でオムニ補完を利用
 inoremap <C-Space> <C-x><C-o>
-" 括弧を入力したときにカーソルを中心にする
-inoremap () ()<LEFT>
-inoremap [] []<LEFT>
-inoremap {} {}<LEFT>
-inoremap <> <><LEFT>
-inoremap "" ""<LEFT>
-inoremap '' ''<LEFT>
 
 "----------
 " マップ定義 - Command-lineモード
@@ -991,6 +984,34 @@ augroup UniteSetting
     autocmd!
     autocmd FileType unite call s:unite_my_settings()
 augroup END
+
+" vimshell用設定
+let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
+let g:vimshell_use_ckw = 0
+let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
+let g:vimshell_enable_smart_case = 1
+let g:vimshell_split_height = 50
+if s:chk_win
+    let g:vimshell_prompt = $USERNAME."% "
+else
+    let g:vimshell_prompt = $USER."% "
+endif
+
+augroup VimShell
+    autocmd!
+    autocmd FileType vimshell
+        \ call vimshell#altercmd#define('ll', 'ls -l')
+augroup END
+
+" vimfiler用設定
+let g:vimfiler_as_default_explorer = 0
+let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
+let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
+let g:vimfiler_external_copy_file_command = 'cp $src $dest'
+let g:vimfiler_external_delete_command = 'rm -r $srcs'
+let g:vimfiler_external_move_command = 'mv $srcs $dest'
+let g:vimfiler_split_command = 'vsplit_nicely'
+let g:vimfiler_safe_mode_by_default = 1
 
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'

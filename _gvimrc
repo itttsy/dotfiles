@@ -19,6 +19,7 @@ set linespace=1
 " ウインドウに関する設定
 set columns=120
 set lines=32
+set cmdheight=1
 
 "----------
 " マウスに関する設定
