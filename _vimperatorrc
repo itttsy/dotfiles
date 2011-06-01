@@ -188,7 +188,6 @@ autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,identity-box
 " multi_requester.js
 noremap mr :<C-u>mr<Space>
 noremap ma :<C-u>mr<Space>alc<Space>
-noremap mt :<C-u>mr<Space>googletrans-ja<Space>
 noremap mg :<C-u>mr<Space>goo<Space>
 noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
