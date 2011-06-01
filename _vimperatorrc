@@ -186,8 +186,9 @@ noremap w :<C-u>lo<Space>
 autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,identity-box
 
 " multi_requester.js
+noremap mr :<C-u>mr<Space>
 noremap ma :<C-u>mr<Space>alc<Space>
-noremap mt :<C-u>mr<Space>twitter-search-pcod-no-jp<Space>
+noremap mt :<C-u>mr<Space>googletrans-ja<Space>
 noremap mg :<C-u>mr<Space>goo<Space>
 noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
@@ -209,7 +210,7 @@ lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
 let g:twittperator_use_chirp = 1
 " 呟きに現在のページのタイトルとURLを追加
 cabbrev -javascript .ggl ggl(buffer.URI)
-cabbrev -javascript .url '"' + buffer.title + '"' + ' ' + ggl(buffer.URI)
+cabbrev -javascript .url '" ' + buffer.title+ ' ' + ggl(buffer.URI) + ' "' 
 javascript <<EOM
 userContext.ggl = function getGoogleShortenURL(url, callback){
     let uri = "https://www.googleapis.com/urlshortener/v1/url";
@@ -262,6 +263,16 @@ mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text o
       liberator.echo('Stopped loading !');
     }
   },{ rhs: 'Copy selected text or stop loading' }
+);
+EOM
+
+"----------
+" <C-c>でコマンドラインをクリップボードにコピー
+javascript <<EOM
+mappings.addUserMap([modes.COMMAND_LINE], ['<C-c>'], 'Copy current commandline',
+    function() {
+        util.copyToClipboard(commandline.command);
+    }
 );
 EOM
 

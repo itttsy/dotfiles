@@ -376,7 +376,7 @@ set shiftround
 set complete& complete+=k
 augroup DictFile
     autocmd!
-    autocmd FileType * execute printf("setlocal dict=$MISCVIM/vim/dict/%s.dict", &filetype)
+    autocmd FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
 augroup END
 " コマンドライン補完を拡張モードで行う設定
 set wildmenu
@@ -484,7 +484,7 @@ augroup END
 " 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
-    let l:junk_dir = $MISCVIM . '/vim/junk' . strftime('/%Y/%m')
+    let l:junk_dir = $MISCVIM . '/junk'
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
@@ -891,8 +891,8 @@ augroup NetrwCommand
 augroup END
 
 " skk.vim用設定
-let g:skk_jisyo              = $MISCVIM . '/vim/dict/_skk-jisyo'
-let g:skk_large_jisyo        = $MISCVIM . '/vim/dict/SKK-JISYO.L'
+let g:skk_jisyo              = $MISCVIM . '/dict/_skk-jisyo'
+let g:skk_large_jisyo        = $MISCVIM . '/dict/SKK-JISYO.L'
 let g:skk_select_cand_keys   = "ASDFGHJKL"
 let g:skk_egg_like_newline   = 1
 let g:skk_marker_white       = "'"
@@ -923,8 +923,8 @@ let g:neocomplcache_temporary_dir                  = $DOTVIM . '/tmp/neocon'
 " Define dictionary.
 let g:neocomplcache_dictionary_filetype_lists = {
     \ 'default'  : '',
-    \ 'perl'     : $MISCVIM . '/vim/dict/perl.dict',
-    \ 'java'     : $MISCVIM . '/vim/dict/java.dict',
+    \ 'perl'     : $MISCVIM . '/dict/perl.dict',
+    \ 'java'     : $MISCVIM . '/dict/java.dict',
 \ }
 inoremap <expr><C-g> neocomplcache#undo_completion()
 inoremap <expr><C-k> neocomplcache#complete_common_string() 
@@ -950,8 +950,8 @@ nnoremap [unite]<Space>        :<C-u>Unite<Space>
 nnoremap [unite]r              :<C-u>Unite ref/
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
 nnoremap <silent> [unite]c     :<C-u>Unite command<CR>
-nnoremap <silent> [unite]<C-t> :<C-u>Unite -immediately tab:no-current<CR>
-nnoremap <silent> [unite]<C-w> :<C-u>Unite -immediately window:no-current<CR>
+nnoremap <silent> [unite]t     :<C-u>Unite -immediately tab:no-current<CR>
+nnoremap <silent> [unite]w     :<C-u>Unite -immediately window:no-current<CR>
 nnoremap <silent> [unite]q     :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
@@ -965,7 +965,7 @@ function! s:unite_my_settings()
     nmap <buffer> <ESC>          <Plug>(unite_exit)
     imap <buffer> <silent> <C-c> <Plug>(unite_exit)
     imap <buffer> jj             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
-    imap <buffer> <silent> <C-n> <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_down)
+    imap <buffer> kk             <Plug>(unite_insert_leave)<Plug>(unite_loop_cursor_up)
     nmap <buffer> <silent> <C-n> <Plug>(unite_loop_cursor_down)
     nmap <buffer> <silent> <C-p> <Plug>(unite_loop_cursor_up)
     nmap <buffer> <silent> <C-u> <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
@@ -1002,16 +1002,6 @@ augroup VimShell
     autocmd FileType vimshell
         \ call vimshell#altercmd#define('ll', 'ls -l')
 augroup END
-
-" vimfiler用設定
-let g:vimfiler_as_default_explorer = 0
-let g:vimfiler_trashbox_directory = $DOTVIM . '/tmp/vimfiler_trashbox'
-let g:vimfiler_external_copy_directory_command = 'cp -r $src $dest'
-let g:vimfiler_external_copy_file_command = 'cp $src $dest'
-let g:vimfiler_external_delete_command = 'rm -r $srcs'
-let g:vimfiler_external_move_command = 'mv $srcs $dest'
-let g:vimfiler_split_command = 'vsplit_nicely'
-let g:vimfiler_safe_mode_by_default = 1
 
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
