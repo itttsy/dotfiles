@@ -60,6 +60,7 @@ if s:chk_win
 " WindowsはShift_JIS対応
     set encoding=cp932
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
+    set fileformat=dos
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.cp932.vim
     source $VIMRUNTIME/menu.vim
@@ -67,6 +68,7 @@ else
 " Windows以外はUtf8対応
     set encoding=utf-8
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
+    set fileformat=unix
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
@@ -416,7 +418,7 @@ set hidden
 " フォーマットオプションの設定
 set formatoptions& formatoptions+=mM
 " 数の増減に関する設定
-set nrformats& nrformats-=octal
+set nrformats& nrformats=alpha,hex
 " grepで利用するプログラム
 set grepprg=internal
 " クリップボードに利用するレジスタの設定
@@ -577,7 +579,7 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 " fを利用するときにIMEをオフにする
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
-"Escの2回押しでハイライト消去
+"<Leader>の2回押しでハイライト消去
 nnoremap <silent> <Leader><Leader> :<C-u>nohlsearch<CR><ESC>
 
 "----------
@@ -939,9 +941,14 @@ inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
 inoremap <expr><C-y> neocomplcache#close_popup()
 inoremap <expr><C-b> neocomplcache#cansel_popup()
 
+" echodoc用設定
+let g:echodoc_enable_at_startup = 1
+
 " unite.vim用設定
 let g:unite_data_directory      = $DOTVIM . '/unite'
 let g:unite_enable_start_insert = 1
+let g:unite_winheight           = 20
+let g:unite_winwidth            = 32
 " The prefix key.
 nnoremap [unite] <Nop>
 nnoremap <C-u> <Nop>
@@ -949,6 +956,7 @@ nmap <C-u> [unite]
 nnoremap [unite]<Space>        :<C-u>Unite<Space>
 nnoremap [unite]r              :<C-u>Unite ref/
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
+nnoremap <silent> [unite]e     :<C-u>Unite -buffer-name=files -vertical -no-quit -no-start-insert file<CR>
 nnoremap <silent> [unite]c     :<C-u>Unite command<CR>
 nnoremap <silent> [unite]t     :<C-u>Unite -immediately tab:no-current<CR>
 nnoremap <silent> [unite]w     :<C-u>Unite -immediately window:no-current<CR>
@@ -957,7 +965,6 @@ nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
 nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
-nnoremap <silent> [unite]o     :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
 
 function! s:unite_my_settings()
@@ -986,6 +993,7 @@ augroup UniteSetting
 augroup END
 
 " vimshell用設定
+nnoremap <Leader>s :<C-u>VimShell<CR>
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
 let g:vimshell_use_ckw = 0
 let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
@@ -997,10 +1005,13 @@ else
     let g:vimshell_prompt = $USER."% "
 endif
 
+function! s:vimshell_my_settings()
+    call vimshell#altercmd#define('ll', 'ls -l')
+endfunction
+
 augroup VimShell
     autocmd!
-    autocmd FileType vimshell
-        \ call vimshell#altercmd#define('ll', 'ls -l')
+    autocmd FileType vimshell call s:vimshell_my_settings()
 augroup END
 
 " ref.vim用設定
@@ -1010,15 +1021,12 @@ nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR
 vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
 
 " quickrun.vim用設定
-nnoremap qr :<C-u>QuickRun<Space>-args<Space>
+nnoremap qr :<C-u>QuickRun -args<Space>
 let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
 " Windows用Perl設定
 if executable('Perl') && s:chk_win
     let g:quickrun_config.perl = {'output_encode': 'cp932'}
 endif
-
-" echodoc用設定
-let g:echodoc_enable_at_startup = 1
 
 set secure
 

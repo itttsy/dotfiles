@@ -57,6 +57,9 @@ style -name commandline-ime chrome://* #liberator-commandline-command input {ime
 " アクセスキーを無効にする
 set! ui.key.generalAccessKey=0
 
+" タブのCloseボタンを消す
+set! browser.tabs.closeButtons=2
+
 " Caretモードを見やすくする
 set! ui.caretWidth=1
 set! ui.caretBlinkTime=1000
@@ -253,23 +256,35 @@ EOM
 " <C-c>で文字列をコピーまたはロードを止める
 javascript <<EOM
 mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text or stop loading',
-  function(){
-    var sel = window.content.window.getSelection().toString();
-    if (sel){
-      util.copyToClipboard(sel,true);
-    } else {
-      BrowserStop();
-      liberator.echo('Stopped loading !');
-    }
-  },{ rhs: 'Copy selected text or stop loading' }
+    function(){
+        var sel = window.content.window.getSelection().toString();
+        if (sel){
+            util.copyToClipboard(sel,true);
+        } else {
+            BrowserStop();
+            liberator.echo('Stopped loading !');
+        }
+    },{ rhs: 'Copy selected text or stop loading' }
 );
+EOM
+
+" autocmd駆動時のエコーをやめる
+javascript <<EOM
+let (original = liberator.echomsg)
+    liberator.echomsg = function(msg){
+        const REAC = RegExp('@chrome://liberator/content/autocommands\\.js:\\d+');
+        if (Error().stack.split(/\n/).some(RegExp.prototype.test.bind(REAC)) && /Executing .* Auto commands for .*/.test(msg))
+            liberator.log(msg);
+        else
+            original.apply(liberator, arguments);
+};
 EOM
 
 "----------
 " <C-c>でコマンドラインをクリップボードにコピー
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-c>'], 'Copy current commandline',
-    function() {
+    function(){
         util.copyToClipboard(commandline.command);
     }
 );
@@ -292,7 +307,7 @@ EOM
 javascript <<EOM
 eval(function(){
     let regexp = new RegExp('([a-z]+://)([^/]*)(/.*)');
-    let goUpPath = function(path) {
+    let goUpPath = function(path){
         if (!path){
             return
         };
@@ -421,7 +436,7 @@ javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
     function(){
         io.withTempFiles(
-            function (file){
+            function(file){
                 file.write(commandline.command);
                 editor.editFileExternally(file.path);
                 commandline.open(":", file.read(), modes.EX);
