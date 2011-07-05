@@ -60,7 +60,7 @@ if s:chk_win
 " WindowsはShift_JIS対応
     set encoding=cp932
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
-    set fileformat=dos
+    set fileformats=dos,unix,mac
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.cp932.vim
     source $VIMRUNTIME/menu.vim
@@ -68,7 +68,7 @@ else
 " Windows以外はUtf8対応
     set encoding=utf-8
     set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,cp20932
-    set fileformat=unix
+    set fileformats=unix,dos,mac
     source $VIMRUNTIME/delmenu.vim
     set langmenu=menu_ja_jp.utf-8.vim
     source $VIMRUNTIME/menu.vim
@@ -125,7 +125,9 @@ if s:chk_mac
 endif
 
 " Vimで編集したファイルをMacのQuickLookで見られるようにする
-au BufWritePost * call SetUTF8Xattr(expand("<afile>"))
+augroup QuickLook
+    autocmd BufWritePost * call SetUTF8Xattr(expand("<afile>"))
+augroup END
 function! SetUTF8Xattr(file)
     let isutf8 = &fileencoding == "utf-8" || ( &fileencoding == "" && &encoding == "utf-8")
     if s:chk_mac
@@ -337,8 +339,6 @@ augroup cch
 augroup END
 
 " misc
-" ファイルフォーマットの設定
-set fileformats=unix,dos,mac
 " マルチバイト文字の幅の扱いの指定
 set ambiwidth=double
 " Diffモード用の設定
@@ -425,8 +425,12 @@ set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
-" zip、jar、xpiファイルを直接読み書きすることを可能にする設定
-au BufReadCmd *.jar,*.xpi call zip#Browse(expand("<amatch>"))
+augroup Editmisc
+    " zip、jar、xpiファイルを直接読み書きすることを可能にする設定
+    autocmd BufReadCmd *.jar,*.xpi call zip#Browse(expand("<amatch>"))
+    " コメント行で改行した場合、自動でコメントアウトしない
+    autocmd FileType * setl formatoptions-=ro
+augroup END
 
 " 文字のない場所にカーソルを移動
 set virtualedit& virtualedit+=all

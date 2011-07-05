@@ -20,10 +20,10 @@ set noscrollbars
 set defsearch=google
 
 " ステータスバーの表示
-set status=input,location,history,tabcount,position
+set status=location,history,tabcount,position,input
 
 " リンクのURIをコマンドラインに表示
-set showstatuslinks=2
+set showstatuslinks=0
 
 " 全て同じウィンドウに開く
 set newtab=all
@@ -102,6 +102,9 @@ command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=
 hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
 hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
 
+" 日付を表示
+command! date echo Date()
+
 "----------
 " 操作に関する設定
 " Insertモードでキーバインドが効くようにする
@@ -168,7 +171,7 @@ noremap <A-n> :<C-u>tabmove! +1<CR><ESC>
 nnoremap < [f
 nnoremap > ]f
 
-" コマンドモードで<C-i>の挙動を変更する
+" コマンドモードで<C-t>の挙動を変更する
 cnoremap <C-t> <Tab>
 cnoremap <S-C-t> <S-Tab>
 " <C-r>で履歴を表示
@@ -176,17 +179,22 @@ cnoremap <C-r> <Up>
 
 " Insertモードで<C-n>,<C-p>をカーソルキー代わりにする
 inoremap <C-p> <Up>
+cnoremap <C-p> <Up>
 inoremap <C-n> <Down>
+cnoremap <C-n> <Down>
 " Insertモードからヒントモードに移行する
 inoremap <C-f> <ESC>f
+cnoremap <C-f> <ESC>f
 
 "----------
 " プラグインに関する設定
+" lazyコマンドを用意する
+command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
 " lo.js
 noremap w :<C-u>lo<Space>
 
 " statusline-toolbar.js
-autocmd VimperatorEnter ".*" :set statuslinetoolbars=star-button,identity-box
+lazy set statuslinetoolbars=star-button,identity-box
 
 " multi_requester.js
 noremap mr :<C-u>mr<Space>
@@ -196,7 +204,6 @@ noremap me :<C-u>mr<Space>answers<Space>
 noremap mw :<C-u>mr<Space>weather-yahoo<Space>
 
 " FeedSomeKeys3.js
-command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
 " google
 lazy fmaps -u='mail\.google\.(com|co\.jp)/mail/' u k j o <CR> p n c ? x s y e m ! # h
 lazy fmaps -u='www\.google\.(com|co\.jp)/reader/' -events=vkeypress j k <Space> <S-Space> X O N P s,NO a,PO S,s v r F,f f,j F,k ? /
@@ -299,6 +306,26 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
         bang = bang ? '' : '!';
         commandline.command = cmd + bang + ' ' + args;
     }
+);
+EOM
+
+"----------
+" :mesで出てくるメッセージをクリップボードに送る
+javascript <<EOM
+commands.addUserCommand(['messcopy'], 'Copy messages to clipboard',
+    function () {
+        util.copyToClipboard(
+            commandline._messageHistory._messages.map(
+                function(it)
+                let (v = it.str) (
+                    typeof v === 'xml' ? v.textContent :
+                    typeof v === 'object' ? (v + "\n" + v.stack) :
+                    v
+                )
+            ).join("\n\n")
+        );
+    },{},
+    true
 );
 EOM
 
