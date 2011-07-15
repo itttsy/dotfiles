@@ -95,9 +95,6 @@ set! browser.tabs.loadInBackground=false
 " ヒントモードに使う文字の指定
 set hintchars=;asdfghjkl
 
-" コマンドラインの高さがおかしくなる現象を修正
-command! ResetHeight js let(e=document.getElementById("liberator-visualbell"),p=e.parentNode){e.removeAttribute("width");e.removeAttribute("height");p.appendChild(p.removeChild(e));}
-
 " 補完のURLが長すぎて、切れてしまう問題の対処
 hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
 hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
@@ -249,6 +246,49 @@ modules.__defineGetter__("doc", function() content.document.wrappedJSObject);
 modules.__defineGetter__("win", function() content.window.wrappedJSObject);
 EOM
 
+"----------
+" autocmd駆動時のエコーをやめる
+javascript <<EOM
+let (original = liberator.echomsg)
+    liberator.echomsg = function(msg){
+        const REAC = RegExp('@chrome://liberator/content/autocommands\\.js:\\d+');
+        if (Error().stack.split(/\n/).some(RegExp.prototype.test.bind(REAC)) && /Executing .* Auto commands for .*/.test(msg))
+            liberator.log(msg);
+        else
+            original.apply(liberator, arguments);
+};
+EOM
+
+"----------
+" コマンドラインでbangをトグル
+javascript <<EOM
+mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
+    function(){
+        let [,cmd,bang,args] = commands.parseCommand(commandline.command);
+        bang = bang ? '' : '!';
+        commandline.command = cmd + bang + ' ' + args;
+    }
+);
+EOM
+
+"----------
+" コマンドラインを外部エディタで編集
+javascript <<EOM
+mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
+    function(){
+        io.withTempFiles(
+            function(file){
+                file.write(commandline.command);
+                editor.editFileExternally(file.path);
+                commandline.open(":", file.read(), modes.EX);
+                return true;
+            }
+        );
+    }
+);
+EOM
+
+"----------
 " 戻るを拡張
 javascript <<EOM
 let back   = mappings.getDefault(modes.NORMAL, 'H').action;
@@ -260,6 +300,25 @@ mappings.addUserMap([modes.NORMAL], ['H'], 'exteded back',
 );
 EOM
 
+" <ESC>でiframeから抜ける
+javascript <<EOM
+eval(function () {
+  //let map = mappings.getDefault(modes.NORMAL, '<ESC>');
+  mappings.addUserMap(
+    [modes.NORMAL],
+    ['<ESC>'],
+    'Focus to parent window',
+    function() {
+      if (modes.passNextKey || modes.passAllKeys)
+        return events.onEscape();
+      Buffer.focusedWindow = Buffer.focusedWindow.parent;
+    },
+    {}
+  );
+})();
+EOM
+
+"----------
 " <C-c>で文字列をコピーまたはロードを止める
 javascript <<EOM
 mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text or stop loading',
@@ -275,36 +334,12 @@ mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text o
 );
 EOM
 
-" autocmd駆動時のエコーをやめる
-javascript <<EOM
-let (original = liberator.echomsg)
-    liberator.echomsg = function(msg){
-        const REAC = RegExp('@chrome://liberator/content/autocommands\\.js:\\d+');
-        if (Error().stack.split(/\n/).some(RegExp.prototype.test.bind(REAC)) && /Executing .* Auto commands for .*/.test(msg))
-            liberator.log(msg);
-        else
-            original.apply(liberator, arguments);
-};
-EOM
-
 "----------
 " <C-c>でコマンドラインをクリップボードにコピー
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-c>'], 'Copy current commandline',
     function(){
         util.copyToClipboard(commandline.command);
-    }
-);
-EOM
-
-"----------
-" コマンドラインでbangをトグル
-javascript <<EOM
-mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
-    function(){
-        let [,cmd,bang,args] = commands.parseCommand(commandline.command);
-        bang = bang ? '' : '!';
-        commandline.command = cmd + bang + ' ' + args;
     }
 );
 EOM
@@ -327,6 +362,68 @@ commands.addUserCommand(['messcopy'], 'Copy messages to clipboard',
     },{},
     true
 );
+EOM
+
+"----------
+" j,kキーでスムーススクロールする
+javascript <<EOM
+let self = (function(){
+    mappings.addUserMap([modes.NORMAL], ["j"], "Smooth scroll down",
+        function(count){
+            self.smoothScrollBy(300 * (count || 1));
+        },
+        {count: true}
+    );
+    mappings.addUserMap([modes.NORMAL], ["k"], "Smooth scroll up",
+        function(count){
+            self.smoothScrollBy(300 * -(count || 1));
+        },
+        {count: true}
+    );
+    mappings.addUserMap([modes.NORMAL], ["<C-f>"], "Smooth page down",
+        function(count){
+            self.smoothScrollBy(650 * (count || 1));
+        },
+        {count: true}
+    );
+    mappings.addUserMap([modes.NORMAL], ["<C-b>"], "Smooth page up",
+        function(count){
+            self.smoothScrollBy(650 * -(count || 1));
+        },
+        {count: true}
+    );
+
+    var PUBLICS = {
+        smoothScrollBy: function(moment){
+            win = Buffer.findScrollableWindow();
+            destY = win.scrollY + moment;
+            clearTimeout(next);
+            smoothScroll(moment);
+        }
+    }
+
+    var next;
+    var destY;
+    var win;
+
+    function smoothScroll(moment) {
+        if (moment > 0){
+            moment = Math.floor(moment / 2);
+        } else {
+            moment = Math.ceil(moment / 2);
+        }
+        win.scrollBy(0, moment);
+        if (Math.abs(moment) < 1){
+            setTimeout(makeScrollTo(win.scrollX, destY), 20);
+            destY = null;
+            return;
+        }
+        next = setTimeout(function() smoothScroll(moment), 20);
+    }
+
+    function makeScrollTo(x, y) function() win.scrollTo(x, y);
+    return PUBLICS;
+})();
 EOM
 
 "----------
@@ -393,94 +490,6 @@ eval(function(){
         { count: true }
     );
 })();
-EOM
-
-"----------
-" j,kキーでスムーススクロールする
-javascript <<EOM
-let self = (function(){
-    mappings.addUserMap([modes.NORMAL], ["j"], "Smooth scroll down",
-        function(count){
-            self.smoothScrollBy(300 * (count || 1));
-        },
-        {count: true}
-    );
-    mappings.addUserMap([modes.NORMAL], ["k"], "Smooth scroll up",
-        function(count){
-            self.smoothScrollBy(300 * -(count || 1));
-        },
-        {count: true}
-    );
-    mappings.addUserMap([modes.NORMAL], ["<C-f>"], "Smooth page down",
-        function(count){
-            self.smoothScrollBy(650 * (count || 1));
-        },
-        {count: true}
-    );
-    mappings.addUserMap([modes.NORMAL], ["<C-b>"], "Smooth page up",
-        function(count){
-            self.smoothScrollBy(650 * -(count || 1));
-        },
-        {count: true}
-    );
-
-    var PUBLICS = {
-        smoothScrollBy: function(moment){
-            win = Buffer.findScrollableWindow();
-            destY = win.scrollY + moment;
-            clearTimeout(next);
-            smoothScroll(moment);
-        }
-    }
-
-    var next;
-    var destY;
-    var win;
-
-    function smoothScroll(moment) {
-        if (moment > 0){
-            moment = Math.floor(moment / 2);
-        } else {
-            moment = Math.ceil(moment / 2);
-        }
-        win.scrollBy(0, moment);
-        if (Math.abs(moment) < 1){
-            setTimeout(makeScrollTo(win.scrollX, destY), 20);
-            destY = null;
-            return;
-        }
-        next = setTimeout(function() smoothScroll(moment), 20);
-    }
-
-    function makeScrollTo(x, y) function() win.scrollTo(x, y);
-    return PUBLICS;
-})();
-EOM
-
-"----------
-" コマンドラインを外部エディタで編集
-javascript <<EOM
-mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
-    function(){
-        io.withTempFiles(
-            function(file){
-                file.write(commandline.command);
-                editor.editFileExternally(file.path);
-                commandline.open(":", file.read(), modes.EX);
-                return true;
-            }
-        );
-    }
-);
-EOM
-
-"----------
-" application-barの背景の色をstatusbarと統一する
-style -name toolbar-background chrome://* <<EOM
-#liberator-customize-toolbar {
-    padding-left: 5px !important;
-    -moz-appearance: none !important;
-}
 EOM
 
 "----------

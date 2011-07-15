@@ -20,6 +20,11 @@ if has('vim_starting')
     mapclear!
 endif
 
+" augroupの初期化
+augroup vimrc
+    autocmd!
+augroup END
+
 " WindowsかMacかを判断する
 let s:chk_win = has('win32') || has('win64')
 let s:chk_mac = !s:chk_win && (has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin')
@@ -40,6 +45,20 @@ let mapleader   = ' '
 let g:mapleader = ' '
 " <Leader>.で即座にvimrcを開けるようにする
 nnoremap <Leader>. :<C-u>edit $MYVIMRC<CR>
+" autocmdの簡略化
+command! -bang -nargs=* AutoCommand autocmd<bang> vimrc <args>
+" Lazyコマンドの追加
+command! -nargs=+ Lazy call s:cmd_lazy(<q-args>)
+function! s:cmd_lazy(q_args)
+    if a:q_args == ''
+        return
+    endif
+    if has('vim_starting')
+        execute 'autocmd vimrc VimEnter *' a:q_args
+    else
+        execute a:q_args
+    endif
+endfunction
 
 set all&
 filetype plugin indent off
@@ -76,6 +95,7 @@ endif
 
 " modeline内にfencを指定されている場合の対応
 let s:oldlang=v:lang
+AutoCommand BufEnter * silent call <SID>DoModelineFileEncoding()
 function! s:DoModelineFileEncoding()
     if &modified == 0 || &fileencoding == '' || v:cmdbang
         return
@@ -90,11 +110,6 @@ function! s:DoModelineFileEncoding()
         doautocmd BufEnter
     endif
 endfunction
-
-augroup ModelineFileEncoding
-    autocmd!
-    autocmd BufEnter * silent call <SID>DoModelineFileEncoding()
-augroup END
 
 " 文字コードを指定して開き直す
 command! -bang -bar -complete=file -nargs=? Utf8 edit<bang> ++enc=utf-8 <args>
@@ -125,9 +140,7 @@ if s:chk_mac
 endif
 
 " Vimで編集したファイルをMacのQuickLookで見られるようにする
-augroup QuickLook
-    autocmd BufWritePost * call SetUTF8Xattr(expand("<afile>"))
-augroup END
+AutoCommand BufWritePost * call SetUTF8Xattr(expand("<afile>"))
 function! SetUTF8Xattr(file)
     let isutf8 = &fileencoding == "utf-8" || ( &fileencoding == "" && &encoding == "utf-8")
     if s:chk_mac
@@ -189,13 +202,8 @@ set showcmd
 set report=1
 " Insertモード時にステータスラインの色を変更
 let g:hi_insert = 'highlight StatusLine gui=reverse cterm=reverse'
-if has('syntax')
-    augroup InsertHook
-        autocmd!
-        autocmd InsertEnter * call s:StatusLine('Enter')
-        autocmd InsertLeave * call s:StatusLine('Leave')
-    augroup END
-endif
+AutoCommand InsertEnter * call s:StatusLine('Enter')
+AutoCommand InsertLeave * call s:StatusLine('Leave')
 let s:slhlcmd = ''
 function! s:StatusLine(mode)
     if a:mode == 'Enter'
@@ -240,15 +248,11 @@ set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
 " ZenkakuSpace
 " 全角スペースの表示
 scriptencoding utf-8
+AutoCommand VimEnter,BufEnter * call ZenkakuSpace()
 function! ZenkakuSpace()
     highlight ZenkakuSpace cterm=underline ctermbg=2 gui=underline guibg=#2f4f4f
     silent! match ZenkakuSpace /　/
 endfunction
-
-augroup ZenkakuSpace
-    autocmd!
-    autocmd VimEnter,BufEnter * call ZenkakuSpace()
-augroup END
 
 " scroll
 " CTRL-UやCTRL-Dでスクロールする行数
@@ -332,11 +336,8 @@ endfunc
 nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 
 " カレントウィンドウにのみ罫線を引く
-augroup cch
-    autocmd!
-    autocmd WinLeave * set nocursorline
-    autocmd WinEnter,BufRead * set cursorline
-augroup END
+AutoCommand WinLeave * set nocursorline
+AutoCommand WinEnter,BufRead * set cursorline
 
 " misc
 " マルチバイト文字の幅の扱いの指定
@@ -376,10 +377,7 @@ set shiftround
 " completion
 " キーワード補完にディクショナリーファイルを追加
 set complete& complete+=k
-augroup DictFile
-    autocmd!
-    autocmd FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
-augroup END
+AutoCommand FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
 " コマンドライン補完を拡張モードで行う設定
 set wildmenu
 set wildmode=full
@@ -425,12 +423,10 @@ set grepprg=internal
 set clipboard& clipboard+=unnamed,autoselect
 " YをDやPに合わせる
 nnoremap Y y$
-augroup Editmisc
-    " zip、jar、xpiファイルを直接読み書きすることを可能にする設定
-    autocmd BufReadCmd *.jar,*.xpi call zip#Browse(expand("<amatch>"))
-    " コメント行で改行した場合、自動でコメントアウトしない
-    autocmd FileType * setl formatoptions-=ro
-augroup END
+" zip、jar、xpiファイルを直接読み書きすることを可能にする設定
+AutoCommand BufReadCmd *.jar,*.xpi call zip#Browse(expand("<amatch>"))
+" コメント行で改行した場合、自動でコメントアウトしない
+AutoCommand FileType * setl formatoptions-=ro
 
 " 文字のない場所にカーソルを移動
 set virtualedit& virtualedit+=all
@@ -439,27 +435,62 @@ if has('virtualedit') && &virtualedit =~# '\<all\>'
 endif
 
 " カレントディレクトリをファイルと同じディレクトリに移動
-" set autochdir
-augroup AUTOCHDIR
-    autocmd!
-    au BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
-augroup END
+AutoCommand BufEnter * execute ":silent! lcd " . escape(expand("%:p:h"), ' ')
 
 " QuickFixウィンドウで、lで指定行を開く
-augroup QuickFixSetting
-    autocmd!
-    autocmd FileType qf nnoremap <buffer> l <CR>
-augroup END
-
-" 現在編集中のバッファのファイル名の変更
-command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
+AutoCommand FileType qf nnoremap <buffer> l <CR>
 
 " 縦に連番の入力
 nnoremap <silent> co :ContinuousNumber <C-a><CR>
 vnoremap <silent> co :ContinuousNumber <C-a><CR>
 command! -count -nargs=1 ContinuousNumber let c = col('.')|for n in range(1, <count>?<count>-line('.'):1)|exec 'normal! j' . n . <q-args>|call cursor('.', c)|endfor
 
+" 現在編集中のバッファのファイル名の変更
+command! -nargs=+ -bang -complete=file Rename let pbnr=fnamemodify(bufname('%'), ':p')|exec 'f '.escape(<q-args>, ' ')|w<bang>|call delete(pbnr)
+
+" ウィンドウを閉じずにファイルを削除する
+command! -bar -bang -complete=file -nargs=+ Delete call s:cmd_del_file([<f-args>], <bang>0)
+function! s:cmd_del_file(args, delete_buffer)
+    if empty(a:args)
+        return
+    endif
+    for arg in a:args
+        for file in split(expand(arg), '\n')
+            let file = resolve(file)
+            let bufnr = bufnr(file)
+            let type = getftype(file)
+            if type ==# 'file'
+                let success = 0
+                if delete(file) !=# success
+                    call s:warn("Can't delete '" . file . "'")
+                    continue
+                endif
+            elseif type ==# 'dir'
+            else
+                redraw
+                call s:warn(file . ": Unknown file type '" . type . "'.")
+            endif
+            if a:delete_buffer && bufnr != -1
+                if bufnr == bufnr('%')
+                    enew
+                endif
+                execute bufnr 'bwipeout'
+            endif
+        endfor
+    endfor
+    checktime
+endfunction
+function! s:warn(msg)
+    try
+        echohl WarningMsg
+        echomsg a:msg
+    finally
+        echohl None
+    endtry
+endfunction
+
 " 内容が空の.txtファイルを保存した際の自動削除
+AutoCommand BufWritePost *.txt call BufWritePostDelete()
 function! BufWritePostDelete()
     let crlen = 0
     if &binary == 0
@@ -470,22 +501,14 @@ function! BufWritePostDelete()
     endif
 endfunction
 
-augroup BUFWRITE_POSTDELETE
-    autocmd!
-    autocmd BufWritePost *.txt call BufWritePostDelete()
-augroup END
-
 " 存在しないディレクトリの自動作成
-augroup vimrc-auto-mkdir
-    autocmd!
-    autocmd BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
-    function! s:auto_mkdir(dir, force)
-        if !isdirectory(a:dir) && (a:force ||
-        \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
-            call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
-        endif
-    endfunction
-augroup END
+AutoCommand BufWritePre * call s:auto_mkdir(expand('<afile>:p:h'), v:cmdbang)
+function! s:auto_mkdir(dir, force)
+    if !isdirectory(a:dir) && (a:force ||
+    \    input(printf('"%s" does not exist. Create? [y/N]', a:dir)) =~? '^y\%[es]$')
+        call mkdir(iconv(a:dir, &encoding, &termencoding), 'p')
+    endif
+endfunction
 
 " 使い捨て用のファイルの生成
 command! -nargs=0 JunkFile call s:open_junk_file()
@@ -494,7 +517,7 @@ function! s:open_junk_file()
     if !isdirectory(l:junk_dir)
         call mkdir(l:junk_dir, 'p')
     endif
-    let l:filename = input('Junk Code: ', l:junk_dir.strftime('/%Y-%m-%d-%H%M%S.'))
+    let l:filename = input('Junk Code: ', l:junk_dir.strftime('/%Y-%m-%d_'))
     if l:filename != ''
         execute 'edit ' . l:filename
     endif
@@ -552,17 +575,14 @@ nnoremap gc :<C-u>cclose<CR>
 " タブページ毎のカレントディレクトリの設定
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
 command! -bar -complete=dir -nargs=? TabpageCD execute 'cd' fnameescape(expand(<q-args>)) | let t:cwd = getcwd()
-augroup TabpageCD
-    autocmd!
-    autocmd TabEnter *
-    \ if exists('t:cwd') && !isdirectory(t:cwd)
-    \| unlet t:cwd
-    \| endif
-    \| if !exists('t:cwd')
-    \| let t:cwd = getcwd()
-    \| endif
-    \| execute 'cd' fnameescape(expand(t:cwd))
-augroup END
+AutoCommand TabEnter *
+\ if exists('t:cwd') && !isdirectory(t:cwd)
+\| unlet t:cwd
+\| endif
+\| if !exists('t:cwd')
+\| let t:cwd = getcwd()
+\| endif
+\| execute 'cd' fnameescape(expand(t:cwd))
 
 nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 
@@ -890,11 +910,8 @@ endif
 
 " netrw用設定
 " hで上のディレクトリに移動、lでディレクトリを展開もしくはファイルを開く
-augroup NetrwCommand
-    autocmd!
-    autocmd FileType netrw nmap <buffer> h -
-    autocmd FileType netrw nmap <buffer> l <CR>
-augroup END
+AutoCommand FileType netrw nmap <buffer> h -
+AutoCommand FileType netrw nmap <buffer> l <CR>
 
 " skk.vim用設定
 let g:skk_jisyo              = $MISCVIM . '/dict/_skk-jisyo'
@@ -971,6 +988,7 @@ nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
 nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
 
+AutoCommand FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
     highlight link uniteSource__FileMru_Time Pmenu
     nmap <buffer> <ESC>          <Plug>(unite_exit)
@@ -991,11 +1009,6 @@ function! s:unite_my_settings()
     call unite#set_buffer_name_option('files', 'smartcase', 0)
 endfunction
 
-augroup UniteSetting
-    autocmd!
-    autocmd FileType unite call s:unite_my_settings()
-augroup END
-
 " vimshell用設定
 nnoremap <Leader>s :<C-u>VimShell<CR>
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
@@ -1009,14 +1022,10 @@ else
     let g:vimshell_prompt = $USER."% "
 endif
 
+AutoCommand FileType vimshell call s:vimshell_my_settings()
 function! s:vimshell_my_settings()
     call vimshell#altercmd#define('ll', 'ls -l')
 endfunction
-
-augroup VimShell
-    autocmd!
-    autocmd FileType vimshell call s:vimshell_my_settings()
-augroup END
 
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'

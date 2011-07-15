@@ -3,95 +3,71 @@
 " author: whtrix
 " ==/VimperatorColorSchema==
 
-hi Boolean              color: orchid;
+hi Boolean              color: mistyrose;
 hi Function             color: lime;
 hi Null                 color: springgreen;
 hi Number               color: springgreen;
 hi Object               color: khaki;
-hi String               color: orchid;
-hi Mapping              color: orchid;
+hi String               color: mistyrose;
+hi Mapping              color: mistyrose;
 
 hi Key                  font-weight: bold;
 
 hi Enabled              color: #d0ffd0;
-hi Disabled             color: red;
+hi Disabled             color: #ff0000;
 
-hi Normal               color: #ffffff; background: rgba(96,128,128,0.9);
-hi ErrorMsg             color: #ff1a1a; background: rgba(96,128,128,0.9);
-hi InfoMsg              color: #ffffff; background: rgba(96,128,128,0.9);
-hi ModeMsg              color: #ffffff; background: rgba(96,128,128,0.9);
-hi MoreMsg              color: #d0ffd0; background: rgba(96,128,128,0.9);
-hi WarningMsg           color: #ff0000; background: rgba(96,128,128,0.9);
-hi Message              white-space: normal; min-width: 100%; padding-left: 2em; text-indent: -2em; display: block;
+hi Normal               color: #ffffff; background: rgba(15,47,47,0.8);
+hi CompMsg              color: #ffffff;
+hi ErrorMsg             color: #ff1a1a;
+hi InfoMsg              color: #ffffff;
+hi ModeMsg              color: #ffffff;
+hi MoreMsg              color: #d0ffd0;
+hi WarningMsg           color: #ff0000;
+hi Message              color: #ffffff;
 hi NonText              color: #a0d0d0; min-height: 16px; padding-left: 2px;
 hi Preview              color: #a0d0d0;
 hi Prompt               background: url("chrome://liberator/skin/prompt.png"); width: 10pt; background-position: center; background-repeat: no-repeat;
-hi PromptText           color: #1c1c1c; background: #d0f0f0;
+hi PromptText           color: #1c1c1c;
 
 hi CmdOutput            white-space: pre;
-hi CmdLine              font-size: 14px; background: darkslategray; color: #d0d0d0; -moz-transition: all 0.25s;
+hi CmdLine              color: #ffffff; background: rgba(15,47,47,1.0);
 hi CmdLine>*            font-family: monospace;
 
 hi ContentSeparator     border: none; display: -moz-box;
 
-"hi CompGroup
-hi CompGroup:not(:first-of-type) margin-top: 1ex;
-hi CompTitle            font-size: 12px; font-weight: bold; background: rgba(64,128,128,0.9);
-hi CompTitle>*          color: #f0ffff; border-bottom: 1px solid #3c3f3f; padding: 1px 0.5ex; text-shadow: 1px 1px 0px #0c0c0c;
-hi CompMsg              font-style: italic; margin-left: 16px;
-hi CompItem             font-size: 12px;
-hi CompItem[selected]   color: #dddddd; background: #3c3f3f;
-hi CompItem>*           height: 18px; min-height: 18px; padding: 0 0.5ex;
-hi CompIcon             width: 16px; min-width: 16px; display: inline-block; margin-right: .5ex;
-hi CompIcon>img         max-width: 16px; max-height: 16px; vertical-align: middle;
-hi CompResult           width: 500px; max-width: 500px; overflow: hidden;
-hi CompDesc             width: 500px; max-width: 500px; color: #a0d0d0;
+hi CompGroup            ;
+hi CompGroup:not(:first-of-type) margin-top: 0ex;
+hi CompTitle            background: rgba(0,128,128,0.8); font-size: 12px; font-weight: bold;
+hi CompTitle>*          color: #f0ffff; text-shadow: 1px 1px 0px #0c0c0c;
+hi CompItem             background: rgba(15,47,47,0.8); font-size: 12px;
+hi CompItem[selected]   background: rgba(60,63,63,1.0);
+hi CompItem>*           height: 18px; min-height: 18px;
+hi CompIcon             color: #a0d0d0; width: 16px; min-width: 16px; display: inline-block;
+hi CompIcon>img         color: #a0d0d0; max-width: 16px; max-height: 16px; vertical-align: middle;
+hi CompResult           color: #a0d0d0; max-width: 16px; max-height: 16px; overflow: hidden;
+hi CompDesc             color: #a0d0d0; max-width: 16px; max-height: 16px;
 
 hi Indicator            color: #a0d0d0;
 hi Filter               color: #70d0d0;
 
-hi Keyword              color: khaki;
+hi Keyword              color: #f0368c;
 hi Tag                  color: #a0a0d0;
 
-hi LineNr               color: #ffd0d0; background: #1c1c1c;
-hi Question             color: #a0a0d0; background: #1c1c1c; font-weight: bold;
+hi LineNr               color: #ffd0d0; background: rgba(28,28,28,1.0);
+hi Question             color: #a0a0d0; background: rgba(28,28,28,1.0); font-weight: bold;
 
-hi StatusLine           color: #ffffff; background: rgba(96,128,128,0.9); font-weight: normal; font-size: 10pt;
+hi StatusLine           color: #ffffff; font-weight: normal;
 
 hi TabNumber            font-weight: bold; margin: 0px; padding-right: .3ex;
 
-hi Title                color: #ffaaaa; font-size: 12px; font-weight: bold; background: rgba(64,128,128,0.9);
+hi Title                color: #ffaaaa; font-size: 12px; font-weight: bold;
 hi URL                  text-decoration: none; color: #d0ffd0;
 hi URL:hover            text-decoration: underline; cursor: pointer;
 
-hi FrameIndicator       background-color: red; opacity: 0.5; z-index: 999; position: fixed; top: 0; bottom: 0; left: 0; right: 0;
+hi FrameIndicator       background-color: #ff0000; opacity: 0.5; z-index: 999; position: fixed; top: 0; bottom: 0; left: 0; right: 0;
 
-hi Bell                 border: none; background-color: #d0d0d0;
-hi Hint                 font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; background-color: Gray; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.9; text-transform: uppercase;
-hi HintActive           background-color: greenyellow; border: 0.5px oldlace dotted; -moz-border-radius: 3px; padding: 0.1em; font-weight: bold;
-
-js <<EOM
-var css = <css><![CDATA[
-#liberator-customize-toolbar {
-    -moz-box-align: center !important;
-    -moz-box-pack: center !important;
-    -moz-appearance: none !important;
-}
-
-#liberator-customize-toolbar toolbarbutton,
-#liberator-customize-toolbar statusbarpanel {
-    padding: 0 0 0 2px !important;
-}
-
-#feed-button {
-    list-style-image: url("chrome://browser/skin/feeds/feedIcon16.png") !important;
-    -moz-image-region: auto !important;
-    border: none !important;
-    min-width: 0 !important;
-}
-
-]]></css>.toString();
-styles.addSheet(false, "miku-customize-toolbar", "chrome://*", css, false);
-EOM
+hi Bell                 background-color: #d0d0d0; border: none;
+hi Hint                 background-color: #808080; font-size: 12px; padding: 0 0.25em; margin: -0.25em 0 0 -0.5em; border: 0.5px Gray solid; -moz-border-radius: 3px; color: white; font-weight: bolder; opacity: 0.8; text-transform: uppercase;
+hi HintActive           background-color: #adff2f; border: 0.5px oldlace dotted; -moz-border-radius: 3px; padding: 0.1em; font-weight: bold;
 
 " vim: ft=vimperator
