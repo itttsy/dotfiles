@@ -4,7 +4,6 @@ mapclear
 cmapclear
 imapclear
 
-"----------
 " 基本設定
 
 " ブラウザタイトルの変更
@@ -52,13 +51,15 @@ set editor="gvim -f -c ':set fenc=utf8'"
 " コマンドラインへの移行時にIMEを指定の状態に切り替える
 style -name commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
 
-"----------
 " Firefoxに関する設定
 " アクセスキーを無効にする
 set! ui.key.generalAccessKey=0
 
 " タブのCloseボタンを消す
 set! browser.tabs.closeButtons=2
+
+" タブをタイトルバーに一体化
+set! browser.tabs.drawInTitlebar=true
 
 " Caretモードを見やすくする
 set! ui.caretWidth=1
@@ -90,7 +91,6 @@ set! browser.sessionstore.max_tabs_undo=30
 set! browser.sessionhistory.max_total_viewers=5
 set! browser.tabs.loadInBackground=false
 
-"----------
 " 視覚に関する設定
 " ヒントモードに使う文字の指定
 set hintchars=;asdfghjkl
@@ -102,7 +102,6 @@ hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compit
 " 日付を表示
 command! date echo Date()
 
-"----------
 " 操作に関する設定
 " Insertモードでキーバインドが効くようにする
 javascript <<EOM
@@ -183,7 +182,6 @@ cnoremap <C-n> <Down>
 inoremap <C-f> <ESC>f
 cnoremap <C-f> <ESC>f
 
-"----------
 " プラグインに関する設定
 " lazyコマンドを用意する
 command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
@@ -237,16 +235,13 @@ userContext.ggl = function getGoogleShortenURL(url, callback){
 }
 EOM
 
-"----------
 " JavaScriptに関する設定
-"----------
 " ワンライナーのための設定
 javascript <<EOM
 modules.__defineGetter__("doc", function() content.document.wrappedJSObject);
 modules.__defineGetter__("win", function() content.window.wrappedJSObject);
 EOM
 
-"----------
 " autocmd駆動時のエコーをやめる
 javascript <<EOM
 let (original = liberator.echomsg)
@@ -259,7 +254,6 @@ let (original = liberator.echomsg)
 };
 EOM
 
-"----------
 " コマンドラインでbangをトグル
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
@@ -271,7 +265,6 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-x>'], 'toggle bang',
 );
 EOM
 
-"----------
 " コマンドラインを外部エディタで編集
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by external editor',
@@ -288,7 +281,6 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-i>'], 'Edit commandline by extern
 );
 EOM
 
-"----------
 " 戻るを拡張
 javascript <<EOM
 let back   = mappings.getDefault(modes.NORMAL, 'H').action;
@@ -318,7 +310,6 @@ eval(function () {
 })();
 EOM
 
-"----------
 " <C-c>で文字列をコピーまたはロードを止める
 javascript <<EOM
 mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text or stop loading',
@@ -334,7 +325,6 @@ mappings.addUserMap([modes.NORMAL,modes.VISUAL],['<C-c>'], 'Copy selected text o
 );
 EOM
 
-"----------
 " <C-c>でコマンドラインをクリップボードにコピー
 javascript <<EOM
 mappings.addUserMap([modes.COMMAND_LINE], ['<C-c>'], 'Copy current commandline',
@@ -344,7 +334,6 @@ mappings.addUserMap([modes.COMMAND_LINE], ['<C-c>'], 'Copy current commandline',
 );
 EOM
 
-"----------
 " :mesで出てくるメッセージをクリップボードに送る
 javascript <<EOM
 commands.addUserCommand(['messcopy'], 'Copy messages to clipboard',
@@ -364,7 +353,6 @@ commands.addUserCommand(['messcopy'], 'Copy messages to clipboard',
 );
 EOM
 
-"----------
 " j,kキーでスムーススクロールする
 javascript <<EOM
 let self = (function(){
@@ -426,7 +414,6 @@ let self = (function(){
 })();
 EOM
 
-"----------
 " guを使いやすくする
 javascript <<EOM
 eval(function(){
@@ -492,7 +479,6 @@ eval(function(){
 })();
 EOM
 
-"----------
 " /vimperator/stylesの中の.cssファイルを読み込む
 javascript <<EOM
 eval(function(){
@@ -509,3 +495,32 @@ eval(function(){
 })();
 EOM
 
+" コマンドラインバグを修正するパッチ
+js <<EOM
+    liberator.registerObserver(
+        'enter',
+        function () {
+            plugins.libly.$U.around(
+                commandline,
+                'input',
+                function (next, [prompt, callback, extra]) {
+                if (callback === finder.closure.onSubmit)
+                    return next();
+                if (extra && (extra.onChange === hints.closure._onInput))
+                    return next();
+                setTimeout(function () next(), 0);
+                }
+            );
+
+            if (plugins.xHint) {
+                [commands.get('xhint'), commands.get('xhintdo')].forEach(function (cmd) {
+                plugins.libly.$U.around(
+                    cmd,
+                    'action',
+                    function (next) setTimeout(function () next(), 0)
+                );
+                });
+            }
+        }
+    );
+EOM

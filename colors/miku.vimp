@@ -40,7 +40,7 @@ hi CompGroup:not(:first-of-type) margin-top: 0ex;
 hi CompTitle            background: rgba(0,128,128,0.8); font-size: 12px; font-weight: bold;
 hi CompTitle>*          color: #f0ffff; text-shadow: 1px 1px 0px #0c0c0c;
 hi CompItem             background: rgba(15,47,47,0.8); font-size: 12px;
-hi CompItem[selected]   background: rgba(60,63,63,1.0);
+hi CompItem[selected]   background: rgba(64,96,96,1.0);
 hi CompItem>*           height: 18px; min-height: 18px;
 hi CompIcon             color: #a0d0d0; width: 16px; min-width: 16px; display: inline-block;
 hi CompIcon>img         color: #a0d0d0; max-width: 16px; max-height: 16px; vertical-align: middle;
