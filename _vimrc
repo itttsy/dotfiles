@@ -177,7 +177,7 @@ set wrap
 " 現在のモードの表示
 set showmode
 " 行番号の表示
-set number
+set nonumber
 " カーソルが何行目何列目にあるかの表示
 set noruler
 
@@ -189,7 +189,7 @@ set title
 " ステータスラインの表示
 set statusline=
     \%<%{expand('%:p')}\ %m%r%h%w
-    \%=%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']['.&ft.']'}[%{tabpagenr()}/%{tabpagenr('$')}]\ %P
+    \%=%{'['.(&fenc!=''?&fenc:&enc).']['.&ff.']['.&ft.']'}[%{tabpagenr()}/%{tabpagenr('$')}]\ %l/%L
 " タブページのラベルの表示
 set showtabline=0
 " ステータス行の表示
@@ -376,7 +376,7 @@ set shiftround
 
 " completion
 " キーワード補完にディクショナリーファイルを追加
-set complete& complete+=k
+set complete& complete=.,w,b,u,t,k
 AutoCommand FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
 " コマンドライン補完を拡張モードで行う設定
 set wildmenu
@@ -487,18 +487,6 @@ function! s:warn(msg)
     finally
         echohl None
     endtry
-endfunction
-
-" 内容が空の.txtファイルを保存した際の自動削除
-AutoCommand BufWritePost *.txt call BufWritePostDelete()
-function! BufWritePostDelete()
-    let crlen = 0
-    if &binary == 0
-        let crlen = &ff=='dos' ? 2 : 1
-    endif
-    if getfsize(expand('%:p')) <= crlen
-        call delete(expand('%:p'))
-    endif
 endfunction
 
 " 存在しないディレクトリの自動作成
@@ -983,6 +971,7 @@ nnoremap <silent> [unite]t     :<C-u>Unite -immediately tab:no-current<CR>
 nnoremap <silent> [unite]w     :<C-u>Unite -immediately window:no-current<CR>
 nnoremap <silent> [unite]q     :<C-u>Unite -buffer-name=register register<CR>
 nnoremap <silent> [unite]f     :<C-u>Unite -buffer-name=files file<CR>
+nnoremap <silent> [unite]l     :<C-u>Unite line<CR>
 nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
