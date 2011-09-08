@@ -19,7 +19,7 @@ hi Search       term=reverse              ctermfg=7  ctermbg=2                gu
 hi MoreMsg      term=none      cterm=bold ctermfg=2             gui=bold      guifg=#2e8b57
 hi ModeMsg      term=bold      cterm=bold ctermfg=15 ctermbg=2  gui=bold      guifg=#fffafa guibg=#000000
 hi LineNr       term=underline cterm=bold ctermfg=3                           guifg=#008b8b
-hi CursorLine   term=none      cterm=none                       gui=none                    guibg=#0f2f2f
+hi CursorLine   term=none      cterm=none                       gui=none                    guibg=#0f1f1f
 hi Question     term=standout  cterm=bold ctermfg=2             gui=bold      guifg=#006400
 hi Comment      term=bold      cterm=bold ctermfg=14            gui=none      guifg=#ffd700
 hi Constant     term=bold      cterm=none ctermfg=7             gui=none      guifg=#d3d3d3

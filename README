@@ -3,13 +3,13 @@ vim plugin I use
     neocomplcache
     skk.vim
     unite.vim
-    unite-grep
     unite-help
     unite-outline
     vim-pathogen
     vimproc
     vim-quickrun
     vim-ref
+    vimshell
     vim-surround
 vimperator plugin I use
     _libly.js
@@ -18,9 +18,9 @@ vimperator plugin I use
     cookieManager.js
     feedSomeKeys_3.js
     lo.js
+    migemized_find.js
     multi_requester.js
     opener.js
-    pluginManager.js
     prevent-pseudo-domain.js
     session-manager.js
     statusline-toolbar.js
@@ -28,4 +28,3 @@ vimperator plugin I use
     twittperator.js
     usi.js
     x-hint.js
-    zoom-em-all.js

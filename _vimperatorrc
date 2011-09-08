@@ -95,10 +95,6 @@ set! browser.tabs.loadInBackground=false
 " ヒントモードに使う文字の指定
 set hintchars=;asdfghjkl
 
-" 補完のURLが長すぎて、切れてしまう問題の対処
-hi! CompResult -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
-hi! CompDesc -a -moz-binding: url(chrome://liberator/content/bindings.xml#compitem-td);
-
 " 日付を表示
 command! date echo Date()
 
@@ -212,6 +208,7 @@ lazy fmaps -u='www\.tumblr\.com/dashboard' -events=vkeydown j k
 
 " twittperator.js
 let g:twittperator_use_chirp = 1
+" let g:twittperator_use_ssl_connection_for_api_ep = 1
 " 呟きに現在のページのタイトルとURLを追加
 cabbrev -javascript .ggl ggl(buffer.URI)
 cabbrev -javascript .url '" ' + buffer.title+ ' ' + ggl(buffer.URI) + ' "' 
@@ -477,6 +474,13 @@ eval(function(){
         { count: true }
     );
 })();
+EOM
+
+" 検索時の"Find"文字列を中央に寄せる
+style -name prompt-text chrome://* <<EOM
+  #liberator-commandline {
+    -moz-box-align: center;
+  }
 EOM
 
 " /vimperator/stylesの中の.cssファイルを読み込む
