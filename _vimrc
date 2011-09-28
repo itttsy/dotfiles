@@ -936,11 +936,37 @@ function! s:unite_my_settings()
     call unite#set_buffer_name_option('files', 'smartcase', 0)
 endfunction
 
+" neocomplcache.vim用設定
+let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_enable_smart_case = 1
+let g:neocomplcache_enable_camel_case_completion = 1
+let g:neocomplcache_enable_underbar_completion = 1
+let g:neocomplcache_enable_auto_delimiter = 1
+let g:neocomplcache_min_syntax_length = 3
+let g:neocomplcache_max_filename_width = 30
+let g:neocomplcache_enable_smart_case = 1
+let g:neocomplcache_quick_match_patterns = { 'default' : '@' }
+let g:neocomplcache_enable_auto_select = 0
+let g:neocomplcache_temporary_dir = $DOTVIM . '/tmp/neocon'
+" <C-l>でsnippet補完
+imap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
+smap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
+" <CR>, <C-h>, <BS>, <Space>でポップアップの消去
+inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
+inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup() . "\<C-h>"
+inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
+inoremap <expr><C-y> neocomplcache#close_popup()
+inoremap <expr><C-b> neocomplcache#cansel_popup()
+
 " vimshell用設定
 nnoremap <Leader>s :<C-u>VimShell<CR>
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
 let g:vimshell_enable_smart_case = 1
 let g:vimshell_split_height = 50
+
+" echodoc用設定
+let g:echodoc_enable_at_startup = 1
 
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
