@@ -1,4 +1,4 @@
-" vim: set ft=javascript
+" vim: set ft=vim:
 set all&
 mapclear
 cmapclear
@@ -211,7 +211,7 @@ let g:twittperator_use_chirp = 1
 " let g:twittperator_use_ssl_connection_for_api_ep = 1
 " 呟きに現在のページのタイトルとURLを追加
 cabbrev -javascript .ggl ggl(buffer.URI)
-cabbrev -javascript .url '" ' + buffer.title+ ' ' + ggl(buffer.URI) + ' "' 
+cabbrev -javascript .url '> ' + buffer.title+ ' ' + ggl(buffer.URI)
 javascript <<EOM
 userContext.ggl = function getGoogleShortenURL(url, callback){
     let uri = "https://www.googleapis.com/urlshortener/v1/url";

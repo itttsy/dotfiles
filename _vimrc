@@ -153,7 +153,6 @@ set notagbsearch
 if has('multi_byte_ime')
     highlight CursorIM guibg=Purple guifg=NONE
     set iminsert=0 imsearch=0
-    inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
 endif
 
 "---------- GUI固有ではない画面表示の設定
@@ -843,8 +842,8 @@ inoremap <C-u> <C-g>u<C-u>
 inoremap <C-w> <C-g>u<C-w>
 " ]を入力した際に、対応する括弧が見つからない場合は補完キーとする
 inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), col("."), 1), "name") =~? "String"') ? ']' : "\<C-n>"
-" <C-Space>でオムニ補完を利用
-inoremap <C-Space> <C-x><C-o>
+" <C-]>でオムニ補完を利用
+inoremap <C-]> <C-x><C-o>
 
 "---------- マップ定義 - Command-lineモード
 " <C-d>をDelにする
@@ -872,17 +871,6 @@ nnoremap <Leader>m :<C-u>marks<CR>
 nnoremap <Leader>q :<C-u>registers<CR>
 
 "---------- Plug-in用設定
-" Kaoriya版でのプラグイン
-if has('Kaoriya')
-    let plugin_autodate_disable  = 1
-    let plugin_cmdex_disable     = 0
-    let plugin_dicwin_disable    = 1
-    let plugin_format_disable    = 1
-    let plugin_hz_ja_disable     = 1
-    let plugin_scrnmode_disable  = 1
-    let plugin_verifyenc_disable = 1
-endif
-
 " netrw用設定
 " hで上のディレクトリに移動、lでディレクトリを展開もしくはファイルを開く
 AutoCommand FileType netrw nmap <buffer> h -
@@ -926,7 +914,6 @@ nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
 nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
-nnoremap <silent> [unite]o     :<C-u>Unite outline<CR>
 
 AutoCommand FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
@@ -949,62 +936,14 @@ function! s:unite_my_settings()
     call unite#set_buffer_name_option('files', 'smartcase', 0)
 endfunction
 
-" neocomplcache.vim用設定
-let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_enable_camel_case_completion = 1
-let g:neocomplcache_enable_underbar_completion = 1
-let g:neocomplcache_enable_auto_delimiter = 1
-let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_max_filename_width = 30
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_quick_match_patterns = { 'default' : '@' }
-let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_temporary_dir = $DOTVIM . '/tmp/neocon'
-" <C-l>でsnippet補完
-imap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
-smap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
-" <CR>, <C-h>, <BS>, <Space>でポップアップの消去
-inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
-inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr><BS> neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
-inoremap <expr><C-y> neocomplcache#close_popup()
-inoremap <expr><C-b> neocomplcache#cansel_popup()
-
-" echodoc用設定
-let g:echodoc_enable_at_startup = 1
-
 " vimshell用設定
 nnoremap <Leader>s :<C-u>VimShell<CR>
 let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-let g:vimshell_use_ckw = 0
-let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
 let g:vimshell_enable_smart_case = 1
 let g:vimshell_split_height = 50
-if s:chk_win
-    let g:vimshell_prompt = $USERNAME."% "
-else
-    let g:vimshell_prompt = $USER."% "
-endif
-
-AutoCommand FileType vimshell call s:vimshell_my_settings()
-function! s:vimshell_my_settings()
-    call vimshell#altercmd#define('ll', 'ls -l')
-endfunction
 
 " ref.vim用設定
 let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
 let g:ref_use_vimproc   = 1
-nnoremap <silent> mp :<C-u>call ref#jump('normal', 'perldoc', {'noenter': 1})<CR>
-vnoremap <silent> mp :<C-u>call ref#jump('visual', 'perldoc', {'noenter': 1})<CR>
-
-" quickrun.vim用設定
-nnoremap qr :<C-u>QuickRun -args<Space>
-let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
-" Windows用Perl設定
-if executable('Perl') && s:chk_win
-    let g:quickrun_config.perl = {'output_encode': 'cp932'}
-endif
 
 set secure
