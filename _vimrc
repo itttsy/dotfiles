@@ -1,6 +1,6 @@
 " vim:set ts=4 sts=4 sw=4 tw=0: (この行に関しては:help modelineを参照)
 
-"---------- 初期処理
+"初期処理----------
 " バージョンの管理
 if v:version < 702
     echoerr 'Error: vimrc: Require the Vim 7.2 or later.'
@@ -38,7 +38,7 @@ endif
 " Vimで利用するディクショナリファイルや一時ファイルの場所を指定
 let $MISCVIM = $HOME . '/misc'
 
-"---------- 初期設定
+"初期設定----------
 " <Leader>に'\'の代わりに'<Space>'を使えるようにする
 let mapleader   = ' '
 let g:mapleader = ' '
@@ -62,7 +62,7 @@ endfunction
 set all&
 filetype plugin indent off
 " 各種プラグインのロード
-source $DOTVIM/bundle/vim-pathogen/autoload/pathogen.vim
+set rtp+=$DOTVIM/bundle/vim-pathogen/
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 " Vi互換ではなくする
@@ -72,7 +72,7 @@ filetype plugin indent on
 " ヘルプドキュメントに利用する言語
 set helplang=ja,en
 
-"---------- 日本語用エンコード設定
+"日本語用エンコード設定----------
 if s:chk_win
 " WindowsはShift_JIS対応
     set encoding=cp932
@@ -115,7 +115,7 @@ command! -bang -bar -complete=file -nargs=? Jis  edit<bang> ++enc=iso-2022-jp <a
 command! -bang -bar -complete=file -nargs=? Sjis edit<bang> ++enc=cp932 <args>
 command! -bang -bar -complete=file -nargs=? Euc  edit<bang> ++enc=euc-jp <args>
 
-"---------- プラットフォーム依存の問題の為の設定
+"プラットフォーム依存の問題の為の設定----------
 " ファイル名に大文字小文字の区別がないシステム用の設定
 if filereadable($VIM . '/vimrc') && filereadable($VIM . '/ViMrC')
     set tags=./tags,tags
@@ -149,13 +149,13 @@ endfunction
 helptags $DOTVIM/doc
 set notagbsearch
 
-"---------- IME切り替えの為の設定
+"IME切り替えの為の設定----------
 if has('multi_byte_ime')
     highlight CursorIM guibg=Purple guifg=NONE
     set iminsert=0 imsearch=0
 endif
 
-"---------- GUI固有ではない画面表示の設定
+"GUI固有ではない画面表示の設定----------
 if !has('gui_running')
     colorscheme miku
 endif
@@ -175,11 +175,11 @@ set nonumber
 " カーソルが何行目何列目にあるかの表示
 set noruler
 
-" title
+" タイトル
 " ウィンドウのタイトルの表示
 set title
 
-" statusline
+" ステータスライン
 " ステータスラインの表示
 set statusline=
     \%<%{expand('%:p')}\ %m%r%h%w
@@ -217,7 +217,7 @@ function! s:GetHighlight(hi)
     return hl
 endfunction
 
-" gui
+" GUI
 " ビープ音にビジュアルベルの使用
 set visualbell
 " Vimを終了したときにコンソール画面を復元しない
@@ -225,21 +225,17 @@ set norestorescreen
 set t_ti=
 set t_te=
 
-" cursor
+" カーソル
 " Insertモードでautoindent、改行を超えたバックスペースの設定
 set backspace=2
 
-" listchars
+" 非表示文字
 " タブ文字や行末の表示
 set list
 " タブ文字や行末に表示する文字の指定
 set listchars=tab:>_,extends:>,precedes:<,eol:_,trail:~
-
-" fillchars
 " ステータス行と垂直分割の区切りを埋める文字の指定
 set fillchars=stl:\ ,stlnc::,vert:\ ,fold:-,diff:-
-
-" ZenkakuSpace
 " 全角スペースの表示
 scriptencoding utf-8
 AutoCommand VimEnter,BufEnter * call ZenkakuSpace()
@@ -248,12 +244,14 @@ function! ZenkakuSpace()
     silent! match ZenkakuSpace /　/
 endfunction
 
-" scroll
+" スクロール
 " CTRL-UやCTRL-Dでスクロールする行数
 set scroll=5
 " <C-f>、<C-b>でスムーススクロールをする
 let g:scroll_factor = 5000
 let g:scroll_skip_line_size = 4
+noremap <C-f> :call SmoothScroll("d",1, 1)<CR>
+noremap <C-b> :call SmoothScroll("u",1, 1)<CR>
 function! SmoothScroll(dir, windiv, factor)
     if &cursorline == 1
         set nocursorline
@@ -296,10 +294,7 @@ function! SmoothScroll(dir, windiv, factor)
     end
 endfunction
 
-noremap <C-f> :call SmoothScroll("d",1, 1)<CR>
-noremap <C-b> :call SmoothScroll("u",1, 1)<CR>
-
-" case arc
+" 括弧
 " 対応する括弧へのジャンプ
 set showmatch
 " 対応する括弧にジャンプする時間
@@ -309,7 +304,7 @@ set cpoptions& cpoptions-=m
 " 対応する括弧のペアの追加
 set matchpairs& matchpairs+=<:>
 
-" fold
+" 折り畳み
 " 折り畳みの設定
 set foldenable
 " マーカーでの折り畳みの指定
@@ -320,14 +315,12 @@ set foldcolumn=0
 vnoremap <expr> h col('.') == 1 && foldlevel(line('.')) > 0 ? 'zcgv' : 'h'
 " 折畳上で l を押すと選択範囲に含まれるfoldを開く
 vnoremap <expr> l foldclosed(line('.')) != -1 ? 'zogv0' : 'l'
-
 " 現在のfoldのみ開いた状態にする
+nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 function! s:fold_current_expand()
     silent! %foldclose!
     normal! zvzz
 endfunc
-
-nnoremap z<Space> :<C-u>call <SID>fold_current_expand()<CR>
 
 " カレントウィンドウにのみ罫線を引く
 AutoCommand WinLeave * set nocursorline
@@ -343,7 +336,7 @@ set helplang=ja,en
 " 行連結コマンドにおいての空白の挿入
 set nojoinspaces
 
-"---------- マウスに関する設定
+"マウスに関する設定----------
 if has('mouse')
     set mouse=a
     set guioptions+=a
@@ -352,8 +345,8 @@ endif
 " ダブルクリックで指定単語をハイライトする
 nnoremap <2-LeftMouse> g*
 
-"---------- 編集に関する設定
-" indent
+"編集に関する設定----------
+" インデント
 " 新しい行を開始したときに新しい行のインデントの設定
 set autoindent
 set smartindent
@@ -366,7 +359,7 @@ set shiftwidth=4
 " インデントをshiftwidthの値の整数倍にまとめる設定
 set shiftround
 
-" completion
+" 補完
 " キーワード補完にディクショナリーファイルを追加
 set complete& complete=.,w,b,u,t,k
 AutoCommand FileType * execute printf("setlocal dict=$MISCVIM/dict/%s.dict", &filetype)
@@ -377,7 +370,7 @@ set wildchar=<Tab>
 " Insertモード補完のポップアップに表示される項目数の最大値
 set pumheight=20
 
-" template
+" テンプレート
 " 拡張子awkのファイルを作成した場合にテンプレートを読み込む設定
 AutoCommand BufNewFile *.awk 0r $MISCVIM/template/awk.template
 " 拡張子javaのファイルを作成した場合にテンプレートを読み込む設定
@@ -387,7 +380,6 @@ AutoCommand BufNewFile *.ksh 0r $MISCVIM/template/ksh.template
 " 拡張子perlのファイルを作成した場合にテンプレートを読み込む設定
 AutoCommand BufNewFile *.pl 0r $MISCVIM/template/perl.template
 
-" swap
 " スワップファイル
 set noswapfile
 set updatecount=0
@@ -396,12 +388,10 @@ if has('unix')
     set swapsync=
 endif
 
-" backup
 " バックアップファイル
 set nobackup
 set backupdir=$DOTVIM/tmp/backup
 
-" undo
 " 無限Undo
 if v:version > 702
     set undofile
@@ -409,7 +399,6 @@ if v:version > 702
 endif
 
 " vimfinfo
-" infoファイル
 set viminfo+=n$DOTVIM/tmp/_viminfo
 
 " misc
@@ -495,6 +484,7 @@ function! s:auto_mkdir(dir, force)
 endfunction
 
 " 使い捨て用のファイルの生成
+nnoremap <Leader>j :<C-u>JunkFile<CR>
 command! -nargs=0 JunkFile call s:open_junk_file()
 function! s:open_junk_file()
     let l:junk_dir = $MISCVIM . '/junk'
@@ -506,8 +496,6 @@ function! s:open_junk_file()
         execute 'edit ' . l:filename
     endif
 endfunction
-
-nnoremap <Leader>j :<C-u>JunkFile<CR>
 
 " コマンドの出力のキャプチャ
 command! -nargs=+ -complete=command Capture call s:cmd_capture(<q-args>)
@@ -523,6 +511,9 @@ function! s:cmd_capture(q_args)
 endfunction
 
 " 開いているファイル内の関数へジャンプする
+nnoremap go :<C-u>copen<CR>
+nnoremap gc :<C-u>cclose<CR>
+nnoremap g<Space> :<C-u>call Navi()<CR>
 function! Navi()
     if &ft ==? "c" || &ft ==? "cpp"
         vimgrep /^[^ \t#/\\*]\+[0-9A-Za-z_ :\t\\*]\+([^;]*$/j %
@@ -552,11 +543,8 @@ function! Navi()
     cw
 endfunction
 
-nnoremap g<Space> :<C-u>call Navi()<CR>
-nnoremap go :<C-u>copen<CR>
-nnoremap gc :<C-u>cclose<CR>
-
 " タブページ毎のカレントディレクトリの設定
+nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
 command! -bar -complete=dir -nargs=? CD TabpageCD <args>
 command! -bar -complete=dir -nargs=? TabpageCD execute 'cd' fnameescape(expand(<q-args>)) | let t:cwd = getcwd()
 AutoCommand TabEnter *
@@ -568,9 +556,7 @@ AutoCommand TabEnter *
 \| endif
 \| execute 'cd' fnameescape(expand(t:cwd))
 
-nnoremap tcd :<C-u>TabpageCD %:p:h<CR>
-
-"---------- 検索に関する設定
+"検索に関する設定----------
 " インクリメンタルサーチ
 set incsearch
 " 大文字と小文字の区別
@@ -586,10 +572,15 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 " fを利用するときにIMEをオフにする
 nnoremap <silent> f :<C-u>set iminsert=0<CR>f
 nnoremap <silent> F :<C-u>set iminsert=0<CR>F
-"<Leader>の2回押しでハイライト消去
+" <Leader>の2回押しでハイライト消去
 nnoremap <silent> <Leader><Leader> :<C-u>nohlsearch<CR><ESC>
+" vimgrepでの検索後、QuickFixウィンドウを開く
+augroup grepopen
+    autocmd!
+    autocmd QuickFixCmdPost vimgrep cw
+augroup END
 
-"---------- バイナリの編集に関する設定
+"バイナリの編集に関する設定----------
 augroup BinaryXXD
     autocmd!
     autocmd BufReadPre   *.bin let &binary =1
@@ -600,12 +591,17 @@ augroup BinaryXXD
     autocmd BufWritePost * set nomod | endif
 augroup END
 
-"---------- 現バッファの差分表示
+"差分に関する設定----------
+" 現バッファの差分表示
 command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
 " ファイルまたはバッファ番号を指定して差分表示し、#なら裏バッファと比較
 command! -nargs=? -complete=file Diff if '<args>'=='' | browse vertical diffsplit|else| vertical diffsplit <args>|endif
 
-"---------- Sticky Shift
+"Sticky Shift----------
+let g:sticky_us_keyboard = 0
+inoremap <expr> ; <SID>sticky_func()
+cnoremap <expr> ; <SID>sticky_func()
+snoremap <expr> ; <SID>sticky_func()
 function! s:sticky_func()
     let l:sticky_table = {
         \'0' : {
@@ -641,16 +637,11 @@ function! s:sticky_func()
     endif
 endfunction
 
-let g:sticky_us_keyboard = 0
-inoremap <expr> ; <SID>sticky_func()
-cnoremap <expr> ; <SID>sticky_func()
-snoremap <expr> ; <SID>sticky_func()
-
-"---------- マップ定義 - Normalモード
+"マップ定義 - Normalモード----------
 " Window関係
 set splitbelow
 set splitright
-"デフォルトの最小ウィンドウの高さ
+" デフォルトの最小ウィンドウの高さ
 set winminheight=0
 " <C-w><Space>または<Tab>で次のウィンドウに移動する
 nnoremap <C-w><Space> <C-w>w
@@ -672,37 +663,6 @@ nnoremap <SID>(split-to-h) :<C-u>execute 'topleft'    (v:count == 0 ? '' : v:cou
 nnoremap <SID>(split-to-l) :<C-u>execute 'botright'   (v:count == 0 ? '' : v:count) 'vsplit'<CR>
 
 " ウィンドウの入れ替え
-function! s:modulo(n, m)
-    let d = a:n * a:m < 0 ? 1 : 0
-    return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
-endfunction
-
-function! s:swap_window_count(n)
-    let curwin = winnr()
-    let target = s:modulo(curwin + a:n - 1, winnr('$')) + 1
-    call s:swap_window(curwin, target)
-endfunction
-
-function! s:swap_window_dir(n, dir)
-    let curwin = winnr()
-    execute a:n 'wincmd' a:dir
-    let targetwin = winnr()
-    wincmd p
-    call s:swap_window(curwin, targetwin)
-endfunction
-
-function! s:swap_window(curwin, targetwin)
-    let curbuf = winbufnr(a:curwin)
-    let targetbuf = winbufnr(a:targetwin)
-
-    if curbuf == targetbuf
-    else
-        execute 'hide' targetbuf . 'buffer'
-        execute a:targetwin 'wincmd w'
-        execute curbuf 'buffer'
-    endif
-endfunction
-
 nnoremap [Swap] <Nop>
 nnoremap <C-s> <Nop>
 nmap <C-s> [Swap]
@@ -722,6 +682,33 @@ nnoremap <silent> <SID>swap_window_h    :<C-u>call <SID>swap_window_dir(v:count1
 nnoremap <silent> <SID>swap_window_l    :<C-u>call <SID>swap_window_dir(v:count1, 'l')<CR>
 nnoremap <silent> <SID>swap_window_t    :<C-u>call <SID>swap_window_dir(v:count1, 't')<CR>
 nnoremap <silent> <SID>swap_window_b    :<C-u>call <SID>swap_window_dir(v:count1, 'b')<CR>
+
+function! s:modulo(n, m)
+    let d = a:n * a:m < 0 ? 1 : 0
+    return a:n + (-(a:n + (0 < a:m ? d : -d)) / a:m + d) * a:m
+endfunction
+function! s:swap_window_count(n)
+    let curwin = winnr()
+    let target = s:modulo(curwin + a:n - 1, winnr('$')) + 1
+    call s:swap_window(curwin, target)
+endfunction
+function! s:swap_window_dir(n, dir)
+    let curwin = winnr()
+    execute a:n 'wincmd' a:dir
+    let targetwin = winnr()
+    wincmd p
+    call s:swap_window(curwin, targetwin)
+endfunction
+function! s:swap_window(curwin, targetwin)
+    let curbuf = winbufnr(a:curwin)
+    let targetbuf = winbufnr(a:targetwin)
+    if curbuf == targetbuf
+    else
+        execute 'hide' targetbuf . 'buffer'
+        execute a:targetwin 'wincmd w'
+        execute curbuf 'buffer'
+    endif
+endfunction
 
 " Buffer関係
 " Hで前のバッファを表示
@@ -755,6 +742,7 @@ for i in range(10)
 endfor
 unlet i
 " 現在編集中のバッファをタブに切り出す
+nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<CR>
 function! s:move_window_into_tab_page(target_tabpagenr)
     if a:target_tabpagenr < 0
         return
@@ -783,8 +771,6 @@ function! s:move_window_into_tab_page(target_tabpagenr)
     execute target_tabpagenr 'tabnext'
 endfunction
 
-nnoremap <silent> [Tabbed]l :<C-u>call <SID>move_window_into_tab_page(0)<CR>
-
 " 移動関係
 " 最後に編集された位置に移動
 nnoremap gb '[
@@ -806,7 +792,7 @@ nmap <Leader>ew :<C-u>setlocal fileformat=dos<CR>
 nmap <Leader>ea :<C-u>setlocal fileformat=mac<CR>
 nmap <Leader>eu :<C-u>setlocal fileformat=unix<CR>
 
-"---------- マップ定義 - Visualモード
+"マップ定義 - Visualモード----------
 " <CR>をchangeにする
 xnoremap <CR> c
 " <Tab>をindentにする
@@ -818,7 +804,7 @@ vnoremap <silent> * "vy/\V<C-r>=substitute(escape(@v,'\/'),"\n",'\\n','g')<CR><C
 "ビジュアルモード時vで行末まで選択
 vnoremap v $h
 
-"---------- マップ定義 - Insertモード
+"マップ定義 - Insertモード----------
 " <C-t>をTabにする
 inoremap <C-t> <C-v><Tab>
 " <C-d>をDelにする
@@ -845,7 +831,7 @@ inoremap <expr> ] searchpair('\[', '', '\]', 'nbW', 'synIDattr(synID(line("."), 
 " <C-]>でオムニ補完を利用
 inoremap <C-]> <C-x><C-o>
 
-"---------- マップ定義 - Command-lineモード
+"マップ定義 - Command-lineモード----------
 " <C-d>をDelにする
 cnoremap <C-d> <Del>
 " <C-a>で先頭に移動
@@ -864,13 +850,13 @@ cnoremap <A-h> <S-Left>
 " <A-l>で次の言葉に移動
 cnoremap <A-l> <S-Right>
 
-"---------- マップ定義 - レジスタ用キーマップ
+"マップ定義 - レジスタ用キーマップ----------
 " <Leader>mでマーク内容を確認
 nnoremap <Leader>m :<C-u>marks<CR>
 " <Leader>qでレジスタ内容を確認
 nnoremap <Leader>q :<C-u>registers<CR>
 
-"---------- Plug-in用設定
+"Plug-in用設定----------
 " netrw用設定
 " hで上のディレクトリに移動、lでディレクトリを展開もしくはファイルを開く
 AutoCommand FileType netrw nmap <buffer> h -
@@ -900,6 +886,7 @@ let g:unite_winwidth            = 32
 nnoremap [unite] <Nop>
 nnoremap <C-u> <Nop>
 nmap <C-u> [unite]
+
 nnoremap [unite]<Space>        :<C-u>Unite<Space>
 nnoremap [unite]r              :<C-u>Unite ref/
 nnoremap <silent> [unite]<C-u> :<C-u>UniteWithCurrentDir -buffer-name=files buffer file_mru bookmark file<CR>
@@ -913,7 +900,6 @@ nnoremap <silent> [unite]l     :<C-u>Unite line<CR>
 nnoremap <silent> [unite]s     :<C-u>Unite source<CR>
 nnoremap <silent> [unite]b     :<C-u>Unite buffer_tab<CR>
 nnoremap <silent> [unite]g     :<C-u>Unite grep<CR>
-nnoremap <silent> [unite]h     :<C-u>Unite help<CR>
 
 AutoCommand FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
@@ -936,40 +922,12 @@ function! s:unite_my_settings()
     call unite#set_buffer_name_option('files', 'smartcase', 0)
 endfunction
 
-" neocomplcache.vim用設定
-let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_enable_camel_case_completion = 1
-let g:neocomplcache_enable_underbar_completion = 1
-let g:neocomplcache_enable_auto_delimiter = 1
-let g:neocomplcache_min_syntax_length = 3
-let g:neocomplcache_max_filename_width = 30
-let g:neocomplcache_enable_smart_case = 1
-let g:neocomplcache_quick_match_patterns = { 'default' : '@' }
-let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_temporary_dir = $DOTVIM . '/tmp/neocon'
-" <C-l>でsnippet補完
-imap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
-smap <expr><C-l> "\<Plug>(neocomplcache_snippets_expand)"
-" <CR>, <C-h>, <BS>, <Space>でポップアップの消去
-inoremap <expr><CR> neocomplcache#smart_close_popup() . "\<CR>"
-inoremap <expr><C-h> neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr><BS> neocomplcache#smart_close_popup() . "\<C-h>"
-inoremap <expr><Space> neocomplcache#smart_close_popup() . "\<Space>"
-inoremap <expr><C-y> neocomplcache#close_popup()
-inoremap <expr><C-b> neocomplcache#cansel_popup()
-
-" vimshell用設定
-nnoremap <Leader>s :<C-u>VimShell<CR>
-let g:vimshell_temporary_directory = $DOTVIM . '/tmp/vimshell'
-let g:vimshell_enable_smart_case = 1
-let g:vimshell_split_height = 50
-
-" echodoc用設定
-let g:echodoc_enable_at_startup = 1
-
-" ref.vim用設定
-let g:ref_cache_dir     = $DOTVIM . '/tmp/ref'
-let g:ref_use_vimproc   = 1
+" vim-quickrun用設定
+nnoremap qr :<C-u>QuickRun<Space>-args<Space>
+let g:quickrun_config = {'runmode': 'async:remote:vimproc'}
+" Windows用Perl設定
+if executable('Perl') && s:chk_win
+    let g:quickrun_config.perl = {'output_encode': 'cp932'}
+endif
 
 set secure

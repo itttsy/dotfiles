@@ -17,7 +17,7 @@ hi Normal       term=none                 ctermfg=7  ctermbg=0  gui=none      gu
 hi Directory    term=bold      cterm=bold ctermfg=10                          guifg=#40e0d0
 hi Search       term=reverse              ctermfg=7  ctermbg=2                guifg=#d3d3d3 guibg=#2e8b57
 hi MoreMsg      term=none      cterm=bold ctermfg=2             gui=bold      guifg=#2e8b57
-hi ModeMsg      term=bold      cterm=bold ctermfg=15 ctermbg=2  gui=bold      guifg=#fffafa guibg=#000000
+hi ModeMsg      term=bold      cterm=bold ctermfg=0  ctermbg=2  gui=bold      guifg=#fffafa guibg=#000000
 hi LineNr       term=underline cterm=bold ctermfg=3                           guifg=#008b8b
 hi CursorLine   term=none      cterm=none                       gui=none                    guibg=#0f1f1f
 hi Question     term=standout  cterm=bold ctermfg=2             gui=bold      guifg=#006400
@@ -38,7 +38,7 @@ hi DiffAdd      term=reverse                         ctermbg=1                  
 hi DiffChange   term=reverse                         ctermbg=8                              guibg=#a9a9a9
 hi DiffDelete   term=reverse                         ctermbg=4  gui=bold                    guibg=#dc143c
 hi DiffText     term=reverse   cterm=bold ctermfg=12 ctermbg=8  gui=bold      guifg=#ff0000 guibg=#a9a9a9
-hi StatusLine   term=none      cterm=bold ctermfg=10 ctermbg=3  gui=none      guifg=#0f2f2f guibg=#8fbc8f
+hi StatusLine   term=none      cterm=bold ctermfg=0  ctermbg=3  gui=none      guifg=#0f2f2f guibg=#8fbc8f
 hi VertSplit                                                    gui=none      guifg=#000000 guibg=#8fbc8f
 hi FoldColumn                                                   gui=none      guifg=#000000 guibg=#2e8b57
 hi Pmenu        term=none      cterm=none ctermfg=7  ctermbg=3                guifg=#000000 guibg=#20b2aa

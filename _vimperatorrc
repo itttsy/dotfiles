@@ -4,8 +4,7 @@ mapclear
 cmapclear
 imapclear
 
-" 基本設定
-
+"基本設定----------
 " ブラウザタイトルの変更
 set titlestring=Vimfox
 
@@ -51,7 +50,7 @@ set editor="gvim -f -c ':set fenc=utf8'"
 " コマンドラインへの移行時にIMEを指定の状態に切り替える
 style -name commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
 
-" Firefoxに関する設定
+"Firefoxに関する設定----------
 " アクセスキーを無効にする
 set! ui.key.generalAccessKey=0
 
@@ -91,14 +90,28 @@ set! browser.sessionstore.max_tabs_undo=30
 set! browser.sessionhistory.max_total_viewers=5
 set! browser.tabs.loadInBackground=false
 
-" 視覚に関する設定
+"視覚に関する設定----------
 " ヒントモードに使う文字の指定
 set hintchars=;asdfghjkl
 
 " 日付を表示
 command! date echo Date()
 
-" 操作に関する設定
+" Vimperatorボタンにする
+javascript <<EOM
+var button = document.getElementById("appmenu-button");
+
+if (button) {
+    button.label = config.name;
+    options.add(["fxbuttonlabel"], "Edit Firefox button's label",
+        "string", config.name, {
+            setter: function (val) button.label = val,
+            getter: function () button.label,
+        });
+}
+EOM
+
+"操作に関する設定----------
 " Insertモードでキーバインドが効くようにする
 javascript <<EOM
 window.addEventListener('keypress',
@@ -178,7 +191,7 @@ cnoremap <C-n> <Down>
 inoremap <C-f> <ESC>f
 cnoremap <C-f> <ESC>f
 
-" プラグインに関する設定
+"プラグインに関する設定----------
 " lazyコマンドを用意する
 command! lazy -nargs=+ autocmd VimperatorEnter .* <args>
 " lo.js
@@ -232,7 +245,7 @@ userContext.ggl = function getGoogleShortenURL(url, callback){
 }
 EOM
 
-" JavaScriptに関する設定
+"JavaScriptに関する設定----------
 " ワンライナーのための設定
 javascript <<EOM
 modules.__defineGetter__("doc", function() content.document.wrappedJSObject);

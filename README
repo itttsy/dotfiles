@@ -1,16 +1,9 @@
 vim plugin I use
-    echodoc
-    neocomplcache
     skk.vim
     unite.vim
-    unite-help
-    unite-outline
     vim-pathogen
     vimproc
     vim-quickrun
-    vim-ref
-    vimshell
-    vim-surround
 vimperator plugin I use
     _libly.js
     auto_detect_link.js
